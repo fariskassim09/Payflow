@@ -45,17 +45,22 @@ export default function SwipeableCategory({
     if (Math.abs(diff) > 50) {
       setIsSwiping(true);
       if (diff > 50) {
-        // Swiped left
+        // Swiped left - open actions
         setIsOpen(true);
       } else if (diff < -50) {
-        // Swiped right
+        // Swiped right - close actions
         setIsOpen(false);
       }
     }
   };
 
-  const handleClick = () => {
-    // Only trigger tap if not swiping
+  const handleClick = (e: React.MouseEvent) => {
+    // Don't trigger tap if clicking on buttons
+    if ((e.target as HTMLElement).closest('button')) {
+      return;
+    }
+    
+    // Only trigger tap if not swiping and not open
     if (!isSwiping && !isOpen && onTap) {
       onTap(id);
     }
@@ -89,6 +94,24 @@ export default function SwipeableCategory({
       onTouchStart={handleTouchStart}
       onTouchEnd={handleTouchEnd}
     >
+      {/* Hidden action buttons - visible when swiped */}
+      <div className="absolute inset-0 flex items-center justify-end gap-2 bg-secondary/20 px-2 z-0">
+        <button
+          onClick={handleMarkPaid}
+          className="flex items-center gap-1 px-2 py-2 bg-accent text-accent-foreground rounded-lg hover:bg-accent/90 transition-all duration-300 text-xs font-medium whitespace-nowrap"
+        >
+          {isPaid ? <Circle size={16} /> : <CheckCircle2 size={16} />}
+          {isPaid ? 'Unpaid' : 'Paid'}
+        </button>
+        <button
+          onClick={handleDelete}
+          className="flex items-center gap-1 px-2 py-2 bg-destructive text-destructive-foreground rounded-lg hover:bg-destructive/90 transition-all duration-300 text-xs font-medium whitespace-nowrap"
+        >
+          <Trash2 size={16} />
+          Delete
+        </button>
+      </div>
+
       {/* Main content - slides left when open */}
       <div
         ref={contentRef}
@@ -115,25 +138,7 @@ export default function SwipeableCategory({
         </p>
       </div>
 
-      {/* Hidden action buttons - visible when swiped */}
-      <div className="absolute inset-0 flex items-center justify-end gap-2 bg-secondary/20 px-2 z-0">
-        <button
-          onClick={handleMarkPaid}
-          className="flex items-center gap-1 px-2 py-2 bg-accent text-accent-foreground rounded-lg hover:bg-accent/90 transition-all duration-300 text-xs font-medium whitespace-nowrap"
-        >
-          {isPaid ? <Circle size={16} /> : <CheckCircle2 size={16} />}
-          {isPaid ? 'Unpaid' : 'Paid'}
-        </button>
-        <button
-          onClick={handleDelete}
-          className="flex items-center gap-1 px-2 py-2 bg-destructive text-destructive-foreground rounded-lg hover:bg-destructive/90 transition-all duration-300 text-xs font-medium whitespace-nowrap"
-        >
-          <Trash2 size={16} />
-          Delete
-        </button>
-      </div>
-
-      {/* Close button when open */}
+      {/* Close button overlay when open */}
       {isOpen && (
         <button
           onClick={() => setIsOpen(false)}
