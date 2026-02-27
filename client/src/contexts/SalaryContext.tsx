@@ -6,6 +6,7 @@ export interface BudgetItem {
   icon: string;
   percentage: number;
   group: 'NEEDS' | 'WANTS' | 'SAVINGS' | 'DEBTS';
+  isPaid?: boolean;
 }
 
 export interface BudgetGroup {
@@ -20,6 +21,7 @@ interface SalaryContextType {
   updateBudgetItem: (id: string, percentage: number) => void;
   addBudgetItem: (item: BudgetItem) => void;
   removeBudgetItem: (id: string) => void;
+  togglePaidStatus: (id: string) => void;
   getBudgetsByGroup: (group: 'NEEDS' | 'WANTS' | 'SAVINGS' | 'DEBTS') => BudgetItem[];
   getTotalPercentage: () => number;
 }
@@ -30,20 +32,20 @@ export function SalaryProvider({ children }: { children: React.ReactNode }) {
   const [expectedSalary, setExpectedSalary] = useState(3400);
   const [budgetItems, setBudgetItems] = useState<BudgetItem[]>([
     // NEEDS
-    { id: 'sewa', name: 'Sewa', icon: '🏠', percentage: 9, group: 'NEEDS' },
-    { id: 'motorcycle', name: 'Motorcycle service', icon: '🔧', percentage: 2, group: 'NEEDS' },
-    { id: 'pba', name: 'Pba', icon: '💧', percentage: 1, group: 'NEEDS' },
-    { id: 'thb', name: 'Thb', icon: '⚡', percentage: 1, group: 'NEEDS' },
-    { id: 'prudential', name: 'Prudential', icon: '🏥', percentage: 4, group: 'NEEDS' },
-    { id: 'hibah', name: 'Hibah', icon: '🏥', percentage: 3, group: 'NEEDS' },
-    { id: 'mak', name: 'Mak & Ayah', icon: '👨‍👩‍👧', percentage: 9, group: 'NEEDS' },
+    { id: 'sewa', name: 'Sewa', icon: '🏠', percentage: 9, group: 'NEEDS', isPaid: false },
+    { id: 'motorcycle', name: 'Motorcycle service', icon: '🔧', percentage: 2, group: 'NEEDS', isPaid: false },
+    { id: 'pba', name: 'Pba', icon: '💧', percentage: 1, group: 'NEEDS', isPaid: false },
+    { id: 'thb', name: 'Thb', icon: '⚡', percentage: 1, group: 'NEEDS', isPaid: false },
+    { id: 'prudential', name: 'Prudential', icon: '🏥', percentage: 4, group: 'NEEDS', isPaid: false },
+    { id: 'hibah', name: 'Hibah', icon: '🏥', percentage: 3, group: 'NEEDS', isPaid: false },
+    { id: 'mak', name: 'Mak & Ayah', icon: '👨‍👩‍👧', percentage: 9, group: 'NEEDS', isPaid: false },
     // WANTS
-    { id: 'food', name: 'Food & Dining', icon: '🍽️', percentage: 8, group: 'WANTS' },
-    { id: 'entertainment', name: 'Entertainment', icon: '🎮', percentage: 5, group: 'WANTS' },
+    { id: 'food', name: 'Food & Dining', icon: '🍽️', percentage: 8, group: 'WANTS', isPaid: false },
+    { id: 'entertainment', name: 'Entertainment', icon: '🎮', percentage: 5, group: 'WANTS', isPaid: false },
     // SAVINGS
-    { id: 'savings', name: 'Savings', icon: '💰', percentage: 40, group: 'SAVINGS' },
+    { id: 'savings', name: 'Savings', icon: '💰', percentage: 40, group: 'SAVINGS', isPaid: false },
     // DEBTS
-    { id: 'loan', name: 'Loan Payment', icon: '💳', percentage: 8, group: 'DEBTS' },
+    { id: 'loan', name: 'Loan Payment', icon: '💳', percentage: 8, group: 'DEBTS', isPaid: false },
   ]);
 
   const updateBudgetItem = (id: string, percentage: number) => {
@@ -58,6 +60,12 @@ export function SalaryProvider({ children }: { children: React.ReactNode }) {
 
   const removeBudgetItem = (id: string) => {
     setBudgetItems(items => items.filter(item => item.id !== id));
+  };
+
+  const togglePaidStatus = (id: string) => {
+    setBudgetItems(items =>
+      items.map(item => (item.id === id ? { ...item, isPaid: !item.isPaid } : item))
+    );
   };
 
   const getBudgetsByGroup = (group: 'NEEDS' | 'WANTS' | 'SAVINGS' | 'DEBTS') => {
@@ -77,6 +85,7 @@ export function SalaryProvider({ children }: { children: React.ReactNode }) {
         updateBudgetItem,
         addBudgetItem,
         removeBudgetItem,
+        togglePaidStatus,
         getBudgetsByGroup,
         getTotalPercentage,
       }}

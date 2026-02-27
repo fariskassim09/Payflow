@@ -1,6 +1,6 @@
-import { ChevronRight } from 'lucide-react';
 import { BudgetItem } from '@/contexts/SalaryContext';
 import { useSalary } from '@/contexts/SalaryContext';
+import SwipeableCategory from './SwipeableCategory';
 
 interface CategoryGroupProps {
   group: 'NEEDS' | 'WANTS' | 'SAVINGS' | 'DEBTS';
@@ -22,7 +22,7 @@ const groupLabels: Record<string, string> = {
 };
 
 export default function CategoryGroup({ group, items }: CategoryGroupProps) {
-  const { expectedSalary } = useSalary();
+  const { expectedSalary, togglePaidStatus, removeBudgetItem } = useSalary();
 
   const groupTotal = items.reduce((sum, item) => sum + item.percentage, 0);
   const groupAmount = (expectedSalary * groupTotal) / 100;
@@ -44,30 +44,17 @@ export default function CategoryGroup({ group, items }: CategoryGroupProps) {
         {items.map((item) => {
           const amount = (expectedSalary * item.percentage) / 100;
           return (
-            <div
+            <SwipeableCategory
               key={item.id}
-              className="flex items-center justify-between bg-card rounded-2xl p-4 border border-border hover:shadow-lg hover:shadow-accent/10 transition-all duration-300 cursor-pointer group"
-            >
-              <div className="flex items-center gap-3 flex-1">
-                <span className="text-2xl">{item.icon}</span>
-                <div>
-                  <p className="font-semibold text-foreground group-hover:text-accent transition-colors">
-                    {item.name}
-                  </p>
-                  <p className="text-xs text-secondary-foreground">
-                    {item.percentage}% of salary
-                  </p>
-                </div>
-              </div>
-              <div className="flex items-center gap-3">
-                <div className="text-right">
-                  <p className="font-semibold text-accent">
-                    RM {amount.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-                  </p>
-                </div>
-                <ChevronRight size={20} className="text-secondary-foreground group-hover:text-accent transition-colors" />
-              </div>
-            </div>
+              id={item.id}
+              icon={item.icon}
+              name={item.name}
+              percentage={item.percentage}
+              amount={amount}
+              isPaid={item.isPaid}
+              onMarkPaid={togglePaidStatus}
+              onDelete={removeBudgetItem}
+            />
           );
         })}
       </div>
