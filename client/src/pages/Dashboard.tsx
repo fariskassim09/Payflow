@@ -3,7 +3,7 @@ import { Plus } from 'lucide-react';
 import BottomNavigation from '@/components/BottomNavigation';
 import MonthNavigation from '@/components/MonthNavigation';
 import SalaryCard from '@/components/SalaryCard';
-import DualSalaryCard from '@/components/DualSalaryCard';
+import CombinedSalaryCard from '@/components/CombinedSalaryCard';
 import CategoryGroup from '@/components/CategoryGroup';
 import EditSalaryModal from '@/components/EditSalaryModal';
 import EditDualSalaryModal from '@/components/EditDualSalaryModal';
@@ -55,7 +55,7 @@ export default function Dashboard() {
           {salaryFrequency === '1x' ? (
             <SalaryCard onEditClick={() => setIsEditModalOpen(true)} currentMonth={currentMonth} />
           ) : (
-            <DualSalaryCard onEditMid={handleEditMidSalary} onEditEnd={handleEditEndSalary} currentMonth={currentMonth} />
+            <CombinedSalaryCard onEditMid={handleEditMidSalary} onEditEnd={handleEditEndSalary} currentMonth={currentMonth} />
           )}
         </div>
 
