@@ -26,6 +26,7 @@ export default function SwipeableCategory({
   const [isOpen, setIsOpen] = useState(false);
   const [startX, setStartX] = useState(0);
   const containerRef = useRef<HTMLDivElement>(null);
+  const contentRef = useRef<HTMLDivElement>(null);
 
   const handleTouchStart = (e: React.TouchEvent) => {
     setStartX(e.touches[0].clientX);
@@ -67,28 +68,11 @@ export default function SwipeableCategory({
       onTouchStart={handleTouchStart}
       onTouchEnd={handleTouchEnd}
     >
-      {/* Hidden action buttons */}
-      <div className="absolute inset-0 flex items-center justify-end gap-2 bg-destructive/10 px-4 z-0">
-        <button
-          onClick={handleMarkPaid}
-          className="flex items-center gap-2 px-3 py-2 bg-accent text-accent-foreground rounded-lg hover:bg-accent/90 transition-all duration-300 text-sm font-medium"
-        >
-          {isPaid ? <Circle size={18} /> : <CheckCircle2 size={18} />}
-          {isPaid ? 'Unpaid' : 'Paid'}
-        </button>
-        <button
-          onClick={handleDelete}
-          className="flex items-center gap-2 px-3 py-2 bg-destructive text-destructive-foreground rounded-lg hover:bg-destructive/90 transition-all duration-300 text-sm font-medium"
-        >
-          <Trash2 size={18} />
-          Delete
-        </button>
-      </div>
-
-      {/* Main content */}
+      {/* Main content - slides left when open */}
       <div
-        className={`bg-card border border-border p-4 flex items-center justify-between transition-all duration-300 ${
-          isOpen ? 'translate-x-[-140px]' : 'translate-x-0'
+        ref={contentRef}
+        className={`bg-card border border-border p-4 flex items-center justify-between transition-all duration-300 relative z-10 ${
+          isOpen ? 'translate-x-[-160px]' : 'translate-x-0'
         }`}
       >
         <div className="flex items-center gap-3 flex-1">
@@ -105,11 +89,29 @@ export default function SwipeableCategory({
         </p>
       </div>
 
+      {/* Hidden action buttons - visible when swiped */}
+      <div className="absolute inset-0 flex items-center justify-end gap-2 bg-secondary/20 px-2 z-0">
+        <button
+          onClick={handleMarkPaid}
+          className="flex items-center gap-1 px-2 py-2 bg-accent text-accent-foreground rounded-lg hover:bg-accent/90 transition-all duration-300 text-xs font-medium whitespace-nowrap"
+        >
+          {isPaid ? <Circle size={16} /> : <CheckCircle2 size={16} />}
+          {isPaid ? 'Unpaid' : 'Paid'}
+        </button>
+        <button
+          onClick={handleDelete}
+          className="flex items-center gap-1 px-2 py-2 bg-destructive text-destructive-foreground rounded-lg hover:bg-destructive/90 transition-all duration-300 text-xs font-medium whitespace-nowrap"
+        >
+          <Trash2 size={16} />
+          Delete
+        </button>
+      </div>
+
       {/* Close button when open */}
       {isOpen && (
         <button
           onClick={() => setIsOpen(false)}
-          className="absolute inset-0 z-10"
+          className="absolute inset-0 z-20"
           aria-label="Close actions"
         />
       )}
