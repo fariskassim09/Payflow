@@ -1,20 +1,20 @@
 import { useState } from 'react';
 import BottomNavigation from '@/components/BottomNavigation';
 import GoogleLoginButton from '@/components/GoogleLoginButton';
-import { Bell, Lock, HelpCircle, Info, Cloud } from 'lucide-react';
+import SharedPartnerModal from '@/components/SharedPartnerModal';
+import { Lock, HelpCircle, Info, Cloud, Share2 } from 'lucide-react';
 
 // Design Philosophy: Salary Allocation Planner
 // - Clean settings interface with toggle switches
 // - Organized sections with clear hierarchy
 // - Google Firebase authentication for data sync
+// - Shared partner feature for sharing salary summary
 
 export default function Settings() {
   const [settings, setSettings] = useState({
-    notifications: true,
-    monthlyReminders: true,
-    budgetAlerts: true,
     darkMode: true,
   });
+  const [isSharedPartnerOpen, setIsSharedPartnerOpen] = useState(false);
 
   const toggleSetting = (key: keyof typeof settings) => {
     setSettings(prev => ({
@@ -29,14 +29,19 @@ export default function Settings() {
     description,
     toggle,
     value,
+    onClick,
   }: {
     icon: React.ReactNode;
     title: string;
     description: string;
     toggle?: keyof typeof settings;
     value?: boolean;
+    onClick?: () => void;
   }) => (
-    <div className="flex items-center justify-between p-4 bg-card rounded-2xl border border-border hover:shadow-lg hover:shadow-accent/10 transition-all duration-300 active:scale-95">
+    <button
+      onClick={onClick}
+      className="w-full text-left flex items-center justify-between p-4 bg-card rounded-2xl border border-border hover:shadow-lg hover:shadow-accent/10 transition-all duration-300 active:scale-95"
+    >
       <div className="flex items-center gap-4">
         <div className="text-accent">{Icon}</div>
         <div>
@@ -46,7 +51,10 @@ export default function Settings() {
       </div>
       {toggle && (
         <button
-          onClick={() => toggleSetting(toggle)}
+          onClick={(e) => {
+            e.stopPropagation();
+            toggleSetting(toggle);
+          }}
           className={`relative w-12 h-6 rounded-full transition-all duration-300 ${
             value ? 'bg-accent' : 'bg-secondary'
           }`}
@@ -58,7 +66,7 @@ export default function Settings() {
           />
         </button>
       )}
-    </div>
+    </button>
   );
 
   return (
@@ -80,32 +88,18 @@ export default function Settings() {
           <GoogleLoginButton />
         </div>
 
-        {/* Notifications Section */}
+        {/* Shared Partner Section */}
         <div className="mb-12 animate-fade-in" style={{ animationDelay: '0.1s' }}>
-          <h2 className="text-lg font-semibold mb-4 text-foreground">Notifications</h2>
-          <div className="space-y-3">
-            <SettingItem
-              icon={<Bell size={24} />}
-              title="Enable Notifications"
-              description="Receive app notifications"
-              toggle="notifications"
-              value={settings.notifications}
-            />
-            <SettingItem
-              icon={<Bell size={24} />}
-              title="Monthly Reminders"
-              description="Get reminded at the start of each month"
-              toggle="monthlyReminders"
-              value={settings.monthlyReminders}
-            />
-            <SettingItem
-              icon={<Bell size={24} />}
-              title="Budget Alerts"
-              description="Alert when approaching allocation limits"
-              toggle="budgetAlerts"
-              value={settings.budgetAlerts}
-            />
+          <div className="flex items-center gap-2 mb-4">
+            <Share2 size={20} className="text-accent" />
+            <h2 className="text-lg font-semibold text-foreground">Shared Partner</h2>
           </div>
+          <SettingItem
+            icon={<Share2 size={24} />}
+            title="Share Summary"
+            description="Generate code to share your salary summary with partner"
+            onClick={() => setIsSharedPartnerOpen(true)}
+          />
         </div>
 
         {/* Display Section */}
@@ -126,20 +120,16 @@ export default function Settings() {
         <div className="mb-12 animate-fade-in" style={{ animationDelay: '0.3s' }}>
           <h2 className="text-lg font-semibold mb-4 text-foreground">Help & Support</h2>
           <div className="space-y-3">
-            <button className="w-full text-left transition-all duration-300 active:scale-95">
-              <SettingItem
-                icon={<HelpCircle size={24} />}
-                title="FAQ"
-                description="Frequently asked questions"
-              />
-            </button>
-            <button className="w-full text-left transition-all duration-300 active:scale-95">
-              <SettingItem
-                icon={<Info size={24} />}
-                title="About"
-                description="App version and information"
-              />
-            </button>
+            <SettingItem
+              icon={<HelpCircle size={24} />}
+              title="FAQ"
+              description="Frequently asked questions"
+            />
+            <SettingItem
+              icon={<Info size={24} />}
+              title="About"
+              description="App version and information"
+            />
           </div>
         </div>
 
@@ -148,10 +138,13 @@ export default function Settings() {
           <p className="text-secondary-foreground text-sm mb-2">Salary Planner</p>
           <p className="text-foreground font-semibold mb-4">Version 1.0.0</p>
           <p className="text-xs text-secondary-foreground">
-            Premium salary allocation planner with Firebase sync
+            Premium salary allocation planner with Firebase sync and partner sharing
           </p>
         </div>
       </main>
+
+      {/* Shared Partner Modal */}
+      <SharedPartnerModal isOpen={isSharedPartnerOpen} onClose={() => setIsSharedPartnerOpen(false)} />
 
       {/* Bottom Navigation */}
       <BottomNavigation />
