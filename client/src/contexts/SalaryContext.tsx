@@ -1,4 +1,5 @@
-import React, { createContext, useContext, useState } from 'react';
+import React, { createContext, useContext, useState, useEffect } from 'react';
+import { saveSalaryDataLocal, loadSalaryDataLocal, isLocalStorageAvailable } from '@/lib/storageService';
 
 export interface BudgetItem {
   id: string;
@@ -53,14 +54,29 @@ const SalaryContext = createContext<SalaryContextType | undefined>(undefined);
 
 export function SalaryProvider({ children }: { children: React.ReactNode }) {
   const DEFAULT_SALARY = 3400;
-  const [salaryFrequency, setSalaryFrequency] = useState<'1x' | '2x'>('1x');
+  const [isInitialized, setIsInitialized] = useState(false);
+  
+  // Load from localStorage on mount
+  const loadInitialData = () => {
+    if (isLocalStorageAvailable()) {
+      const stored = loadSalaryDataLocal();
+      if (stored) {
+        return stored;
+      }
+    }
+    return null;
+  };
+
+  const initialData = loadInitialData();
+  
+  const [salaryFrequency, setSalaryFrequencyState] = useState<'1x' | '2x'>(initialData?.salaryFrequency || '1x');
   const [expectedSalary, setExpectedSalary] = useState(DEFAULT_SALARY);
-  const [monthlySalaries, setMonthlySalaries] = useState<MonthlySalary[]>([
-    { year: 2026, month: 1, midSalary: 1700, endSalary: 1700 }, // February 2026
-  ]);
+  const [monthlySalaries, setMonthlySalariesState] = useState<MonthlySalary[]>(
+    initialData?.monthlySalaries || [{ year: 2026, month: 1, midSalary: 1700, endSalary: 1700 }]
+  );
   const currentDate = new Date(2026, 1); // February 2026
   
-  const [budgetItems, setBudgetItems] = useState<BudgetItem[]>([
+  const [budgetItems, setBudgetItemsState] = useState<BudgetItem[]>(initialData?.budgetItems || [
     // NEEDS - Full month (1x salary)
     { id: 'sewa', name: 'Sewa', icon: '🏠', percentage: 9, group: 'NEEDS', isPaid: false, repeatNextMonth: true, createdAt: currentDate, salaryType: 'full' },
     { id: 'motorcycle', name: 'Motorcycle service', icon: '🔧', percentage: 2, group: 'NEEDS', isPaid: false, repeatNextMonth: true, createdAt: currentDate, salaryType: 'full' },
@@ -77,6 +93,22 @@ export function SalaryProvider({ children }: { children: React.ReactNode }) {
     // DEBTS
     { id: 'loan', name: 'Loan Payment', icon: '💳', percentage: 8, group: 'DEBTS', isPaid: false, repeatNextMonth: true, createdAt: currentDate, salaryType: 'full' },
   ]);
+
+  // Save to localStorage whenever data changes
+  useEffect(() => {
+    if (isInitialized && isLocalStorageAvailable()) {
+      saveSalaryDataLocal({
+        salaryFrequency,
+        budgetItems,
+        monthlySalaries,
+      });
+    }
+  }, [salaryFrequency, budgetItems, monthlySalaries, isInitialized]);
+
+  // Mark as initialized after first render
+  useEffect(() => {
+    setIsInitialized(true);
+  }, []);
 
   const getMonthlySalary = (date: Date): number => {
     const existing = monthlySalaries.find(
@@ -104,7 +136,7 @@ export function SalaryProvider({ children }: { children: React.ReactNode }) {
   };
 
   const setMonthlySalary = (date: Date, salary: number) => {
-    setMonthlySalaries(prev => {
+    setMonthlySalariesState(prev => {
       const existing = prev.find(
         ms => ms.year === date.getFullYear() && ms.month === date.getMonth()
       );
@@ -122,7 +154,7 @@ export function SalaryProvider({ children }: { children: React.ReactNode }) {
   };
 
   const setMidMonthlySalary = (date: Date, salary: number) => {
-    setMonthlySalaries(prev => {
+    setMonthlySalariesState(prev => {
       const existing = prev.find(
         ms => ms.year === date.getFullYear() && ms.month === date.getMonth()
       );
@@ -139,7 +171,7 @@ export function SalaryProvider({ children }: { children: React.ReactNode }) {
   };
 
   const setEndMonthlySalary = (date: Date, salary: number) => {
-    setMonthlySalaries(prev => {
+    setMonthlySalariesState(prev => {
       const existing = prev.find(
         ms => ms.year === date.getFullYear() && ms.month === date.getMonth()
       );
@@ -156,94 +188,80 @@ export function SalaryProvider({ children }: { children: React.ReactNode }) {
   };
 
   const resetMonthlySalary = (date: Date) => {
-    setMonthlySalaries(prev => {
-      const existing = prev.find(
-        ms => ms.year === date.getFullYear() && ms.month === date.getMonth()
-      );
-      if (existing) {
-        return prev.map(ms =>
-          ms.year === date.getFullYear() && ms.month === date.getMonth()
-            ? { ...ms, midSalary: DEFAULT_SALARY / 2, endSalary: DEFAULT_SALARY / 2 }
-            : ms
-        );
-      } else {
-        return [...prev, { year: date.getFullYear(), month: date.getMonth(), midSalary: DEFAULT_SALARY / 2, endSalary: DEFAULT_SALARY / 2 }];
-      }
-    });
+    setMonthlySalariesState(prev =>
+      prev.map(ms =>
+        ms.year === date.getFullYear() && ms.month === date.getMonth()
+          ? { ...ms, midSalary: DEFAULT_SALARY / 2, endSalary: DEFAULT_SALARY / 2 }
+          : ms
+      )
+    );
   };
 
   const updateBudgetItem = (id: string, updates: Partial<BudgetItem>) => {
-    setBudgetItems(items =>
-      items.map(item => (item.id === id ? { ...item, ...updates } : item))
+    setBudgetItemsState(prev =>
+      prev.map(item => (item.id === id ? { ...item, ...updates } : item))
     );
   };
 
   const addBudgetItem = (item: BudgetItem) => {
-    setBudgetItems(items => [...items, { ...item, createdAt: item.createdAt || new Date(), salaryType: item.salaryType || 'full' }]);
+    setBudgetItemsState(prev => [...prev, item]);
   };
 
   const removeBudgetItem = (id: string) => {
-    setBudgetItems(items => items.filter(item => item.id !== id));
+    setBudgetItemsState(prev => prev.filter(item => item.id !== id));
   };
 
   const togglePaidStatus = (id: string) => {
-    setBudgetItems(items =>
-      items.map(item => (item.id === id ? { ...item, isPaid: !item.isPaid } : item))
-    );
+    updateBudgetItem(id, { isPaid: !budgetItems.find(item => item.id === id)?.isPaid });
   };
 
   const deductFromSalary = (id: string, amount: number, salaryType: 'mid' | 'end') => {
-    updateBudgetItem(id, { amount, salaryType });
+    updateBudgetItem(id, { amount });
   };
 
   const getBudgetsByGroup = (group: 'NEEDS' | 'WANTS' | 'SAVINGS' | 'DEBTS', currentMonth?: Date, salaryType?: 'full' | 'mid' | 'end') => {
-    const month = currentMonth || new Date(2026, 1);
-    
-    return budgetItems.filter(item => {
+    const items = budgetItems.filter(item => {
       if (item.group !== group) return false;
       
-      if (item.createdAt) {
-        const createdDate = new Date(item.createdAt);
-        const isSameMonth = createdDate.getFullYear() === month.getFullYear() && 
-                           createdDate.getMonth() === month.getMonth();
-        if (isSameMonth) {
-          if (salaryType && item.salaryType !== salaryType) return false;
-          return true;
+      if (currentMonth && item.createdAt) {
+        const itemDate = new Date(item.createdAt);
+        const isSameMonth = itemDate.getFullYear() === currentMonth.getFullYear() && itemDate.getMonth() === currentMonth.getMonth();
+        
+        if (!isSameMonth) {
+          // Check if item repeats to this month
+          if (!item.repeatNextMonth) return false;
         }
       }
       
-      if (item.repeatNextMonth === true) {
-        if (salaryType && item.salaryType !== salaryType) return false;
-        return true;
-      }
+      if (salaryType && item.salaryType && item.salaryType !== salaryType) return false;
       
-      return false;
+      return true;
     });
+    
+    return items;
   };
 
   const getTotalPercentage = (currentMonth?: Date, salaryType?: 'full' | 'mid' | 'end') => {
-    const items = budgetItems.filter(item => {
-      const month = currentMonth || new Date(2026, 1);
-      
-      if (item.createdAt) {
-        const createdDate = new Date(item.createdAt);
-        const isSameMonth = createdDate.getFullYear() === month.getFullYear() && 
-                           createdDate.getMonth() === month.getMonth();
-        if (isSameMonth) {
-          if (salaryType && item.salaryType !== salaryType) return false;
-          return true;
-        }
-      }
-      
-      if (item.repeatNextMonth === true) {
-        if (salaryType && item.salaryType !== salaryType) return false;
-        return true;
-      }
-      
-      return false;
-    });
+    const groups: Array<'NEEDS' | 'WANTS' | 'SAVINGS' | 'DEBTS'> = ['NEEDS', 'WANTS', 'SAVINGS', 'DEBTS'];
     
-    return items.reduce((sum, item) => sum + item.percentage, 0);
+    return groups.reduce((total, group) => {
+      const items = getBudgetsByGroup(group, currentMonth, salaryType);
+      
+      return total + items.reduce((sum, item) => {
+        if (currentMonth && item.createdAt) {
+          const itemDate = new Date(item.createdAt);
+          const isSameMonth = itemDate.getFullYear() === currentMonth.getFullYear() && itemDate.getMonth() === currentMonth.getMonth();
+          
+          if (!isSameMonth && !item.repeatNextMonth) return sum;
+        }
+        
+        return sum + item.percentage;
+      }, 0);
+    }, 0);
+  };
+
+  const setSalaryFrequency = (frequency: '1x' | '2x') => {
+    setSalaryFrequencyState(frequency);
   };
 
   return (
@@ -253,6 +271,7 @@ export function SalaryProvider({ children }: { children: React.ReactNode }) {
         setSalaryFrequency,
         expectedSalary,
         setExpectedSalary,
+        monthlySalaries,
         getMonthlySalary,
         getMidMonthlySalary,
         getEndMonthlySalary,
@@ -268,7 +287,6 @@ export function SalaryProvider({ children }: { children: React.ReactNode }) {
         deductFromSalary,
         getBudgetsByGroup,
         getTotalPercentage,
-        monthlySalaries,
         getMonthlySalariesData: () => monthlySalaries,
       }}
     >
