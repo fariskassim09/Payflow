@@ -16,6 +16,7 @@ import { useSalary } from '@/contexts/SalaryContext';
 // - Blue gradient salary card with allocation breakdown
 // - Grouped budget categories (NEEDS, WANTS, SAVINGS, DEBTS)
 // - Support for 1x and 2x monthly salary
+// - Category filtering by salary cycle (All, Mid-Month, End-Month)
 // - Smooth animations and transitions
 
 export default function Dashboard() {
@@ -27,11 +28,17 @@ export default function Dashboard() {
   const [selectedCategoryId, setSelectedCategoryId] = useState<string | null>(null);
   const [isCategoryDetailsOpen, setIsCategoryDetailsOpen] = useState(false);
   const [currentMonth, setCurrentMonth] = useState(new Date(2026, 1)); // February 2026
+  const [salaryTypeFilter, setSalaryTypeFilter] = useState<'all' | 'mid' | 'end'>('all');
 
-  const needsItems = getBudgetsByGroup('NEEDS', currentMonth);
-  const wantsItems = getBudgetsByGroup('WANTS', currentMonth);
-  const savingsItems = getBudgetsByGroup('SAVINGS', currentMonth);
-  const debtsItems = getBudgetsByGroup('DEBTS', currentMonth);
+  const getFilteredItems = (items: any[]) => {
+    if (salaryTypeFilter === 'all') return items;
+    return items.filter(item => item.salaryType === salaryTypeFilter);
+  };
+
+  const needsItems = getFilteredItems(getBudgetsByGroup('NEEDS', currentMonth));
+  const wantsItems = getFilteredItems(getBudgetsByGroup('WANTS', currentMonth));
+  const savingsItems = getFilteredItems(getBudgetsByGroup('SAVINGS', currentMonth));
+  const debtsItems = getFilteredItems(getBudgetsByGroup('DEBTS', currentMonth));
 
   const handleEditMidSalary = () => {
     setEditingSalaryType('mid');
@@ -61,7 +68,29 @@ export default function Dashboard() {
 
         {/* Budget Categories Section */}
         <div className="mb-12">
-          <h2 className="text-xl font-bold mb-6 text-foreground">Budget Categories</h2>
+          <div className="flex items-center justify-between mb-6">
+            <h2 className="text-xl font-bold text-foreground">Budget Categories</h2>
+          </div>
+
+          {/* Filter Tabs - Only show for 2x salary */}
+          {salaryFrequency === '2x' && (
+            <div className="flex gap-2 mb-6 overflow-x-auto pb-2">
+              {(['all', 'mid', 'end'] as const).map((filter) => (
+                <button
+                  key={filter}
+                  onClick={() => setSalaryTypeFilter(filter)}
+                  className={`px-4 py-2 rounded-full font-medium whitespace-nowrap transition-all duration-300 ${
+                    salaryTypeFilter === filter
+                      ? 'bg-accent text-accent-foreground'
+                      : 'bg-secondary border border-border text-foreground hover:border-accent'
+                  }`}
+                >
+                  {filter === 'all' ? 'All' : filter === 'mid' ? 'Mid-Month' : 'End-Month'}
+                </button>
+              ))}
+            </div>
+          )}
+
           <div className="space-y-8">
             {needsItems.length > 0 && (
               <CategoryGroup group="NEEDS" items={needsItems} onCategoryTap={(id) => { setSelectedCategoryId(id); setIsCategoryDetailsOpen(true); }} />
