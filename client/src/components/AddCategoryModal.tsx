@@ -88,17 +88,6 @@ export default function AddCategoryModal({ isOpen, onClose }: AddCategoryModalPr
         {/* Form View */}
         {step === 'form' && (
           <div className="space-y-6">
-            {/* Icon Preview */}
-            <div className="flex justify-center">
-              <div
-                className="w-24 h-24 rounded-2xl flex items-center justify-center text-5xl cursor-pointer hover:opacity-80 transition-opacity"
-                style={{ backgroundColor: `${formData.color}20` }}
-                onClick={() => setStep('icons')}
-              >
-                {formData.icon}
-              </div>
-            </div>
-
             {/* Category Name */}
             <div>
               <label className="block text-sm font-medium text-secondary-foreground mb-2 uppercase">
