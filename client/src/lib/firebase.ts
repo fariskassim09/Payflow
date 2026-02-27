@@ -1,16 +1,15 @@
 import { initializeApp } from 'firebase/app';
 import { getAuth, GoogleAuthProvider } from 'firebase/auth';
 
-// Firebase configuration
-// NOTE: For client-side only implementation, these values are exposed in the browser
-// For production, consider using environment variables or a backend proxy
+// Firebase configuration with real credentials
 const firebaseConfig = {
-  apiKey: 'AIzaSyDemoKeyForDevelopment',
-  authDomain: 'salary-planner-demo.firebaseapp.com',
-  projectId: 'salary-planner-demo',
-  storageBucket: 'salary-planner-demo.appspot.com',
-  messagingSenderId: '123456789',
-  appId: '1:123456789:web:abcdef123456',
+  apiKey: "AIzaSyDaGa9ut78fDSdsUyCo0FFJmxrYiDCj46E",
+  authDomain: "salary-planner-84f78.firebaseapp.com",
+  projectId: "salary-planner-84f78",
+  storageBucket: "salary-planner-84f78.firebasestorage.app",
+  messagingSenderId: "451949648417",
+  appId: "1:451949648417:web:021abc92ea9deeb7586160",
+  measurementId: "G-E7Z387TNEQ"
 };
 
 // Initialize Firebase
