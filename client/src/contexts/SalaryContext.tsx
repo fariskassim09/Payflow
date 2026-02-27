@@ -30,6 +30,7 @@ interface SalaryContextType {
   setSalaryFrequency: (frequency: '1x' | '2x') => void;
   expectedSalary: number;
   setExpectedSalary: (salary: number) => void;
+  monthlySalaries: Array<{ year: number; month: number; midSalary: number; endSalary: number }>;
   getMonthlySalary: (date: Date) => number;
   getMidMonthlySalary: (date: Date) => number;
   getEndMonthlySalary: (date: Date) => number;
@@ -45,6 +46,7 @@ interface SalaryContextType {
   deductFromSalary: (id: string, amount: number, salaryType: 'mid' | 'end') => void;
   getBudgetsByGroup: (group: 'NEEDS' | 'WANTS' | 'SAVINGS' | 'DEBTS', currentMonth?: Date, salaryType?: 'full' | 'mid' | 'end') => BudgetItem[];
   getTotalPercentage: (currentMonth?: Date, salaryType?: 'full' | 'mid' | 'end') => number;
+  getMonthlySalariesData: () => Array<{ year: number; month: number; midSalary: number; endSalary: number }>;
 }
 
 const SalaryContext = createContext<SalaryContextType | undefined>(undefined);
@@ -266,6 +268,8 @@ export function SalaryProvider({ children }: { children: React.ReactNode }) {
         deductFromSalary,
         getBudgetsByGroup,
         getTotalPercentage,
+        monthlySalaries,
+        getMonthlySalariesData: () => monthlySalaries,
       }}
     >
       {children}

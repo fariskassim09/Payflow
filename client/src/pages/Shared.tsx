@@ -1,11 +1,15 @@
 import { useState } from 'react';
+import { useEffect } from 'react';
 import BottomNavigation from '@/components/BottomNavigation';
 import { useSalary } from '@/contexts/SalaryContext';
-import { Eye, EyeOff } from 'lucide-react';
+import { Eye, EyeOff, Loader2 } from 'lucide-react';
+import { loadSharedSummary } from '@/lib/firestoreService';
+import { BudgetItem } from '@/contexts/SalaryContext';
+import { toast } from 'sonner';
 
 // Design Philosophy: Salary Allocation Planner
 // - Shared view for partners to see salary summary
-// - Enter sharing code to view shared data
+// - Enter sharing code to view shared data from Firebase
 // - Read-only view of budget breakdown
 
 export default function Shared() {
@@ -13,6 +17,12 @@ export default function Shared() {
   const [shareCode, setShareCode] = useState('');
   const [isShared, setIsShared] = useState(false);
   const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [sharedData, setSharedData] = useState<{
+    salaryFrequency: '1x' | '2x';
+    budgetItems: BudgetItem[];
+    monthlySalaries: Array<{ year: number; month: number; midSalary: number; endSalary: number }>;
+  } | null>(null);
 
   const groups = [
     { name: 'Needs', icon: '🛒', key: 'NEEDS' as const },
@@ -21,19 +31,35 @@ export default function Shared() {
     { name: 'Savings', icon: '💰', key: 'SAVINGS' as const },
   ];
 
-  const getGroupStats = (groupKey: 'NEEDS' | 'WANTS' | 'SAVINGS' | 'DEBTS') => {
-    const items = getBudgetsByGroup(groupKey);
-    const percentage = items.reduce((sum, item) => sum + item.percentage, 0);
-    const amount = (expectedSalary * percentage) / 100;
+  const getGroupStats = (groupKey: 'NEEDS' | 'WANTS' | 'SAVINGS' | 'DEBTS', items?: BudgetItem[]) => {
+    const itemsToUse = items || getBudgetsByGroup(groupKey);
+    const percentage = itemsToUse.reduce((sum, item) => sum + item.percentage, 0);
+    const salary = sharedData
+      ? sharedData.salaryFrequency === '1x'
+        ? sharedData.monthlySalaries[0]?.midSalary + sharedData.monthlySalaries[0]?.endSalary || 3400
+        : sharedData.monthlySalaries[0]?.midSalary + sharedData.monthlySalaries[0]?.endSalary || 3400
+      : expectedSalary;
+    const amount = (salary * percentage) / 100;
     return { percentage, amount };
   };
 
+  const getCurrentSalary = () => {
+    if (sharedData) {
+      return sharedData.monthlySalaries[0]?.midSalary + sharedData.monthlySalaries[0]?.endSalary || 3400;
+    }
+    return expectedSalary;
+  };
+
   const totalAllocated = groups.reduce((sum, group) => {
-    const stats = getGroupStats(group.key);
+    const items = sharedData
+      ? sharedData.budgetItems.filter(item => item.group === group.key)
+      : getBudgetsByGroup(group.key);
+    const stats = getGroupStats(group.key, items);
     return sum + stats.percentage;
   }, 0);
 
-  const remainingAmount = expectedSalary - (expectedSalary * totalAllocated) / 100;
+  const currentSalary = getCurrentSalary();
+  const remainingAmount = currentSalary - (currentSalary * totalAllocated) / 100;
 
   const getGroupColor = (groupKey: 'NEEDS' | 'WANTS' | 'SAVINGS' | 'DEBTS') => {
     const colors: Record<string, string> = {
@@ -45,13 +71,37 @@ export default function Shared() {
     return colors[groupKey];
   };
 
-  const handleViewShared = () => {
+  const handleViewShared = async () => {
     setError('');
-    // Simple validation - in production, this would verify against actual shared codes
-    if (shareCode.trim().startsWith('SP-')) {
-      setIsShared(true);
-    } else {
-      setError('Invalid sharing code. Please check and try again.');
+    setLoading(true);
+
+    try {
+      if (!shareCode.trim().startsWith('SP-')) {
+        setError('Invalid sharing code format. Please check and try again.');
+        setLoading(false);
+        return;
+      }
+
+      // Load shared data from Firebase
+      const data = await loadSharedSummary(shareCode.trim());
+
+      if (data) {
+        setSharedData({
+          salaryFrequency: data.salaryFrequency,
+          budgetItems: data.budgetItems,
+          monthlySalaries: data.monthlySalaries,
+        });
+        setIsShared(true);
+        toast.success('Shared summary loaded successfully');
+      } else {
+        setError('Sharing code not found. Please check and try again.');
+      }
+    } catch (err) {
+      console.error('Error loading shared summary:', err);
+      setError('Error loading shared summary. Please try again.');
+      toast.error('Failed to load shared summary');
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -59,6 +109,7 @@ export default function Shared() {
     setIsShared(false);
     setShareCode('');
     setError('');
+    setSharedData(null);
   };
 
   return (
@@ -87,6 +138,7 @@ export default function Shared() {
                   placeholder="e.g. SP-ABC12345"
                   className="w-full bg-secondary border border-border rounded-xl px-4 py-3 text-foreground placeholder-secondary-foreground focus:outline-none focus:ring-2 focus:ring-accent font-mono text-lg"
                   onKeyPress={(e) => e.key === 'Enter' && handleViewShared()}
+                  disabled={loading}
                 />
               </div>
 
@@ -98,10 +150,17 @@ export default function Shared() {
 
               <button
                 onClick={handleViewShared}
-                disabled={!shareCode.trim()}
-                className="w-full px-4 py-3 bg-accent text-accent-foreground rounded-xl hover:bg-accent/90 transition-all duration-300 font-medium disabled:opacity-50 active:scale-95"
+                disabled={!shareCode.trim() || loading}
+                className="w-full px-4 py-3 bg-accent text-accent-foreground rounded-xl hover:bg-accent/90 transition-all duration-300 font-medium disabled:opacity-50 active:scale-95 flex items-center justify-center gap-2"
               >
-                View Summary
+                {loading ? (
+                  <>
+                    <Loader2 size={18} className="animate-spin" />
+                    Loading...
+                  </>
+                ) : (
+                  'View Summary'
+                )}
               </button>
             </div>
 
@@ -142,7 +201,7 @@ export default function Shared() {
                   <h2 className="text-lg font-semibold text-foreground">Budget</h2>
                 </div>
                 <p className="text-2xl font-bold text-accent">
-                  RM {expectedSalary.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                  RM {currentSalary.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                 </p>
               </div>
 
@@ -163,7 +222,10 @@ export default function Shared() {
               {/* Group Breakdown */}
               <div className="space-y-3">
                 {groups.map((group) => {
-                  const stats = getGroupStats(group.key);
+                  const items = sharedData
+                    ? sharedData.budgetItems.filter(item => item.group === group.key)
+                    : getBudgetsByGroup(group.key);
+                  const stats = getGroupStats(group.key, items);
                   const color = getGroupColor(group.key);
 
                   return (

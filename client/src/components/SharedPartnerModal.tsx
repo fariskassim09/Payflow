@@ -1,6 +1,9 @@
-import { useState } from 'react';
-import { X, Copy, RefreshCw, Trash2 } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { X, Copy, RefreshCw, Trash2, Loader2 } from 'lucide-react';
 import { toast } from 'sonner';
+import { useAuth } from '@/contexts/AuthContext';
+import { useSalary } from '@/contexts/SalaryContext';
+import { generateSharingCode, deleteShareCode } from '@/lib/firestoreService';
 
 interface SharedPartnerModalProps {
   isOpen: boolean;
@@ -8,11 +11,17 @@ interface SharedPartnerModalProps {
 }
 
 export default function SharedPartnerModal({ isOpen, onClose }: SharedPartnerModalProps) {
+  const { user } = useAuth();
+  const { salaryFrequency, budgetItems, monthlySalaries } = useSalary();
   const [shareCode, setShareCode] = useState('SP-' + Math.random().toString(36).substring(2, 10).toUpperCase());
-  const [sharedPartners, setSharedPartners] = useState<Array<{ code: string; name: string; date: string }>>([
-    { code: 'SP-ABC12345', name: 'Partner 1', date: '2026-02-20' },
-  ]);
+  const [sharedPartners, setSharedPartners] = useState<Array<{ code: string; name: string; date: string }>>([]);
   const [newPartnerName, setNewPartnerName] = useState('');
+  const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    // Generate initial code
+    setShareCode('SP-' + Math.random().toString(36).substring(2, 10).toUpperCase());
+  }, []);
 
   const generateNewCode = () => {
     const newCode = 'SP-' + Math.random().toString(36).substring(2, 10).toUpperCase();
@@ -25,8 +34,26 @@ export default function SharedPartnerModal({ isOpen, onClose }: SharedPartnerMod
     toast.success('Sharing code copied to clipboard!');
   };
 
-  const addPartner = () => {
-    if (newPartnerName.trim()) {
+  const addPartner = async () => {
+    if (!newPartnerName.trim()) {
+      toast.error('Please enter a partner name');
+      return;
+    }
+
+    if (!user) {
+      toast.error('Please log in to share with partners');
+      return;
+    }
+
+    setLoading(true);
+    try {
+      // Save sharing code to Firebase
+      await generateSharingCode(user.uid, newPartnerName, {
+        salaryFrequency,
+        budgetItems,
+        monthlySalaries,
+      });
+
       const newPartner = {
         code: shareCode,
         name: newPartnerName,
@@ -36,12 +63,31 @@ export default function SharedPartnerModal({ isOpen, onClose }: SharedPartnerMod
       setNewPartnerName('');
       setShareCode('SP-' + Math.random().toString(36).substring(2, 10).toUpperCase());
       toast.success(`${newPartnerName} added to shared partners!`);
+    } catch (error) {
+      console.error('Error adding partner:', error);
+      toast.error('Failed to add partner. Please try again.');
+    } finally {
+      setLoading(false);
     }
   };
 
-  const removePartner = (code: string) => {
-    setSharedPartners(sharedPartners.filter(p => p.code !== code));
-    toast.success('Partner removed from sharing');
+  const removePartner = async (code: string) => {
+    if (!user) {
+      toast.error('Please log in to manage shared partners');
+      return;
+    }
+
+    setLoading(true);
+    try {
+      await deleteShareCode(user.uid, code);
+      setSharedPartners(sharedPartners.filter(p => p.code !== code));
+      toast.success('Partner removed from sharing');
+    } catch (error) {
+      console.error('Error removing partner:', error);
+      toast.error('Failed to remove partner. Please try again.');
+    } finally {
+      setLoading(false);
+    }
   };
 
   if (!isOpen) return null;
@@ -60,6 +106,12 @@ export default function SharedPartnerModal({ isOpen, onClose }: SharedPartnerMod
           </button>
         </div>
 
+        {!user && (
+          <div className="bg-accent/10 border border-accent/20 rounded-2xl p-4 mb-6">
+            <p className="text-sm text-accent">Please log in to Settings to share your salary summary with partners</p>
+          </div>
+        )}
+
         {/* Generate Sharing Code Section */}
         <div className="space-y-4 mb-8">
           <h3 className="text-lg font-semibold text-foreground">Generate Sharing Code</h3>
@@ -73,7 +125,8 @@ export default function SharedPartnerModal({ isOpen, onClose }: SharedPartnerMod
               </div>
               <button
                 onClick={copyToClipboard}
-                className="p-3 bg-accent text-accent-foreground rounded-xl hover:bg-accent/90 transition-all duration-300 active:scale-95"
+                disabled={!user}
+                className="p-3 bg-accent text-accent-foreground rounded-xl hover:bg-accent/90 transition-all duration-300 active:scale-95 disabled:opacity-50"
               >
                 <Copy size={20} />
               </button>
@@ -86,7 +139,8 @@ export default function SharedPartnerModal({ isOpen, onClose }: SharedPartnerMod
           {/* Generate New Code Button */}
           <button
             onClick={generateNewCode}
-            className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-secondary border border-border rounded-xl text-foreground hover:bg-secondary/80 transition-all duration-300 font-medium"
+            disabled={!user}
+            className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-secondary border border-border rounded-xl text-foreground hover:bg-secondary/80 transition-all duration-300 font-medium disabled:opacity-50"
           >
             <RefreshCw size={18} />
             Generate New Code
@@ -103,14 +157,22 @@ export default function SharedPartnerModal({ isOpen, onClose }: SharedPartnerMod
               value={newPartnerName}
               onChange={(e) => setNewPartnerName(e.target.value)}
               placeholder="e.g., Spouse, Partner, Family..."
-              className="w-full bg-secondary border border-border rounded-xl px-4 py-3 text-foreground placeholder-secondary-foreground focus:outline-none focus:ring-2 focus:ring-accent"
+              disabled={!user || loading}
+              className="w-full bg-secondary border border-border rounded-xl px-4 py-3 text-foreground placeholder-secondary-foreground focus:outline-none focus:ring-2 focus:ring-accent disabled:opacity-50"
             />
             <button
               onClick={addPartner}
-              disabled={!newPartnerName.trim()}
-              className="w-full px-4 py-3 bg-accent text-accent-foreground rounded-xl hover:bg-accent/90 transition-all duration-300 font-medium disabled:opacity-50 active:scale-95"
+              disabled={!newPartnerName.trim() || !user || loading}
+              className="w-full px-4 py-3 bg-accent text-accent-foreground rounded-xl hover:bg-accent/90 transition-all duration-300 font-medium disabled:opacity-50 active:scale-95 flex items-center justify-center gap-2"
             >
-              Add Partner
+              {loading ? (
+                <>
+                  <Loader2 size={18} className="animate-spin" />
+                  Adding...
+                </>
+              ) : (
+                'Add Partner'
+              )}
             </button>
           </div>
         </div>
@@ -134,7 +196,8 @@ export default function SharedPartnerModal({ isOpen, onClose }: SharedPartnerMod
                   </div>
                   <button
                     onClick={() => removePartner(partner.code)}
-                    className="p-2 text-destructive hover:bg-destructive/10 rounded-lg transition-all duration-300"
+                    disabled={loading}
+                    className="p-2 text-destructive hover:bg-destructive/10 rounded-lg transition-all duration-300 disabled:opacity-50"
                   >
                     <Trash2 size={18} />
                   </button>
