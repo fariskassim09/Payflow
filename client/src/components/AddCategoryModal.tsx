@@ -22,8 +22,9 @@ const COLOR_OPTIONS = [
 ];
 
 export default function AddCategoryModal({ isOpen, onClose }: AddCategoryModalProps) {
-  const { addBudgetItem, expectedSalary } = useSalary();
+  const { addBudgetItem, expectedSalary, salaryFrequency } = useSalary();
   const [step, setStep] = useState<'form' | 'icons' | 'colors'>('form');
+  const shouldShowSalaryType = salaryFrequency === '2x';
   const [formData, setFormData] = useState({
     name: '',
     percentage: 0,
@@ -32,6 +33,7 @@ export default function AddCategoryModal({ isOpen, onClose }: AddCategoryModalPr
     color: '#3B82F6',
     repeatNextMonth: true,
     markAsPaid: false,
+    salaryType: 'mid' as 'mid' | 'end',
   });
 
   const handleAddCategory = () => {
@@ -53,6 +55,7 @@ export default function AddCategoryModal({ isOpen, onClose }: AddCategoryModalPr
         color: '#3B82F6',
         repeatNextMonth: true,
         markAsPaid: false,
+        salaryType: 'mid',
       });
       setStep('form');
     }
@@ -144,6 +147,30 @@ export default function AddCategoryModal({ isOpen, onClose }: AddCategoryModalPr
                 ))}
               </div>
             </div>
+
+            {/* Salary Type Selection - Only show for 2x salary */}
+            {shouldShowSalaryType && (
+              <div>
+                <label className="block text-sm font-medium text-secondary-foreground mb-3 uppercase">
+                  Deduct From
+                </label>
+                <div className="grid grid-cols-2 gap-2">
+                  {(['mid', 'end'] as const).map((type) => (
+                    <button
+                      key={type}
+                      onClick={() => setFormData({ ...formData, salaryType: type })}
+                      className={`py-3 rounded-xl font-medium transition-all duration-300 ${
+                        formData.salaryType === type
+                          ? 'bg-accent text-accent-foreground'
+                          : 'bg-secondary border border-border text-foreground hover:border-accent'
+                      }`}
+                    >
+                      {type === 'mid' ? 'Mid-Month' : 'End-Month'}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
 
             {/* Icon Selector */}
             <div>

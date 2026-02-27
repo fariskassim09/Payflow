@@ -18,7 +18,8 @@ const ICON_OPTIONS = [
 ];
 
 export default function CategoryDetailsModal({ isOpen, categoryId, onClose }: CategoryDetailsModalProps) {
-  const { budgetItems, updateBudgetItem, removeBudgetItem, expectedSalary } = useSalary();
+  const { budgetItems, updateBudgetItem, removeBudgetItem, expectedSalary, salaryFrequency } = useSalary();
+  const shouldShowSalaryType = salaryFrequency === '2x';
   const [showIconPicker, setShowIconPicker] = useState(false);
   const [editAmount, setEditAmount] = useState<string>('');
   const [isEditingAmount, setIsEditingAmount] = useState(false);
@@ -192,6 +193,30 @@ export default function CategoryDetailsModal({ isOpen, categoryId, onClose }: Ca
             {category.group}
           </div>
         </div>
+
+        {/* Salary Type Selection - Only show for 2x salary */}
+        {shouldShowSalaryType && (
+          <div className="mb-6">
+            <label className="block text-sm font-medium text-secondary-foreground mb-3 uppercase">
+              Deduct From
+            </label>
+            <div className="grid grid-cols-2 gap-2">
+              {(['mid', 'end'] as const).map((type) => (
+                <button
+                  key={type}
+                  onClick={() => handleUpdateCategory({ salaryType: type })}
+                  className={`py-3 rounded-xl font-medium transition-all duration-300 ${
+                    category.salaryType === type
+                      ? 'bg-accent text-accent-foreground'
+                      : 'bg-secondary border border-border text-foreground hover:border-accent'
+                  }`}
+                >
+                  {type === 'mid' ? 'Mid-Month' : 'End-Month'}
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
 
         {/* Status Toggles */}
         <div className="space-y-3 mb-6">
