@@ -8,6 +8,7 @@ import { SalaryProvider } from "./contexts/SalaryContext";
 import { AuthProvider } from "./contexts/AuthContext";
 import Dashboard from "./pages/Dashboard";
 import Summary from "./pages/Summary";
+import Shared from "./pages/Shared";
 import Settings from "./pages/Settings";
 
 
@@ -16,6 +17,7 @@ function Router() {
     <Switch>
       <Route path={"/"} component={Dashboard} />
       <Route path={"/summary"} component={Summary} />
+      <Route path={"/shared"} component={Shared} />
       <Route path={"/settings"} component={Settings} />
       <Route path={"/404"} component={NotFound} />
       {/* Final fallback route */}
