@@ -31,7 +31,7 @@ export default function Dashboard() {
   return (
     <div className="min-h-screen bg-background text-foreground flex flex-col">
       {/* Main Content */}
-      <main className="container mx-auto px-4 pt-6 max-w-2xl flex-1 pb-28">
+      <main className="container mx-auto px-4 pt-6 max-w-2xl flex-1 pb-32 overflow-y-auto">
         {/* Month Navigation */}
         <MonthNavigation onMonthChange={setCurrentMonth} currentMonth={currentMonth} />
 
