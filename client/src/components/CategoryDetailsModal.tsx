@@ -138,16 +138,14 @@ export default function CategoryDetailsModal({ isOpen, categoryId, onClose }: Ca
               Amount
             </label>
             {isEditingAmount ? (
-              <div className="flex gap-2">
-                <input
-                  type="number"
-                  value={editAmount}
-                  onChange={handleAmountChange}
-                  placeholder="0.00"
-                  className="flex-1 bg-secondary border border-border rounded-xl px-4 py-3 text-foreground focus:outline-none focus:ring-2 focus:ring-accent"
-                  autoFocus
-                />
-              </div>
+              <input
+                type="number"
+                value={editAmount}
+                onChange={handleAmountChange}
+                placeholder="0.00"
+                className="w-full bg-secondary border border-border rounded-xl px-4 py-3 text-foreground focus:outline-none focus:ring-2 focus:ring-accent"
+                autoFocus
+              />
             ) : (
               <button
                 onClick={handleAmountEdit}
@@ -161,10 +159,8 @@ export default function CategoryDetailsModal({ isOpen, categoryId, onClose }: Ca
             <label className="block text-sm font-medium text-secondary-foreground mb-2 uppercase">
               Percentage
             </label>
-            <div className="flex items-center gap-2">
-              <div className="flex-1 bg-secondary border border-border rounded-xl px-4 py-3 text-foreground font-semibold">
-                {category.percentage.toFixed(1)}%
-              </div>
+            <div className="w-full bg-secondary border border-border rounded-xl px-4 py-3 text-foreground font-semibold">
+              {category.percentage.toFixed(1)}%
             </div>
           </div>
         </div>
