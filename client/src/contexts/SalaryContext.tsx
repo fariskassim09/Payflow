@@ -27,6 +27,7 @@ interface SalaryContextType {
   setExpectedSalary: (salary: number) => void;
   getMonthlySalary: (date: Date) => number;
   setMonthlySalary: (date: Date, salary: number) => void;
+  resetMonthlySalary: (date: Date) => void;
   budgetItems: BudgetItem[];
   updateBudgetItem: (id: string, updates: Partial<BudgetItem>) => void;
   addBudgetItem: (item: BudgetItem) => void;
@@ -39,9 +40,10 @@ interface SalaryContextType {
 const SalaryContext = createContext<SalaryContextType | undefined>(undefined);
 
 export function SalaryProvider({ children }: { children: React.ReactNode }) {
-  const [expectedSalary, setExpectedSalary] = useState(3400);
+  const DEFAULT_SALARY = 3400;
+  const [expectedSalary, setExpectedSalary] = useState(DEFAULT_SALARY);
   const [monthlySalaries, setMonthlySalaries] = useState<MonthlySalary[]>([
-    { year: 2026, month: 1, salary: 3400 }, // February 2026
+    { year: 2026, month: 1, salary: DEFAULT_SALARY }, // February 2026
   ]);
   const currentDate = new Date(2026, 1); // February 2026
   
@@ -62,13 +64,12 @@ export function SalaryProvider({ children }: { children: React.ReactNode }) {
     // DEBTS
     { id: 'loan', name: 'Loan Payment', icon: '💳', percentage: 8, group: 'DEBTS', isPaid: false, repeatNextMonth: true, createdAt: currentDate },
   ]);
-  const [selectedCategoryId, setSelectedCategoryId] = useState<string | null>(null);
 
   const getMonthlySalary = (date: Date): number => {
     const existing = monthlySalaries.find(
       ms => ms.year === date.getFullYear() && ms.month === date.getMonth()
     );
-    return existing ? existing.salary : expectedSalary;
+    return existing ? existing.salary : DEFAULT_SALARY;
   };
 
   const setMonthlySalary = (date: Date, salary: number) => {
@@ -84,6 +85,23 @@ export function SalaryProvider({ children }: { children: React.ReactNode }) {
         );
       } else {
         return [...prev, { year: date.getFullYear(), month: date.getMonth(), salary }];
+      }
+    });
+  };
+
+  const resetMonthlySalary = (date: Date) => {
+    setMonthlySalaries(prev => {
+      const existing = prev.find(
+        ms => ms.year === date.getFullYear() && ms.month === date.getMonth()
+      );
+      if (existing) {
+        return prev.map(ms =>
+          ms.year === date.getFullYear() && ms.month === date.getMonth()
+            ? { ...ms, salary: DEFAULT_SALARY }
+            : ms
+        );
+      } else {
+        return [...prev, { year: date.getFullYear(), month: date.getMonth(), salary: DEFAULT_SALARY }];
       }
     });
   };
@@ -153,6 +171,7 @@ export function SalaryProvider({ children }: { children: React.ReactNode }) {
         setExpectedSalary,
         getMonthlySalary,
         setMonthlySalary,
+        resetMonthlySalary,
         budgetItems,
         updateBudgetItem,
         addBudgetItem,
