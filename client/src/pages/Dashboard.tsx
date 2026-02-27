@@ -21,6 +21,7 @@ export default function Dashboard() {
   const [isAddCategoryOpen, setIsAddCategoryOpen] = useState(false);
   const [selectedCategoryId, setSelectedCategoryId] = useState<string | null>(null);
   const [isCategoryDetailsOpen, setIsCategoryDetailsOpen] = useState(false);
+  const [currentMonth, setCurrentMonth] = useState(new Date(2026, 1)); // February 2026
 
   const needsItems = getBudgetsByGroup('NEEDS');
   const wantsItems = getBudgetsByGroup('WANTS');
@@ -28,11 +29,11 @@ export default function Dashboard() {
   const debtsItems = getBudgetsByGroup('DEBTS');
 
   return (
-    <div className="min-h-screen bg-background text-foreground pb-24">
+    <div className="min-h-screen bg-background text-foreground flex flex-col">
       {/* Main Content */}
-      <main className="container mx-auto px-4 pt-6 max-w-2xl">
+      <main className="container mx-auto px-4 pt-6 max-w-2xl flex-1 pb-28">
         {/* Month Navigation */}
-        <MonthNavigation />
+        <MonthNavigation onMonthChange={setCurrentMonth} currentMonth={currentMonth} />
 
         {/* Salary Card */}
         <div className="mb-8">
@@ -57,17 +58,17 @@ export default function Dashboard() {
             )}
           </div>
         </div>
-
-        {/* Add Category Button */}
-        <div className="fixed bottom-24 right-6 animate-fade-in">
-          <button
-            onClick={() => setIsAddCategoryOpen(true)}
-            className="w-14 h-14 rounded-full bg-accent text-accent-foreground flex items-center justify-center shadow-lg shadow-accent/30 hover:shadow-xl hover:shadow-accent/40 transition-all duration-300 active:scale-95"
-          >
-            <Plus size={24} />
-          </button>
-        </div>
       </main>
+
+      {/* Add Category Button - Fixed at bottom */}
+      <div className="fixed bottom-24 right-6 z-40 animate-fade-in">
+        <button
+          onClick={() => setIsAddCategoryOpen(true)}
+          className="w-14 h-14 rounded-full bg-accent text-accent-foreground flex items-center justify-center shadow-lg shadow-accent/30 hover:shadow-xl hover:shadow-accent/40 transition-all duration-300 active:scale-95"
+        >
+          <Plus size={24} />
+        </button>
+      </div>
 
       {/* Edit Salary Modal */}
       <EditSalaryModal isOpen={isEditModalOpen} onClose={() => setIsEditModalOpen(false)} />
@@ -78,7 +79,7 @@ export default function Dashboard() {
       {/* Category Details Modal */}
       <CategoryDetailsModal isOpen={isCategoryDetailsOpen} categoryId={selectedCategoryId} onClose={() => setIsCategoryDetailsOpen(false)} />
 
-      {/* Bottom Navigation */}
+      {/* Bottom Navigation - Fixed */}
       <BottomNavigation />
     </div>
   );
