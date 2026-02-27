@@ -20,6 +20,8 @@ const ICON_OPTIONS = [
 export default function CategoryDetailsModal({ isOpen, categoryId, onClose }: CategoryDetailsModalProps) {
   const { budgetItems, updateBudgetItem, removeBudgetItem, expectedSalary } = useSalary();
   const [showIconPicker, setShowIconPicker] = useState(false);
+  const [editAmount, setEditAmount] = useState<string>('');
+  const [isEditingAmount, setIsEditingAmount] = useState(false);
 
   const category = categoryId ? budgetItems.find(item => item.id === categoryId) : null;
 
@@ -45,15 +47,36 @@ export default function CategoryDetailsModal({ isOpen, categoryId, onClose }: Ca
     setShowIconPicker(false);
   };
 
-  const handlePercentageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const percentage = Math.max(0, Math.min(100, parseFloat(e.target.value) || 0));
-    handleUpdateCategory({ percentage });
-  };
-
   const handleNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.value.trim()) {
       handleUpdateCategory({ name: e.target.value });
     }
+  };
+
+  const handleAmountEdit = () => {
+    setIsEditingAmount(true);
+    setEditAmount(amount.toString());
+  };
+
+  const handleAmountChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setEditAmount(e.target.value);
+  };
+
+  const handleAmountSave = () => {
+    const newAmount = parseFloat(editAmount) || 0;
+    if (newAmount >= 0 && expectedSalary > 0) {
+      const newPercentage = (newAmount / expectedSalary) * 100;
+      handleUpdateCategory({ percentage: Math.min(100, newPercentage) });
+      setIsEditingAmount(false);
+      toast.success('Amount updated');
+    } else {
+      toast.error('Invalid amount');
+    }
+  };
+
+  const handleAmountCancel = () => {
+    setIsEditingAmount(false);
+    setEditAmount('');
   };
 
   return (
@@ -108,33 +131,61 @@ export default function CategoryDetailsModal({ isOpen, categoryId, onClose }: Ca
           />
         </div>
 
-        {/* Percentage & Amount */}
+        {/* Amount & Percentage */}
         <div className="grid grid-cols-2 gap-4 mb-6">
+          <div>
+            <label className="block text-sm font-medium text-secondary-foreground mb-2 uppercase">
+              Amount
+            </label>
+            {isEditingAmount ? (
+              <div className="flex gap-2">
+                <input
+                  type="number"
+                  value={editAmount}
+                  onChange={handleAmountChange}
+                  placeholder="0.00"
+                  className="flex-1 bg-secondary border border-border rounded-xl px-4 py-3 text-foreground focus:outline-none focus:ring-2 focus:ring-accent"
+                  autoFocus
+                />
+              </div>
+            ) : (
+              <button
+                onClick={handleAmountEdit}
+                className="w-full bg-secondary border border-border rounded-xl px-4 py-3 text-foreground font-semibold hover:bg-secondary/80 transition-all duration-300 text-left"
+              >
+                RM {amount.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+              </button>
+            )}
+          </div>
           <div>
             <label className="block text-sm font-medium text-secondary-foreground mb-2 uppercase">
               Percentage
             </label>
             <div className="flex items-center gap-2">
-              <input
-                type="number"
-                value={category.percentage}
-                onChange={handlePercentageChange}
-                min="0"
-                max="100"
-                className="flex-1 bg-secondary border border-border rounded-xl px-4 py-3 text-foreground focus:outline-none focus:ring-2 focus:ring-accent"
-              />
-              <span className="text-foreground font-semibold">%</span>
-            </div>
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-secondary-foreground mb-2 uppercase">
-              Amount
-            </label>
-            <div className="bg-secondary border border-border rounded-xl px-4 py-3 text-foreground font-semibold">
-              RM {amount.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+              <div className="flex-1 bg-secondary border border-border rounded-xl px-4 py-3 text-foreground font-semibold">
+                {category.percentage.toFixed(1)}%
+              </div>
             </div>
           </div>
         </div>
+
+        {/* Amount Edit Actions */}
+        {isEditingAmount && (
+          <div className="flex gap-2 mb-6">
+            <button
+              onClick={handleAmountSave}
+              className="flex-1 px-4 py-3 bg-accent text-accent-foreground rounded-xl hover:bg-accent/90 transition-all duration-300 font-medium"
+            >
+              Save
+            </button>
+            <button
+              onClick={handleAmountCancel}
+              className="flex-1 px-4 py-3 bg-secondary border border-border rounded-xl text-foreground hover:bg-secondary/80 transition-all duration-300 font-medium"
+            >
+              Cancel
+            </button>
+          </div>
+        )}
 
         {/* Group Info */}
         <div className="mb-6">
