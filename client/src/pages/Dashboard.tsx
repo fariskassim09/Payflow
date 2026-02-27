@@ -23,10 +23,10 @@ export default function Dashboard() {
   const [isCategoryDetailsOpen, setIsCategoryDetailsOpen] = useState(false);
   const [currentMonth, setCurrentMonth] = useState(new Date(2026, 1)); // February 2026
 
-  const needsItems = getBudgetsByGroup('NEEDS');
-  const wantsItems = getBudgetsByGroup('WANTS');
-  const savingsItems = getBudgetsByGroup('SAVINGS');
-  const debtsItems = getBudgetsByGroup('DEBTS');
+  const needsItems = getBudgetsByGroup('NEEDS', currentMonth);
+  const wantsItems = getBudgetsByGroup('WANTS', currentMonth);
+  const savingsItems = getBudgetsByGroup('SAVINGS', currentMonth);
+  const debtsItems = getBudgetsByGroup('DEBTS', currentMonth);
 
   return (
     <div className="min-h-screen bg-background text-foreground flex flex-col">
