@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { X, RotateCcw } from 'lucide-react';
 import { useSalary } from '@/contexts/SalaryContext';
 
@@ -14,6 +14,12 @@ export default function EditSalaryModal({ isOpen, onClose, currentMonth }: EditS
   const currentSalary = getMonthlySalary(month);
   const [inputValue, setInputValue] = useState(currentSalary.toString());
 
+  useEffect(() => {
+    if (isOpen) {
+      setInputValue(getMonthlySalary(month).toString());
+    }
+  }, [isOpen, month]);
+
   const handleSave = () => {
     const value = parseFloat(inputValue);
     if (!isNaN(value) && value > 0) {
@@ -24,12 +30,15 @@ export default function EditSalaryModal({ isOpen, onClose, currentMonth }: EditS
 
   const handleReset = () => {
     resetMonthlySalary(month);
-    setInputValue(getMonthlySalary(month).toString());
+    setTimeout(() => {
+      setInputValue('3400');
+    }, 0);
   };
 
   if (!isOpen) return null;
 
   const monthName = month.toLocaleString('en-US', { month: 'long', year: 'numeric' });
+  const displaySalary = getMonthlySalary(month);
 
   return (
     <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
@@ -49,6 +58,7 @@ export default function EditSalaryModal({ isOpen, onClose, currentMonth }: EditS
         <div className="mb-4 p-3 bg-secondary/50 rounded-xl">
           <p className="text-sm text-secondary-foreground">Month</p>
           <p className="text-lg font-semibold text-foreground">{monthName}</p>
+          <p className="text-xs text-secondary-foreground mt-1">Current: RM {displaySalary.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</p>
         </div>
 
         {/* Input */}
