@@ -6,6 +6,7 @@ import SalaryCard from '@/components/SalaryCard';
 import CategoryGroup from '@/components/CategoryGroup';
 import EditSalaryModal from '@/components/EditSalaryModal';
 import AddCategoryModal from '@/components/AddCategoryModal';
+import CategoryDetailsModal from '@/components/CategoryDetailsModal';
 import { useSalary } from '@/contexts/SalaryContext';
 
 // Design Philosophy: Salary Allocation Planner
@@ -18,6 +19,8 @@ export default function Dashboard() {
   const { getBudgetsByGroup } = useSalary();
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isAddCategoryOpen, setIsAddCategoryOpen] = useState(false);
+  const [selectedCategoryId, setSelectedCategoryId] = useState<string | null>(null);
+  const [isCategoryDetailsOpen, setIsCategoryDetailsOpen] = useState(false);
 
   const needsItems = getBudgetsByGroup('NEEDS');
   const wantsItems = getBudgetsByGroup('WANTS');
@@ -41,16 +44,16 @@ export default function Dashboard() {
           <h2 className="text-xl font-bold mb-6 text-foreground">Budget Categories</h2>
           <div className="space-y-8">
             {needsItems.length > 0 && (
-              <CategoryGroup group="NEEDS" items={needsItems} onCategoryTap={() => setIsAddCategoryOpen(true)} />
+              <CategoryGroup group="NEEDS" items={needsItems} onCategoryTap={(id) => { setSelectedCategoryId(id); setIsCategoryDetailsOpen(true); }} />
             )}
             {wantsItems.length > 0 && (
-              <CategoryGroup group="WANTS" items={wantsItems} onCategoryTap={() => setIsAddCategoryOpen(true)} />
+              <CategoryGroup group="WANTS" items={wantsItems} onCategoryTap={(id) => { setSelectedCategoryId(id); setIsCategoryDetailsOpen(true); }} />
             )}
             {savingsItems.length > 0 && (
-              <CategoryGroup group="SAVINGS" items={savingsItems} onCategoryTap={() => setIsAddCategoryOpen(true)} />
+              <CategoryGroup group="SAVINGS" items={savingsItems} onCategoryTap={(id) => { setSelectedCategoryId(id); setIsCategoryDetailsOpen(true); }} />
             )}
             {debtsItems.length > 0 && (
-              <CategoryGroup group="DEBTS" items={debtsItems} onCategoryTap={() => setIsAddCategoryOpen(true)} />
+              <CategoryGroup group="DEBTS" items={debtsItems} onCategoryTap={(id) => { setSelectedCategoryId(id); setIsCategoryDetailsOpen(true); }} />
             )}
           </div>
         </div>
@@ -71,6 +74,9 @@ export default function Dashboard() {
 
       {/* Add Category Modal */}
       <AddCategoryModal isOpen={isAddCategoryOpen} onClose={() => setIsAddCategoryOpen(false)} />
+
+      {/* Category Details Modal */}
+      <CategoryDetailsModal isOpen={isCategoryDetailsOpen} categoryId={selectedCategoryId} onClose={() => setIsCategoryDetailsOpen(false)} />
 
       {/* Bottom Navigation */}
       <BottomNavigation />

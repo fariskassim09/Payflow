@@ -10,7 +10,7 @@ interface SwipeableCategoryProps {
   amount: number;
   isPaid?: boolean;
   repeatNextMonth?: boolean;
-  onMarkPaid?: (id: string, paid: boolean) => void;
+  onMarkPaid?: (id: string) => void;
   onDelete?: (id: string) => void;
   onTap?: (id: string) => void;
 }
@@ -67,7 +67,7 @@ export default function SwipeableCategory({
   const handleMarkPaid = (e: React.MouseEvent) => {
     e.stopPropagation();
     if (onMarkPaid) {
-      onMarkPaid(id, !isPaid);
+      onMarkPaid(id);
       toast.success(isPaid ? 'Marked as unpaid' : 'Marked as paid');
       setIsOpen(false);
     }
@@ -100,7 +100,7 @@ export default function SwipeableCategory({
         <div className="flex items-center gap-3 flex-1">
           <div className={`text-2xl ${isPaid ? 'opacity-50' : ''}`}>{icon}</div>
           <div className="flex-1">
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2 flex-wrap">
               <p className={`font-semibold ${isPaid ? 'line-through opacity-50' : 'text-foreground'}`}>
                 {name}
               </p>
