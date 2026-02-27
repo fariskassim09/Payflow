@@ -3,8 +3,10 @@ import { Plus } from 'lucide-react';
 import BottomNavigation from '@/components/BottomNavigation';
 import MonthNavigation from '@/components/MonthNavigation';
 import SalaryCard from '@/components/SalaryCard';
+import DualSalaryCard from '@/components/DualSalaryCard';
 import CategoryGroup from '@/components/CategoryGroup';
 import EditSalaryModal from '@/components/EditSalaryModal';
+import EditDualSalaryModal from '@/components/EditDualSalaryModal';
 import AddCategoryModal from '@/components/AddCategoryModal';
 import CategoryDetailsModal from '@/components/CategoryDetailsModal';
 import { useSalary } from '@/contexts/SalaryContext';
@@ -13,11 +15,14 @@ import { useSalary } from '@/contexts/SalaryContext';
 // - Month/year navigation at top
 // - Blue gradient salary card with allocation breakdown
 // - Grouped budget categories (NEEDS, WANTS, SAVINGS, DEBTS)
+// - Support for 1x and 2x monthly salary
 // - Smooth animations and transitions
 
 export default function Dashboard() {
-  const { getBudgetsByGroup } = useSalary();
+  const { getBudgetsByGroup, salaryFrequency } = useSalary();
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [isEditDualModalOpen, setIsEditDualModalOpen] = useState(false);
+  const [editingSalaryType, setEditingSalaryType] = useState<'mid' | 'end'>('mid');
   const [isAddCategoryOpen, setIsAddCategoryOpen] = useState(false);
   const [selectedCategoryId, setSelectedCategoryId] = useState<string | null>(null);
   const [isCategoryDetailsOpen, setIsCategoryDetailsOpen] = useState(false);
@@ -28,6 +33,16 @@ export default function Dashboard() {
   const savingsItems = getBudgetsByGroup('SAVINGS', currentMonth);
   const debtsItems = getBudgetsByGroup('DEBTS', currentMonth);
 
+  const handleEditMidSalary = () => {
+    setEditingSalaryType('mid');
+    setIsEditDualModalOpen(true);
+  };
+
+  const handleEditEndSalary = () => {
+    setEditingSalaryType('end');
+    setIsEditDualModalOpen(true);
+  };
+
   return (
     <div className="min-h-screen bg-background text-foreground flex flex-col">
       {/* Main Content */}
@@ -35,9 +50,13 @@ export default function Dashboard() {
         {/* Month Navigation */}
         <MonthNavigation onMonthChange={setCurrentMonth} currentMonth={currentMonth} />
 
-        {/* Salary Card */}
+        {/* Salary Card - Conditional based on frequency */}
         <div className="mb-8">
-          <SalaryCard onEditClick={() => setIsEditModalOpen(true)} currentMonth={currentMonth} />
+          {salaryFrequency === '1x' ? (
+            <SalaryCard onEditClick={() => setIsEditModalOpen(true)} currentMonth={currentMonth} />
+          ) : (
+            <DualSalaryCard onEditMid={handleEditMidSalary} onEditEnd={handleEditEndSalary} currentMonth={currentMonth} />
+          )}
         </div>
 
         {/* Budget Categories Section */}
@@ -70,8 +89,11 @@ export default function Dashboard() {
         </button>
       </div>
 
-      {/* Edit Salary Modal */}
+      {/* Edit Salary Modal (1x mode) */}
       <EditSalaryModal isOpen={isEditModalOpen} onClose={() => setIsEditModalOpen(false)} currentMonth={currentMonth} />
+
+      {/* Edit Dual Salary Modal (2x mode) */}
+      <EditDualSalaryModal isOpen={isEditDualModalOpen} onClose={() => setIsEditDualModalOpen(false)} currentMonth={currentMonth} salaryType={editingSalaryType} />
 
       {/* Add Category Modal */}
       <AddCategoryModal isOpen={isAddCategoryOpen} onClose={() => setIsAddCategoryOpen(false)} />

@@ -2,7 +2,8 @@ import { useState } from 'react';
 import BottomNavigation from '@/components/BottomNavigation';
 import GoogleLoginButton from '@/components/GoogleLoginButton';
 import SharedPartnerModal from '@/components/SharedPartnerModal';
-import { Lock, HelpCircle, Info, Cloud, Share2 } from 'lucide-react';
+import { Lock, HelpCircle, Info, Cloud, Share2, DollarSign } from 'lucide-react';
+import { useSalary } from '@/contexts/SalaryContext';
 
 // Design Philosophy: Salary Allocation Planner
 // - Clean settings interface with toggle switches
@@ -11,6 +12,7 @@ import { Lock, HelpCircle, Info, Cloud, Share2 } from 'lucide-react';
 // - Shared partner feature for sharing salary summary
 
 export default function Settings() {
+  const { salaryFrequency, setSalaryFrequency } = useSalary();
   const [settings, setSettings] = useState({
     darkMode: true,
   });
@@ -102,8 +104,54 @@ export default function Settings() {
           />
         </div>
 
-        {/* Display Section */}
+        {/* Salary Configuration Section */}
         <div className="mb-12 animate-fade-in" style={{ animationDelay: '0.2s' }}>
+          <div className="flex items-center gap-2 mb-4">
+            <DollarSign size={20} className="text-accent" />
+            <h2 className="text-lg font-semibold text-foreground">Salary Configuration</h2>
+          </div>
+          <div className="space-y-3">
+            <button
+              onClick={() => setSalaryFrequency('1x')}
+              className={`w-full text-left flex items-center justify-between p-4 rounded-2xl border transition-all duration-300 active:scale-95 ${
+                salaryFrequency === '1x'
+                  ? 'bg-accent/10 border-accent'
+                  : 'bg-card border-border hover:shadow-lg hover:shadow-accent/10'
+              }`}
+            >
+              <div>
+                <h3 className="font-semibold text-foreground">1x Monthly Salary</h3>
+                <p className="text-xs text-secondary-foreground">Single salary payment per month</p>
+              </div>
+              <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center ${
+                salaryFrequency === '1x' ? 'border-accent bg-accent' : 'border-secondary'
+              }`}>
+                {salaryFrequency === '1x' && <div className="w-2 h-2 bg-background rounded-full" />}
+              </div>
+            </button>
+            <button
+              onClick={() => setSalaryFrequency('2x')}
+              className={`w-full text-left flex items-center justify-between p-4 rounded-2xl border transition-all duration-300 active:scale-95 ${
+                salaryFrequency === '2x'
+                  ? 'bg-accent/10 border-accent'
+                  : 'bg-card border-border hover:shadow-lg hover:shadow-accent/10'
+              }`}
+            >
+              <div>
+                <h3 className="font-semibold text-foreground">2x Monthly Salary</h3>
+                <p className="text-xs text-secondary-foreground">Mid-month and end-month payments</p>
+              </div>
+              <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center ${
+                salaryFrequency === '2x' ? 'border-accent bg-accent' : 'border-secondary'
+              }`}>
+                {salaryFrequency === '2x' && <div className="w-2 h-2 bg-background rounded-full" />}
+              </div>
+            </button>
+          </div>
+        </div>
+
+        {/* Display Section */}
+        <div className="mb-12 animate-fade-in" style={{ animationDelay: '0.3s' }}>
           <h2 className="text-lg font-semibold mb-4 text-foreground">Display</h2>
           <div className="space-y-3">
             <SettingItem
@@ -117,7 +165,7 @@ export default function Settings() {
         </div>
 
         {/* Help Section */}
-        <div className="mb-12 animate-fade-in" style={{ animationDelay: '0.3s' }}>
+        <div className="mb-12 animate-fade-in" style={{ animationDelay: '0.4s' }}>
           <h2 className="text-lg font-semibold mb-4 text-foreground">Help & Support</h2>
           <div className="space-y-3">
             <SettingItem
@@ -134,7 +182,7 @@ export default function Settings() {
         </div>
 
         {/* App Info */}
-        <div className="bg-card rounded-3xl p-6 border border-border text-center animate-fade-in hover:shadow-lg hover:shadow-accent/10 transition-all duration-300" style={{ animationDelay: '0.4s' }}>
+        <div className="bg-card rounded-3xl p-6 border border-border text-center animate-fade-in hover:shadow-lg hover:shadow-accent/10 transition-all duration-300" style={{ animationDelay: '0.5s' }}>
           <p className="text-secondary-foreground text-sm mb-2">Salary Planner</p>
           <p className="text-foreground font-semibold mb-4">Version 1.0.0</p>
           <p className="text-xs text-secondary-foreground">
