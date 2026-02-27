@@ -5,21 +5,26 @@ import { useSalary } from '@/contexts/SalaryContext';
 interface EditSalaryModalProps {
   isOpen: boolean;
   onClose: () => void;
+  currentMonth?: Date;
 }
 
-export default function EditSalaryModal({ isOpen, onClose }: EditSalaryModalProps) {
-  const { expectedSalary, setExpectedSalary } = useSalary();
-  const [inputValue, setInputValue] = useState(expectedSalary.toString());
+export default function EditSalaryModal({ isOpen, onClose, currentMonth }: EditSalaryModalProps) {
+  const { getMonthlySalary, setMonthlySalary } = useSalary();
+  const month = currentMonth || new Date(2026, 1);
+  const currentSalary = getMonthlySalary(month);
+  const [inputValue, setInputValue] = useState(currentSalary.toString());
 
   const handleSave = () => {
     const value = parseFloat(inputValue);
     if (!isNaN(value) && value > 0) {
-      setExpectedSalary(value);
+      setMonthlySalary(month, value);
       onClose();
     }
   };
 
   if (!isOpen) return null;
+
+  const monthName = month.toLocaleString('en-US', { month: 'long', year: 'numeric' });
 
   return (
     <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
@@ -33,6 +38,12 @@ export default function EditSalaryModal({ isOpen, onClose }: EditSalaryModalProp
           >
             <X size={24} />
           </button>
+        </div>
+
+        {/* Month Info */}
+        <div className="mb-4 p-3 bg-secondary/50 rounded-xl">
+          <p className="text-sm text-secondary-foreground">Month</p>
+          <p className="text-lg font-semibold text-foreground">{monthName}</p>
         </div>
 
         {/* Input */}

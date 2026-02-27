@@ -3,14 +3,24 @@ import { useSalary } from '@/contexts/SalaryContext';
 
 interface SalaryCardProps {
   onEditClick: () => void;
+  currentMonth?: Date;
 }
 
-export default function SalaryCard({ onEditClick }: SalaryCardProps) {
-  const { expectedSalary, budgetItems } = useSalary();
+export default function SalaryCard({ onEditClick, currentMonth }: SalaryCardProps) {
+  const { getMonthlySalary, budgetItems, getBudgetsByGroup } = useSalary();
+  const month = currentMonth || new Date(2026, 1);
+  const monthlySalary = getMonthlySalary(month);
 
-  const totalAllocated = budgetItems.reduce((sum, item) => sum + item.percentage, 0);
-  const allocatedAmount = (expectedSalary * totalAllocated) / 100;
-  const remainingAmount = expectedSalary - allocatedAmount;
+  // Get all items for current month
+  const needsItems = getBudgetsByGroup('NEEDS', month);
+  const wantsItems = getBudgetsByGroup('WANTS', month);
+  const savingsItems = getBudgetsByGroup('SAVINGS', month);
+  const debtsItems = getBudgetsByGroup('DEBTS', month);
+  
+  const monthlyItems = [...needsItems, ...wantsItems, ...savingsItems, ...debtsItems];
+  const totalAllocated = monthlyItems.reduce((sum, item) => sum + item.percentage, 0);
+  const allocatedAmount = (monthlySalary * totalAllocated) / 100;
+  const remainingAmount = monthlySalary - allocatedAmount;
   const allocatedPercentage = totalAllocated;
 
   return (
@@ -27,7 +37,7 @@ export default function SalaryCard({ onEditClick }: SalaryCardProps) {
       <p className="text-sm font-medium opacity-90 mb-2">Expected Salary</p>
 
       {/* Amount */}
-      <h2 className="text-4xl font-bold mb-6">RM {expectedSalary.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</h2>
+      <h2 className="text-4xl font-bold mb-6">RM {monthlySalary.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</h2>
 
       {/* Progress Bar */}
       <div className="mb-6">

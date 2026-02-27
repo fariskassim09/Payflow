@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { useSalary } from '@/contexts/SalaryContext';
 import BottomNavigation from '@/components/BottomNavigation';
 
@@ -7,7 +8,9 @@ import BottomNavigation from '@/components/BottomNavigation';
 // - Group breakdown with icon, name, percentage, and amount
 
 export default function Summary() {
-  const { expectedSalary, getBudgetsByGroup } = useSalary();
+  const { getMonthlySalary, getBudgetsByGroup } = useSalary();
+  const [currentMonth] = useState(new Date(2026, 1)); // February 2026
+  const monthlySalary = getMonthlySalary(currentMonth);
 
   const groups = [
     { name: 'Needs', icon: '🛒', key: 'NEEDS' as const },
@@ -17,9 +20,9 @@ export default function Summary() {
   ];
 
   const getGroupStats = (groupKey: 'NEEDS' | 'WANTS' | 'SAVINGS' | 'DEBTS') => {
-    const items = getBudgetsByGroup(groupKey);
+    const items = getBudgetsByGroup(groupKey, currentMonth);
     const percentage = items.reduce((sum, item) => sum + item.percentage, 0);
-    const amount = (expectedSalary * percentage) / 100;
+    const amount = (monthlySalary * percentage) / 100;
     return { percentage, amount };
   };
 
@@ -28,7 +31,7 @@ export default function Summary() {
     return sum + stats.percentage;
   }, 0);
 
-  const remainingAmount = expectedSalary - (expectedSalary * totalAllocated) / 100;
+  const remainingAmount = monthlySalary - (monthlySalary * totalAllocated) / 100;
 
   const getGroupColor = (groupKey: 'NEEDS' | 'WANTS' | 'SAVINGS' | 'DEBTS') => {
     const colors: Record<string, string> = {
@@ -58,7 +61,7 @@ export default function Summary() {
               <h2 className="text-lg font-semibold text-foreground">Budget</h2>
             </div>
             <p className="text-2xl font-bold text-accent">
-              RM {expectedSalary.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+              RM {monthlySalary.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
             </p>
           </div>
 

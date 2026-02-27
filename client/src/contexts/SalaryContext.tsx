@@ -16,9 +16,17 @@ export interface BudgetGroup {
   items: BudgetItem[];
 }
 
+interface MonthlySalary {
+  year: number;
+  month: number;
+  salary: number;
+}
+
 interface SalaryContextType {
   expectedSalary: number;
   setExpectedSalary: (salary: number) => void;
+  getMonthlySalary: (date: Date) => number;
+  setMonthlySalary: (date: Date, salary: number) => void;
   budgetItems: BudgetItem[];
   updateBudgetItem: (id: string, updates: Partial<BudgetItem>) => void;
   addBudgetItem: (item: BudgetItem) => void;
@@ -32,6 +40,9 @@ const SalaryContext = createContext<SalaryContextType | undefined>(undefined);
 
 export function SalaryProvider({ children }: { children: React.ReactNode }) {
   const [expectedSalary, setExpectedSalary] = useState(3400);
+  const [monthlySalaries, setMonthlySalaries] = useState<MonthlySalary[]>([
+    { year: 2026, month: 1, salary: 3400 }, // February 2026
+  ]);
   const currentDate = new Date(2026, 1); // February 2026
   
   const [budgetItems, setBudgetItems] = useState<BudgetItem[]>([
@@ -52,6 +63,30 @@ export function SalaryProvider({ children }: { children: React.ReactNode }) {
     { id: 'loan', name: 'Loan Payment', icon: '💳', percentage: 8, group: 'DEBTS', isPaid: false, repeatNextMonth: true, createdAt: currentDate },
   ]);
   const [selectedCategoryId, setSelectedCategoryId] = useState<string | null>(null);
+
+  const getMonthlySalary = (date: Date): number => {
+    const existing = monthlySalaries.find(
+      ms => ms.year === date.getFullYear() && ms.month === date.getMonth()
+    );
+    return existing ? existing.salary : expectedSalary;
+  };
+
+  const setMonthlySalary = (date: Date, salary: number) => {
+    setMonthlySalaries(prev => {
+      const existing = prev.find(
+        ms => ms.year === date.getFullYear() && ms.month === date.getMonth()
+      );
+      if (existing) {
+        return prev.map(ms =>
+          ms.year === date.getFullYear() && ms.month === date.getMonth()
+            ? { ...ms, salary }
+            : ms
+        );
+      } else {
+        return [...prev, { year: date.getFullYear(), month: date.getMonth(), salary }];
+      }
+    });
+  };
 
   const updateBudgetItem = (id: string, updates: Partial<BudgetItem>) => {
     setBudgetItems(items =>
@@ -116,6 +151,8 @@ export function SalaryProvider({ children }: { children: React.ReactNode }) {
       value={{
         expectedSalary,
         setExpectedSalary,
+        getMonthlySalary,
+        setMonthlySalary,
         budgetItems,
         updateBudgetItem,
         addBudgetItem,

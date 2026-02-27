@@ -37,7 +37,7 @@ export default function Dashboard() {
 
         {/* Salary Card */}
         <div className="mb-8">
-          <SalaryCard onEditClick={() => setIsEditModalOpen(true)} />
+          <SalaryCard onEditClick={() => setIsEditModalOpen(true)} currentMonth={currentMonth} />
         </div>
 
         {/* Budget Categories Section */}
@@ -71,7 +71,7 @@ export default function Dashboard() {
       </div>
 
       {/* Edit Salary Modal */}
-      <EditSalaryModal isOpen={isEditModalOpen} onClose={() => setIsEditModalOpen(false)} />
+      <EditSalaryModal isOpen={isEditModalOpen} onClose={() => setIsEditModalOpen(false)} currentMonth={currentMonth} />
 
       {/* Add Category Modal */}
       <AddCategoryModal isOpen={isAddCategoryOpen} onClose={() => setIsAddCategoryOpen(false)} />
