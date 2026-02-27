@@ -7,6 +7,7 @@ export interface BudgetItem {
   percentage: number;
   group: 'NEEDS' | 'WANTS' | 'SAVINGS' | 'DEBTS';
   isPaid?: boolean;
+  repeatNextMonth?: boolean;
 }
 
 export interface BudgetGroup {
@@ -18,7 +19,7 @@ interface SalaryContextType {
   expectedSalary: number;
   setExpectedSalary: (salary: number) => void;
   budgetItems: BudgetItem[];
-  updateBudgetItem: (id: string, percentage: number) => void;
+  updateBudgetItem: (id: string, updates: Partial<BudgetItem>) => void;
   addBudgetItem: (item: BudgetItem) => void;
   removeBudgetItem: (id: string) => void;
   togglePaidStatus: (id: string) => void;
@@ -32,25 +33,26 @@ export function SalaryProvider({ children }: { children: React.ReactNode }) {
   const [expectedSalary, setExpectedSalary] = useState(3400);
   const [budgetItems, setBudgetItems] = useState<BudgetItem[]>([
     // NEEDS
-    { id: 'sewa', name: 'Sewa', icon: '🏠', percentage: 9, group: 'NEEDS', isPaid: false },
-    { id: 'motorcycle', name: 'Motorcycle service', icon: '🔧', percentage: 2, group: 'NEEDS', isPaid: false },
-    { id: 'pba', name: 'Pba', icon: '💧', percentage: 1, group: 'NEEDS', isPaid: false },
-    { id: 'thb', name: 'Thb', icon: '⚡', percentage: 1, group: 'NEEDS', isPaid: false },
-    { id: 'prudential', name: 'Prudential', icon: '🏥', percentage: 4, group: 'NEEDS', isPaid: false },
-    { id: 'hibah', name: 'Hibah', icon: '🏥', percentage: 3, group: 'NEEDS', isPaid: false },
-    { id: 'mak', name: 'Mak & Ayah', icon: '👨‍👩‍👧', percentage: 9, group: 'NEEDS', isPaid: false },
+    { id: 'sewa', name: 'Sewa', icon: '🏠', percentage: 9, group: 'NEEDS', isPaid: false, repeatNextMonth: true },
+    { id: 'motorcycle', name: 'Motorcycle service', icon: '🔧', percentage: 2, group: 'NEEDS', isPaid: false, repeatNextMonth: true },
+    { id: 'pba', name: 'Pba', icon: '💧', percentage: 1, group: 'NEEDS', isPaid: false, repeatNextMonth: true },
+    { id: 'thb', name: 'Thb', icon: '⚡', percentage: 1, group: 'NEEDS', isPaid: false, repeatNextMonth: true },
+    { id: 'prudential', name: 'Prudential', icon: '🏥', percentage: 4, group: 'NEEDS', isPaid: false, repeatNextMonth: true },
+    { id: 'hibah', name: 'Hibah', icon: '🏥', percentage: 3, group: 'NEEDS', isPaid: false, repeatNextMonth: true },
+    { id: 'mak', name: 'Mak & Ayah', icon: '👨‍👩‍👧', percentage: 9, group: 'NEEDS', isPaid: false, repeatNextMonth: true },
     // WANTS
-    { id: 'food', name: 'Food & Dining', icon: '🍽️', percentage: 8, group: 'WANTS', isPaid: false },
-    { id: 'entertainment', name: 'Entertainment', icon: '🎮', percentage: 5, group: 'WANTS', isPaid: false },
+    { id: 'food', name: 'Food & Dining', icon: '🍽️', percentage: 8, group: 'WANTS', isPaid: false, repeatNextMonth: true },
+    { id: 'entertainment', name: 'Entertainment', icon: '🎮', percentage: 5, group: 'WANTS', isPaid: false, repeatNextMonth: true },
     // SAVINGS
-    { id: 'savings', name: 'Savings', icon: '💰', percentage: 40, group: 'SAVINGS', isPaid: false },
+    { id: 'savings', name: 'Savings', icon: '💰', percentage: 40, group: 'SAVINGS', isPaid: false, repeatNextMonth: true },
     // DEBTS
-    { id: 'loan', name: 'Loan Payment', icon: '💳', percentage: 8, group: 'DEBTS', isPaid: false },
+    { id: 'loan', name: 'Loan Payment', icon: '💳', percentage: 8, group: 'DEBTS', isPaid: false, repeatNextMonth: true },
   ]);
+  const [selectedCategoryId, setSelectedCategoryId] = useState<string | null>(null);
 
-  const updateBudgetItem = (id: string, percentage: number) => {
+  const updateBudgetItem = (id: string, updates: Partial<BudgetItem>) => {
     setBudgetItems(items =>
-      items.map(item => (item.id === id ? { ...item, percentage } : item))
+      items.map(item => (item.id === id ? { ...item, ...updates } : item))
     );
   };
 

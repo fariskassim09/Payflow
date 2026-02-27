@@ -9,8 +9,10 @@ interface SwipeableCategoryProps {
   percentage: number;
   amount: number;
   isPaid?: boolean;
+  repeatNextMonth?: boolean;
   onMarkPaid?: (id: string, paid: boolean) => void;
   onDelete?: (id: string) => void;
+  onTap?: (id: string) => void;
 }
 
 export default function SwipeableCategory({
@@ -20,32 +22,50 @@ export default function SwipeableCategory({
   percentage,
   amount,
   isPaid = false,
+  repeatNextMonth = false,
   onMarkPaid,
   onDelete,
+  onTap,
 }: SwipeableCategoryProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [startX, setStartX] = useState(0);
+  const [isSwiping, setIsSwiping] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
   const contentRef = useRef<HTMLDivElement>(null);
 
   const handleTouchStart = (e: React.TouchEvent) => {
     setStartX(e.touches[0].clientX);
+    setIsSwiping(false);
   };
 
   const handleTouchEnd = (e: React.TouchEvent) => {
     const endX = e.changedTouches[0].clientX;
     const diff = startX - endX;
 
-    if (diff > 50) {
-      // Swiped left
-      setIsOpen(true);
-    } else if (diff < -50) {
-      // Swiped right
+    if (Math.abs(diff) > 50) {
+      setIsSwiping(true);
+      if (diff > 50) {
+        // Swiped left
+        setIsOpen(true);
+      } else if (diff < -50) {
+        // Swiped right
+        setIsOpen(false);
+      }
+    }
+  };
+
+  const handleClick = () => {
+    // Only trigger tap if not swiping
+    if (!isSwiping && !isOpen && onTap) {
+      onTap(id);
+    }
+    if (isOpen) {
       setIsOpen(false);
     }
   };
 
-  const handleMarkPaid = () => {
+  const handleMarkPaid = (e: React.MouseEvent) => {
+    e.stopPropagation();
     if (onMarkPaid) {
       onMarkPaid(id, !isPaid);
       toast.success(isPaid ? 'Marked as unpaid' : 'Marked as paid');
@@ -53,7 +73,8 @@ export default function SwipeableCategory({
     }
   };
 
-  const handleDelete = () => {
+  const handleDelete = (e: React.MouseEvent) => {
+    e.stopPropagation();
     if (onDelete) {
       onDelete(id);
       toast.success('Category deleted');
@@ -71,16 +92,21 @@ export default function SwipeableCategory({
       {/* Main content - slides left when open */}
       <div
         ref={contentRef}
-        className={`bg-card border border-border p-4 flex items-center justify-between transition-all duration-300 relative z-10 ${
+        className={`bg-card border border-border p-4 flex items-center justify-between transition-all duration-300 relative z-10 cursor-pointer ${
           isOpen ? 'translate-x-[-160px]' : 'translate-x-0'
         }`}
+        onClick={handleClick}
       >
         <div className="flex items-center gap-3 flex-1">
           <div className={`text-2xl ${isPaid ? 'opacity-50' : ''}`}>{icon}</div>
           <div className="flex-1">
-            <p className={`font-semibold ${isPaid ? 'line-through opacity-50' : 'text-foreground'}`}>
-              {name}
-            </p>
+            <div className="flex items-center gap-2">
+              <p className={`font-semibold ${isPaid ? 'line-through opacity-50' : 'text-foreground'}`}>
+                {name}
+              </p>
+              {isPaid && <span className="text-xs bg-accent/20 text-accent px-2 py-1 rounded-full">✓ Paid</span>}
+              {repeatNextMonth && <span className="text-xs bg-secondary text-secondary-foreground px-2 py-1 rounded-full">↻ Repeat</span>}
+            </div>
             <p className="text-xs text-secondary-foreground">{percentage}% of salary</p>
           </div>
         </div>

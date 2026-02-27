@@ -41,16 +41,16 @@ export default function Dashboard() {
           <h2 className="text-xl font-bold mb-6 text-foreground">Budget Categories</h2>
           <div className="space-y-8">
             {needsItems.length > 0 && (
-              <CategoryGroup group="NEEDS" items={needsItems} />
+              <CategoryGroup group="NEEDS" items={needsItems} onCategoryTap={() => setIsAddCategoryOpen(true)} />
             )}
             {wantsItems.length > 0 && (
-              <CategoryGroup group="WANTS" items={wantsItems} />
+              <CategoryGroup group="WANTS" items={wantsItems} onCategoryTap={() => setIsAddCategoryOpen(true)} />
             )}
             {savingsItems.length > 0 && (
-              <CategoryGroup group="SAVINGS" items={savingsItems} />
+              <CategoryGroup group="SAVINGS" items={savingsItems} onCategoryTap={() => setIsAddCategoryOpen(true)} />
             )}
             {debtsItems.length > 0 && (
-              <CategoryGroup group="DEBTS" items={debtsItems} />
+              <CategoryGroup group="DEBTS" items={debtsItems} onCategoryTap={() => setIsAddCategoryOpen(true)} />
             )}
           </div>
         </div>

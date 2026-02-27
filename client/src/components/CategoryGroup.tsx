@@ -5,6 +5,7 @@ import SwipeableCategory from './SwipeableCategory';
 interface CategoryGroupProps {
   group: 'NEEDS' | 'WANTS' | 'SAVINGS' | 'DEBTS';
   items: BudgetItem[];
+  onCategoryTap?: (id: string) => void;
 }
 
 const groupColors: Record<string, string> = {
@@ -21,7 +22,7 @@ const groupLabels: Record<string, string> = {
   DEBTS: 'DEBTS',
 };
 
-export default function CategoryGroup({ group, items }: CategoryGroupProps) {
+export default function CategoryGroup({ group, items, onCategoryTap }: CategoryGroupProps) {
   const { expectedSalary, togglePaidStatus, removeBudgetItem } = useSalary();
 
   const groupTotal = items.reduce((sum, item) => sum + item.percentage, 0);
@@ -52,8 +53,10 @@ export default function CategoryGroup({ group, items }: CategoryGroupProps) {
               percentage={item.percentage}
               amount={amount}
               isPaid={item.isPaid}
+              repeatNextMonth={item.repeatNextMonth}
               onMarkPaid={togglePaidStatus}
               onDelete={removeBudgetItem}
+              onTap={onCategoryTap}
             />
           );
         })}
