@@ -1,10 +1,12 @@
 import { useState } from 'react';
 import BottomNavigation from '@/components/BottomNavigation';
-import { Bell, Lock, HelpCircle, Info } from 'lucide-react';
+import GoogleLoginButton from '@/components/GoogleLoginButton';
+import { Bell, Lock, HelpCircle, Info, Cloud } from 'lucide-react';
 
 // Design Philosophy: Salary Allocation Planner
 // - Clean settings interface with toggle switches
 // - Organized sections with clear hierarchy
+// - Google Firebase authentication for data sync
 
 export default function Settings() {
   const [settings, setSettings] = useState({
@@ -69,8 +71,17 @@ export default function Settings() {
           <p className="text-secondary-foreground">Manage your preferences</p>
         </div>
 
-        {/* Notifications Section */}
+        {/* Sync Section */}
         <div className="mb-12 animate-fade-in">
+          <div className="flex items-center gap-2 mb-4">
+            <Cloud size={20} className="text-accent" />
+            <h2 className="text-lg font-semibold text-foreground">Sync & Backup</h2>
+          </div>
+          <GoogleLoginButton />
+        </div>
+
+        {/* Notifications Section */}
+        <div className="mb-12 animate-fade-in" style={{ animationDelay: '0.1s' }}>
           <h2 className="text-lg font-semibold mb-4 text-foreground">Notifications</h2>
           <div className="space-y-3">
             <SettingItem
@@ -98,7 +109,7 @@ export default function Settings() {
         </div>
 
         {/* Display Section */}
-        <div className="mb-12 animate-fade-in" style={{ animationDelay: '0.1s' }}>
+        <div className="mb-12 animate-fade-in" style={{ animationDelay: '0.2s' }}>
           <h2 className="text-lg font-semibold mb-4 text-foreground">Display</h2>
           <div className="space-y-3">
             <SettingItem
@@ -112,7 +123,7 @@ export default function Settings() {
         </div>
 
         {/* Help Section */}
-        <div className="mb-12 animate-fade-in" style={{ animationDelay: '0.2s' }}>
+        <div className="mb-12 animate-fade-in" style={{ animationDelay: '0.3s' }}>
           <h2 className="text-lg font-semibold mb-4 text-foreground">Help & Support</h2>
           <div className="space-y-3">
             <button className="w-full text-left transition-all duration-300 active:scale-95">
@@ -133,11 +144,11 @@ export default function Settings() {
         </div>
 
         {/* App Info */}
-        <div className="bg-card rounded-3xl p-6 border border-border text-center animate-fade-in hover:shadow-lg hover:shadow-accent/10 transition-all duration-300" style={{ animationDelay: '0.3s' }}>
+        <div className="bg-card rounded-3xl p-6 border border-border text-center animate-fade-in hover:shadow-lg hover:shadow-accent/10 transition-all duration-300" style={{ animationDelay: '0.4s' }}>
           <p className="text-secondary-foreground text-sm mb-2">Salary Planner</p>
           <p className="text-foreground font-semibold mb-4">Version 1.0.0</p>
           <p className="text-xs text-secondary-foreground">
-            Premium salary allocation planner for financial planning
+            Premium salary allocation planner with Firebase sync
           </p>
         </div>
       </main>
