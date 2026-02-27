@@ -5,6 +5,7 @@ import MonthNavigation from '@/components/MonthNavigation';
 import SalaryCard from '@/components/SalaryCard';
 import CategoryGroup from '@/components/CategoryGroup';
 import EditSalaryModal from '@/components/EditSalaryModal';
+import AddCategoryModal from '@/components/AddCategoryModal';
 import { useSalary } from '@/contexts/SalaryContext';
 
 // Design Philosophy: Salary Allocation Planner
@@ -16,6 +17,7 @@ import { useSalary } from '@/contexts/SalaryContext';
 export default function Dashboard() {
   const { getBudgetsByGroup } = useSalary();
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [isAddCategoryOpen, setIsAddCategoryOpen] = useState(false);
 
   const needsItems = getBudgetsByGroup('NEEDS');
   const wantsItems = getBudgetsByGroup('WANTS');
@@ -55,7 +57,10 @@ export default function Dashboard() {
 
         {/* Add Category Button */}
         <div className="fixed bottom-24 right-6 animate-fade-in">
-          <button className="w-14 h-14 rounded-full bg-accent text-accent-foreground flex items-center justify-center shadow-lg shadow-accent/30 hover:shadow-xl hover:shadow-accent/40 transition-all duration-300 active:scale-95">
+          <button
+            onClick={() => setIsAddCategoryOpen(true)}
+            className="w-14 h-14 rounded-full bg-accent text-accent-foreground flex items-center justify-center shadow-lg shadow-accent/30 hover:shadow-xl hover:shadow-accent/40 transition-all duration-300 active:scale-95"
+          >
             <Plus size={24} />
           </button>
         </div>
@@ -63,6 +68,9 @@ export default function Dashboard() {
 
       {/* Edit Salary Modal */}
       <EditSalaryModal isOpen={isEditModalOpen} onClose={() => setIsEditModalOpen(false)} />
+
+      {/* Add Category Modal */}
+      <AddCategoryModal isOpen={isAddCategoryOpen} onClose={() => setIsAddCategoryOpen(false)} />
 
       {/* Bottom Navigation */}
       <BottomNavigation />
