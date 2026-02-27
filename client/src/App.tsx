@@ -4,6 +4,7 @@ import NotFound from "@/pages/NotFound";
 import { Route, Switch } from "wouter";
 import ErrorBoundary from "./components/ErrorBoundary";
 import { ThemeProvider } from "./contexts/ThemeContext";
+import { SalaryProvider } from "./contexts/SalaryContext";
 import Dashboard from "./pages/Dashboard";
 import Summary from "./pages/Summary";
 import Settings from "./pages/Settings";
@@ -22,11 +23,12 @@ function Router() {
   );
 }
 
-// Design Philosophy: Zen Minimalism with Breathing Space
-// - Black minimal aesthetic with neon green accents
-// - Generous whitespace and soft rounded geometry
-// - Smooth animations and subtle depth
-// - Premium, tech-forward financial tracking interface
+// Design Philosophy: Salary Allocation Planner
+// - Black minimal aesthetic with blue accents
+// - Grouped budget categories (NEEDS, WANTS, SAVINGS, DEBTS)
+// - Editable salary and allocation percentages
+// - Month/year navigation
+// - Summary breakdown by group
 
 function App() {
   return (
@@ -34,10 +36,12 @@ function App() {
       <ThemeProvider
         defaultTheme="dark"
       >
-        <TooltipProvider>
-          <Toaster />
-          <Router />
-        </TooltipProvider>
+        <SalaryProvider>
+          <TooltipProvider>
+            <Toaster />
+            <Router />
+          </TooltipProvider>
+        </SalaryProvider>
       </ThemeProvider>
     </ErrorBoundary>
   );

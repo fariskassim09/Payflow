@@ -2,10 +2,9 @@ import { useState } from 'react';
 import BottomNavigation from '@/components/BottomNavigation';
 import { Bell, Lock, HelpCircle, Info } from 'lucide-react';
 
-// Design Philosophy: Zen Minimalism with Breathing Space
+// Design Philosophy: Salary Allocation Planner
 // - Clean settings interface with toggle switches
 // - Organized sections with clear hierarchy
-// - Subtle visual feedback on interactions
 
 export default function Settings() {
   const [settings, setSettings] = useState({
@@ -91,7 +90,7 @@ export default function Settings() {
             <SettingItem
               icon={<Bell size={24} />}
               title="Budget Alerts"
-              description="Alert when approaching budget limits"
+              description="Alert when approaching allocation limits"
               toggle="budgetAlerts"
               value={settings.budgetAlerts}
             />
@@ -138,7 +137,7 @@ export default function Settings() {
           <p className="text-secondary-foreground text-sm mb-2">Salary Planner</p>
           <p className="text-foreground font-semibold mb-4">Version 1.0.0</p>
           <p className="text-xs text-secondary-foreground">
-            Premium financial tracking designed for professionals
+            Premium salary allocation planner for financial planning
           </p>
         </div>
       </main>

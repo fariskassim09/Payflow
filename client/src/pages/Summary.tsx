@@ -1,132 +1,115 @@
-import { useState } from 'react';
-import { PieChart, Pie, Cell, ResponsiveContainer, Legend, Tooltip } from 'recharts';
+import { useSalary } from '@/contexts/SalaryContext';
 import BottomNavigation from '@/components/BottomNavigation';
+import MonthNavigation from '@/components/MonthNavigation';
 
-// Design Philosophy: Zen Minimalism with Breathing Space
-// - Monochrome donut chart with neon green highlights
-// - Animated count-up numbers
-// - Generous spacing and breathing room
-// - Minimal visual approach with thin lines
+// Design Philosophy: Salary Allocation Planner
+// - Group breakdown with percentage and amount
+// - Visual cards for each group
+// - Summary statistics
 
 export default function Summary() {
-  const [categories] = useState([
-    { name: 'Housing', value: 1500, color: '#666666' },
-    { name: 'Food & Dining', value: 480, color: '#A0A0A0' },
-    { name: 'Utilities', value: 180, color: '#666666' },
-    { name: 'Shopping', value: 520, color: '#A0A0A0' },
-    { name: 'Health & Fitness', value: 120, color: '#666666' },
-    { name: 'Savings', value: 1050, color: '#00FF88' },
-  ]);
+  const { expectedSalary, getBudgetsByGroup } = useSalary();
 
-  const totalSpent = categories.reduce((sum, cat) => sum + cat.value, 0);
-  const monthlySalary = 4500;
-  const savingsRate = ((categories.find(c => c.name === 'Savings')?.value || 0) / monthlySalary * 100).toFixed(1);
+  const groups = [
+    { name: 'NEEDS', color: '#3B82F6', icon: '📋' },
+    { name: 'WANTS', color: '#8B5CF6', icon: '🎉' },
+    { name: 'SAVINGS', color: '#10B981', icon: '💰' },
+    { name: 'DEBTS', color: '#F59E0B', icon: '💳' },
+  ];
 
-  const CustomTooltip = ({ active, payload }: any) => {
-    if (active && payload && payload.length) {
-      return (
-        <div className="bg-card border border-border rounded-2xl p-3 text-xs text-foreground shadow-lg shadow-accent/20">
-          <p className="font-semibold text-accent">{payload[0].name}</p>
-          <p className="text-foreground mt-1">RM {payload[0].value.toLocaleString()}</p>
-        </div>
-      );
-    }
-    return null;
+  const getGroupStats = (groupName: 'NEEDS' | 'WANTS' | 'SAVINGS' | 'DEBTS') => {
+    const items = getBudgetsByGroup(groupName);
+    const percentage = items.reduce((sum, item) => sum + item.percentage, 0);
+    const amount = (expectedSalary * percentage) / 100;
+    return { percentage, amount, itemCount: items.length };
   };
 
   return (
     <div className="min-h-screen bg-background text-foreground pb-24">
       {/* Main Content */}
-      <main className="container mx-auto px-4 pt-8 max-w-2xl">
+      <main className="container mx-auto px-4 pt-6 max-w-2xl">
+        {/* Month Navigation */}
+        <MonthNavigation />
+
         {/* Header */}
-        <div className="mb-12 animate-fade-in">
-          <h1 className="text-4xl font-bold mb-2">Financial Summary</h1>
-          <p className="text-secondary-foreground">Overview of your monthly spending</p>
+        <div className="mb-8 animate-fade-in">
+          <h2 className="text-2xl font-bold mb-2">Summary</h2>
+          <p className="text-secondary-foreground">Breakdown by allocation group</p>
         </div>
 
-        {/* Stats Grid */}
-        <div className="grid grid-cols-2 gap-4 mb-12">
-          <div className="bg-card rounded-3xl p-6 border border-border animate-fade-in hover:shadow-lg hover:shadow-accent/10 transition-all duration-300">
-            <p className="text-secondary-foreground text-sm mb-2">Total Spent</p>
-            <p className="text-3xl font-bold text-foreground">
-              RM {totalSpent.toLocaleString()}
-            </p>
-            <p className="text-xs text-secondary-foreground mt-2">
-              {((totalSpent / monthlySalary) * 100).toFixed(1)}% of salary
-            </p>
-          </div>
-
-          <div className="bg-card rounded-3xl p-6 border border-border animate-fade-in hover:shadow-lg hover:shadow-accent/10 transition-all duration-300" style={{ animationDelay: '0.1s' }}>
-            <p className="text-secondary-foreground text-sm mb-2">Savings Rate</p>
-            <p className="text-3xl font-bold text-accent">
-              {savingsRate}%
-            </p>
-            <p className="text-xs text-secondary-foreground mt-2">
-              RM {(categories.find(c => c.name === 'Savings')?.value || 0).toLocaleString()}
-            </p>
-          </div>
-        </div>
-
-        {/* Chart Section */}
-        <div className="bg-card rounded-3xl p-8 border border-border mb-12 animate-fade-in hover:shadow-lg hover:shadow-accent/10 transition-all duration-300" style={{ animationDelay: '0.2s' }}>
-          <h2 className="text-xl font-bold mb-8">Spending Distribution</h2>
-          <ResponsiveContainer width="100%" height={300}>
-            <PieChart>
-              <Pie
-                data={categories}
-                cx="50%"
-                cy="50%"
-                innerRadius={80}
-                outerRadius={120}
-                paddingAngle={2}
-                dataKey="value"
-              >
-                {categories.map((entry, index) => (
-                  <Cell key={`cell-${index}`} fill={entry.color} />
-                ))}
-              </Pie>
-              <Tooltip content={<CustomTooltip />} />
-              <Legend
-                verticalAlign="bottom"
-                height={36}
-                formatter={(value, entry: any) => (
-                  <span className="text-xs text-secondary-foreground">
-                    {entry.payload.name}
-                  </span>
-                )}
-              />
-            </PieChart>
-          </ResponsiveContainer>
-        </div>
-
-        {/* Category Breakdown */}
-        <div className="mb-12 animate-fade-in" style={{ animationDelay: '0.3s' }}>
-          <h2 className="text-xl font-bold mb-6">Category Breakdown</h2>
-          <div className="space-y-3">
-            {categories.map((category, index) => (
+        {/* Group Cards */}
+        <div className="space-y-4 mb-12">
+          {groups.map((group, index) => {
+            const stats = getGroupStats(group.name as 'NEEDS' | 'WANTS' | 'SAVINGS' | 'DEBTS');
+            return (
               <div
-                key={category.name}
-                className="flex items-center justify-between bg-card rounded-2xl p-4 border border-border hover:shadow-lg hover:shadow-accent/10 transition-all duration-300 animate-fade-in"
-                style={{ animationDelay: `${0.35 + index * 0.05}s` }}
+                key={group.name}
+                className="bg-card rounded-2xl p-6 border border-border hover:shadow-lg hover:shadow-accent/10 transition-all duration-300 animate-fade-in"
+                style={{ animationDelay: `${index * 0.1}s` }}
               >
-                <div className="flex items-center gap-3">
+                <div className="flex items-center justify-between mb-4">
+                  <div className="flex items-center gap-3">
+                    <span className="text-3xl">{group.icon}</span>
+                    <div>
+                      <h3 className="font-bold text-foreground">{group.name}</h3>
+                      <p className="text-xs text-secondary-foreground">{stats.itemCount} items</p>
+                    </div>
+                  </div>
                   <div
-                    className="w-3 h-3 rounded-full"
-                    style={{ backgroundColor: category.color }}
+                    className="w-1 h-12 rounded-full"
+                    style={{ backgroundColor: group.color }}
                   />
-                  <span className="font-medium text-foreground">{category.name}</span>
                 </div>
-                <div className="text-right">
-                  <p className="font-semibold text-foreground">
-                    RM {category.value.toLocaleString()}
-                  </p>
-                  <p className="text-xs text-secondary-foreground">
-                    {((category.value / totalSpent) * 100).toFixed(1)}%
-                  </p>
+
+                {/* Stats */}
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <p className="text-xs text-secondary-foreground mb-1">Percentage</p>
+                    <p className="text-2xl font-bold" style={{ color: group.color }}>
+                      {stats.percentage}%
+                    </p>
+                  </div>
+                  <div>
+                    <p className="text-xs text-secondary-foreground mb-1">Amount</p>
+                    <p className="text-2xl font-bold text-foreground">
+                      RM {stats.amount.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                    </p>
+                  </div>
+                </div>
+
+                {/* Progress Bar */}
+                <div className="mt-4 h-1 bg-secondary rounded-full overflow-hidden">
+                  <div
+                    className="h-full rounded-full transition-all duration-700"
+                    style={{ backgroundColor: group.color, width: `${Math.min(stats.percentage, 100)}%` }}
+                  />
                 </div>
               </div>
-            ))}
-          </div>
+            );
+          })}
+        </div>
+
+        {/* Total Summary */}
+        <div className="bg-gradient-to-br from-accent to-accent/80 rounded-2xl p-6 text-white animate-fade-in" style={{ animationDelay: '0.4s' }}>
+          <p className="text-sm opacity-90 mb-2">Total Allocated</p>
+          <h3 className="text-3xl font-bold mb-4">
+            {(() => {
+              const total = groups.reduce((sum, group) => {
+                const stats = getGroupStats(group.name as 'NEEDS' | 'WANTS' | 'SAVINGS' | 'DEBTS');
+                return sum + stats.percentage;
+              }, 0);
+              return total;
+            })()}%
+          </h3>
+          <p className="text-sm opacity-90">
+            RM {(() => {
+              const total = groups.reduce((sum, group) => {
+                const stats = getGroupStats(group.name as 'NEEDS' | 'WANTS' | 'SAVINGS' | 'DEBTS');
+                return sum + stats.amount;
+              }, 0);
+              return total.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+            })()}
+          </p>
         </div>
       </main>
 

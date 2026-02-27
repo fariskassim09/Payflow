@@ -1,10 +1,9 @@
 import { Link, useLocation } from 'wouter';
-import { Home, BarChart3, Settings } from 'lucide-react';
+import { BarChart3, HelpCircle, Share2, Settings } from 'lucide-react';
 
-// Design Philosophy: Zen Minimalism with Breathing Space
+// Design Philosophy: Salary Allocation Planner
 // - Icon-only navigation with subtle labels
-// - Thin top divider line
-// - Neon green highlight for active tab
+// - Blue accent for active tab
 // - Smooth fade transition (0.3s)
 
 export default function BottomNavigation() {
@@ -13,8 +12,9 @@ export default function BottomNavigation() {
   const isActive = (path: string) => location === path;
 
   const navItems = [
-    { path: '/', label: 'Dashboard', icon: Home },
-    { path: '/summary', label: 'Summary', icon: BarChart3 },
+    { path: '/', label: 'Plan', icon: BarChart3 },
+    { path: '/summary', label: 'Summary', icon: HelpCircle },
+    { path: '/shared', label: 'Shared', icon: Share2 },
     { path: '/settings', label: 'Settings', icon: Settings },
   ];
 

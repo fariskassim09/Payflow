@@ -43,15 +43,15 @@
 }
 
 :root {
-  --primary: #00FF88;
+  --primary: #3B82F6;
   --primary-foreground: #0A0A0A;
-  --sidebar-primary: #00FF88;
+  --sidebar-primary: #3B82F6;
   --sidebar-primary-foreground: #0A0A0A;
-  --chart-1: #00FF88;
-  --chart-2: #00CC6A;
-  --chart-3: #009952;
-  --chart-4: #006633;
-  --chart-5: #003D1F;
+  --chart-1: #3B82F6;
+  --chart-2: #2563EB;
+  --chart-3: #1D4ED8;
+  --chart-4: #1E40AF;
+  --chart-5: #1E3A8A;
   --radius: 1.25rem;
   --background: #0A0A0A;
   --foreground: #F5F5F5;
@@ -63,25 +63,25 @@
   --secondary-foreground: #A0A0A0;
   --muted: #666666;
   --muted-foreground: #A0A0A0;
-  --accent: #00FF88;
+  --accent: #3B82F6;
   --accent-foreground: #0A0A0A;
   --destructive: #FF4D4D;
   --destructive-foreground: #F5F5F5;
   --border: #222222;
   --input: #1A1A1A;
-  --ring: #00FF88;
+  --ring: #3B82F6;
   --sidebar: #1A1A1A;
   --sidebar-foreground: #F5F5F5;
-  --sidebar-accent: #00FF88;
+  --sidebar-accent: #3B82F6;
   --sidebar-accent-foreground: #0A0A0A;
   --sidebar-border: #222222;
-  --sidebar-ring: #00FF88;
+  --sidebar-ring: #3B82F6;
 }
 
 .dark {
-  --primary: #00FF88;
+  --primary: #3B82F6;
   --primary-foreground: #0A0A0A;
-  --sidebar-primary: #00FF88;
+  --sidebar-primary: #3B82F6;
   --sidebar-primary-foreground: #0A0A0A;
   --background: #0A0A0A;
   --foreground: #F5F5F5;
@@ -93,24 +93,24 @@
   --secondary-foreground: #A0A0A0;
   --muted: #666666;
   --muted-foreground: #A0A0A0;
-  --accent: #00FF88;
+  --accent: #3B82F6;
   --accent-foreground: #0A0A0A;
   --destructive: #FF4D4D;
   --destructive-foreground: #F5F5F5;
   --border: #222222;
   --input: #1A1A1A;
-  --ring: #00FF88;
-  --chart-1: #00FF88;
-  --chart-2: #00CC6A;
-  --chart-3: #009952;
-  --chart-4: #006633;
-  --chart-5: #003D1F;
+  --ring: #3B82F6;
+  --chart-1: #3B82F6;
+  --chart-2: #2563EB;
+  --chart-3: #1D4ED8;
+  --chart-4: #1E40AF;
+  --chart-5: #1E3A8A;
   --sidebar: #1A1A1A;
   --sidebar-foreground: #F5F5F5;
-  --sidebar-accent: #00FF88;
+  --sidebar-accent: #3B82F6;
   --sidebar-accent-foreground: #0A0A0A;
   --sidebar-border: #222222;
-  --sidebar-ring: #00FF88;
+  --sidebar-ring: #3B82F6;
 }
 
 @layer base {
@@ -165,24 +165,11 @@
 }
 
 @layer components {
-  /**
-   * Custom container utility that centers content and adds responsive padding.
-   *
-   * This overrides Tailwind's default container behavior to:
-   * - Auto-center content (mx-auto)
-   * - Add responsive horizontal padding
-   * - Set max-width for large screens
-   *
-   * Usage: <div className="container">...</div>
-   *
-   * For custom widths, use max-w-* utilities directly:
-   * <div className="max-w-6xl mx-auto px-4">...</div>
-   */
   .container {
     width: 100%;
     margin-left: auto;
     margin-right: auto;
-    padding-left: 1rem; /* 16px - mobile padding */
+    padding-left: 1rem;
     padding-right: 1rem;
   }
 
@@ -272,10 +259,10 @@
   /* Glow Pulse Animation */
   @keyframes glowPulse {
     0%, 100% {
-      box-shadow: 0 0 8px rgba(0, 255, 136, 0.3);
+      box-shadow: 0 0 8px rgba(59, 130, 246, 0.3);
     }
     50% {
-      box-shadow: 0 0 16px rgba(0, 255, 136, 0.6);
+      box-shadow: 0 0 16px rgba(59, 130, 246, 0.6);
     }
   }
 
@@ -285,16 +272,16 @@
 
   @media (min-width: 640px) {
     .container {
-      padding-left: 1.5rem; /* 24px - tablet padding */
+      padding-left: 1.5rem;
       padding-right: 1.5rem;
     }
   }
 
   @media (min-width: 1024px) {
     .container {
-      padding-left: 2rem; /* 32px - desktop padding */
+      padding-left: 2rem;
       padding-right: 2rem;
-      max-width: 1280px; /* Standard content width */
+      max-width: 1280px;
     }
   }
 }
