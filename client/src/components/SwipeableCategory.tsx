@@ -54,23 +54,20 @@ export default function SwipeableCategory({
     }
   };
 
-  const handleClick = (e: React.MouseEvent) => {
-    // Don't trigger tap if clicking on buttons
-    if ((e.target as HTMLElement).closest('button')) {
+  const handleContentClick = (e: React.MouseEvent) => {
+    // Don't trigger tap if clicking on buttons or if already open
+    if (isOpen) {
+      setIsOpen(false);
       return;
     }
     
-    // Only trigger tap if not swiping and not open
-    if (!isSwiping && !isOpen && onTap) {
+    // Only trigger tap if not swiping
+    if (!isSwiping && onTap) {
       onTap(id);
-    }
-    if (isOpen) {
-      setIsOpen(false);
     }
   };
 
-  const handleMarkPaid = (e: React.MouseEvent) => {
-    e.stopPropagation();
+  const handleMarkPaid = () => {
     if (onMarkPaid) {
       onMarkPaid(id);
       toast.success(isPaid ? 'Marked as unpaid' : 'Marked as paid');
@@ -78,8 +75,7 @@ export default function SwipeableCategory({
     }
   };
 
-  const handleDelete = (e: React.MouseEvent) => {
-    e.stopPropagation();
+  const handleDelete = () => {
     if (onDelete) {
       onDelete(id);
       toast.success('Category deleted');
@@ -95,17 +91,17 @@ export default function SwipeableCategory({
       onTouchEnd={handleTouchEnd}
     >
       {/* Hidden action buttons - visible when swiped */}
-      <div className="absolute inset-0 flex items-center justify-end gap-2 bg-secondary/20 px-2 z-0">
+      <div className="absolute inset-0 flex items-center justify-end gap-2 bg-secondary/20 px-2 z-0 pointer-events-none">
         <button
           onClick={handleMarkPaid}
-          className="flex items-center gap-1 px-2 py-2 bg-accent text-accent-foreground rounded-lg hover:bg-accent/90 transition-all duration-300 text-xs font-medium whitespace-nowrap"
+          className="flex items-center gap-1 px-2 py-2 bg-accent text-accent-foreground rounded-lg hover:bg-accent/90 transition-all duration-300 text-xs font-medium whitespace-nowrap pointer-events-auto"
         >
           {isPaid ? <Circle size={16} /> : <CheckCircle2 size={16} />}
           {isPaid ? 'Unpaid' : 'Paid'}
         </button>
         <button
           onClick={handleDelete}
-          className="flex items-center gap-1 px-2 py-2 bg-destructive text-destructive-foreground rounded-lg hover:bg-destructive/90 transition-all duration-300 text-xs font-medium whitespace-nowrap"
+          className="flex items-center gap-1 px-2 py-2 bg-destructive text-destructive-foreground rounded-lg hover:bg-destructive/90 transition-all duration-300 text-xs font-medium whitespace-nowrap pointer-events-auto"
         >
           <Trash2 size={16} />
           Delete
@@ -118,7 +114,7 @@ export default function SwipeableCategory({
         className={`bg-card border border-border p-4 flex items-center justify-between transition-all duration-300 relative z-10 cursor-pointer ${
           isOpen ? 'translate-x-[-160px]' : 'translate-x-0'
         }`}
-        onClick={handleClick}
+        onClick={handleContentClick}
       >
         <div className="flex items-center gap-3 flex-1">
           <div className={`text-2xl ${isPaid ? 'opacity-50' : ''}`}>{icon}</div>
@@ -137,15 +133,6 @@ export default function SwipeableCategory({
           RM {amount.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
         </p>
       </div>
-
-      {/* Close button overlay when open */}
-      {isOpen && (
-        <button
-          onClick={() => setIsOpen(false)}
-          className="absolute inset-0 z-20"
-          aria-label="Close actions"
-        />
-      )}
     </div>
   );
 }
