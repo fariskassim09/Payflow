@@ -44,7 +44,14 @@ export default function CategoryGroup({ group, items, onCategoryTap, currentMont
 
       {/* Group Items */}
       <div className="space-y-2">
-        {items.map((item) => {
+        {items
+          .sort((a, b) => {
+            const aIsPaid = isCategoryPaidForMonth(a.id, currentMonth);
+            const bIsPaid = isCategoryPaidForMonth(b.id, currentMonth);
+            // Unpaid items (false) come first, paid items (true) come last
+            return aIsPaid === bIsPaid ? 0 : aIsPaid ? 1 : -1;
+          })
+          .map((item) => {
           const amount = (expectedSalary * item.percentage) / 100;
           return (
             <SwipeableCategory
