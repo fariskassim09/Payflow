@@ -296,7 +296,7 @@ export default function AddCategoryModal({ isOpen, onClose }: AddCategoryModalPr
         </div>
         {/* Fixed Action Buttons */}
         {step === 'form' && (
-          <div className="flex gap-3 p-6 border-t border-border bg-card">
+          <div className="sticky bottom-0 flex gap-3 p-6 border-t border-border bg-card z-40">
             <button
               onClick={onClose}
               className="flex-1 px-4 py-3 bg-secondary border border-border rounded-xl text-foreground hover:bg-secondary/80 transition-all duration-300 font-medium"
