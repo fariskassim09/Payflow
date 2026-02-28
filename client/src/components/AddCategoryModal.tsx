@@ -61,6 +61,10 @@ export default function AddCategoryModal({ isOpen, onClose }: AddCategoryModalPr
       icon: formData.icon,
       percentage: percentage,
       group: formData.group,
+      repeatNextMonth: formData.repeatNextMonth,
+      markAsPaid: formData.markAsPaid,
+      salaryType: formData.salaryType,
+      color: formData.color,
     };
     addBudgetItem(newCategory);
     setFormData({
