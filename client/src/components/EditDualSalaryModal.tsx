@@ -37,7 +37,7 @@ export default function EditDualSalaryModal({ isOpen, onClose, currentMonth, sal
 
   if (!isOpen) return null;
 
-  const monthName = month.toLocaleString('en-US', { month: 'long', year: 'numeric' });
+  const monthName = ((month || 0)).toLocaleString('en-US', { month: 'long', year: 'numeric' });
   const title = salaryType === 'mid' ? 'Mid-Month Salary' : 'End-Month Salary';
 
   return (
@@ -58,7 +58,7 @@ export default function EditDualSalaryModal({ isOpen, onClose, currentMonth, sal
         <div className="mb-4 p-3 bg-secondary/50 rounded-xl">
           <p className="text-sm text-secondary-foreground">Month</p>
           <p className="text-lg font-semibold text-foreground">{monthName}</p>
-          <p className="text-xs text-secondary-foreground mt-1">Current: RM {currentSalary.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</p>
+          <p className="text-xs text-secondary-foreground mt-1">Current: RM {((currentSalary || 0)).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</p>
         </div>
 
         {/* Input */}

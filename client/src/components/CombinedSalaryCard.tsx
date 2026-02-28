@@ -43,7 +43,7 @@ export default function CombinedSalaryCard({ onEditMid, onEditEnd, currentMonth 
       <p className="text-sm font-medium opacity-90 mb-4">Expected Salary</p>
 
       {/* Total Amount */}
-      <h2 className="text-4xl font-bold mb-6">RM {totalSalary.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</h2>
+      <h2 className="text-4xl font-bold mb-6">RM {((totalSalary || 0)).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</h2>
 
       {/* Progress Bar */}
       <div className="mb-6">
@@ -63,7 +63,7 @@ export default function CombinedSalaryCard({ onEditMid, onEditEnd, currentMonth 
         </div>
         <div>
           <p className="text-xs opacity-80 mb-1">Remaining</p>
-          <p className="font-semibold">RM {totalRemaining.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</p>
+          <p className="font-semibold">RM {((totalRemaining || 0)).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</p>
         </div>
         <div>
           <p className="text-xs opacity-80 mb-1">Allocated</p>
@@ -87,15 +87,15 @@ export default function CombinedSalaryCard({ onEditMid, onEditEnd, currentMonth 
               <Edit2 size={14} />
             </button>
           </div>
-          <p className="text-lg font-bold mb-2">RM {midSalary.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</p>
+          <p className="text-lg font-bold mb-2">RM {((midSalary || 0)).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</p>
           <div className="space-y-1 text-xs">
             <div className="flex justify-between opacity-80">
               <span>Allocated:</span>
-              <span>RM {midAllocatedAmount.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
+              <span>RM {((midAllocatedAmount || 0)).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
             </div>
             <div className="flex justify-between opacity-80">
               <span>Remaining:</span>
-              <span>RM {midRemainingAmount.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
+              <span>RM {((midRemainingAmount || 0)).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
             </div>
             <div className="flex justify-between opacity-80">
               <span>Allocated:</span>
@@ -115,15 +115,15 @@ export default function CombinedSalaryCard({ onEditMid, onEditEnd, currentMonth 
               <Edit2 size={14} />
             </button>
           </div>
-          <p className="text-lg font-bold mb-2">RM {endSalary.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</p>
+          <p className="text-lg font-bold mb-2">RM {((endSalary || 0)).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</p>
           <div className="space-y-1 text-xs">
             <div className="flex justify-between opacity-80">
               <span>Allocated:</span>
-              <span>RM {endAllocatedAmount.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
+              <span>RM {((endAllocatedAmount || 0)).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
             </div>
             <div className="flex justify-between opacity-80">
               <span>Remaining:</span>
-              <span>RM {endRemainingAmount.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
+              <span>RM {((endRemainingAmount || 0)).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
             </div>
             <div className="flex justify-between opacity-80">
               <span>Allocated:</span>

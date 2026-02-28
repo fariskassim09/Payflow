@@ -37,7 +37,7 @@ export default function SalaryCard({ onEditClick, currentMonth }: SalaryCardProp
       <p className="text-sm font-medium opacity-90 mb-2">Expected Salary</p>
 
       {/* Amount */}
-      <h2 className="text-4xl font-bold mb-6">RM {monthlySalary.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</h2>
+      <h2 className="text-4xl font-bold mb-6">RM {((monthlySalary || 0)).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</h2>
 
       {/* Progress Bar */}
       <div className="mb-6">
@@ -53,11 +53,11 @@ export default function SalaryCard({ onEditClick, currentMonth }: SalaryCardProp
       <div className="grid grid-cols-3 gap-4">
         <div>
           <p className="text-xs opacity-80 mb-1">Allocated</p>
-          <p className="font-semibold">RM {allocatedAmount.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</p>
+          <p className="font-semibold">RM {((allocatedAmount || 0)).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</p>
         </div>
         <div>
           <p className="text-xs opacity-80 mb-1">Remaining</p>
-          <p className="font-semibold">RM {remainingAmount.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</p>
+          <p className="font-semibold">RM {((remainingAmount || 0)).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</p>
         </div>
         <div>
           <p className="text-xs opacity-80 mb-1">Allocated</p>

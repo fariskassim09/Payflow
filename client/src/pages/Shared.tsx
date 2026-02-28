@@ -201,7 +201,7 @@ export default function Shared() {
                   <h2 className="text-lg font-semibold text-foreground">Budget</h2>
                 </div>
                 <p className="text-2xl font-bold text-accent">
-                  RM {currentSalary.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                  RM {((currentSalary || 0)).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                 </p>
               </div>
 
@@ -212,7 +212,7 @@ export default function Shared() {
               <div className="bg-secondary/30 rounded-2xl p-4 text-center space-y-2">
                 <p className="text-sm text-secondary-foreground">Remaining</p>
                 <p className="text-4xl font-bold" style={{ color: '#10B981' }}>
-                  RM {remainingAmount.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                  RM {((remainingAmount || 0)).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                 </p>
               </div>
 
@@ -240,7 +240,7 @@ export default function Shared() {
                         </div>
                       </div>
                       <p className="font-bold text-lg" style={{ color }}>
-                        RM {stats.amount.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                        RM {stats.((amount || 0)).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                       </p>
                     </div>
                   );
