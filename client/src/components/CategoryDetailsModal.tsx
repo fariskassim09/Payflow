@@ -152,7 +152,7 @@ export default function CategoryDetailsModal({ isOpen, categoryId, onClose }: Ca
                 onClick={handleAmountEdit}
                 className="w-full bg-secondary border border-border rounded-xl px-4 py-3 text-foreground font-semibold hover:bg-secondary/80 transition-all duration-300 text-left"
               >
-                RM {amount.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                RM {(amount || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
               </button>
             )}
           </div>

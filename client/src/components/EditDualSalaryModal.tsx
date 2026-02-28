@@ -37,7 +37,7 @@ export default function EditDualSalaryModal({ isOpen, onClose, currentMonth, sal
 
   if (!isOpen) return null;
 
-  const monthName = ((month || 0)).toLocaleString('en-US', { month: 'long', year: 'numeric' });
+  const monthName = month ? month.toLocaleString('en-US', { month: 'long', year: 'numeric' }) : 'Invalid Date';
   const title = salaryType === 'mid' ? 'Mid-Month Salary' : 'End-Month Salary';
 
   return (

@@ -43,17 +43,17 @@ export default function BudgetCard({ category }: BudgetCardProps) {
             </h3>
             <p className="text-xs text-secondary-foreground">
               {isOverBudget
-                ? `Over by RM ${Math.abs(remaining).toLocaleString()}`
-                : `RM ${remaining.toLocaleString()} left`}
+                ? `Over by RM ${(Math.abs(remaining) || 0).toLocaleString()}`
+                : `RM ${(remaining || 0).toLocaleString()} left`}
             </p>
           </div>
         </div>
         <div className="text-right">
           <p className="font-semibold text-foreground">
-            RM {category.spent.toLocaleString()}
+            RM {(category.spent || 0).toLocaleString()}
           </p>
           <p className="text-xs text-secondary-foreground">
-            / RM {category.budget.toLocaleString()}
+            / RM {(category.budget || 0).toLocaleString()}
           </p>
         </div>
       </div>

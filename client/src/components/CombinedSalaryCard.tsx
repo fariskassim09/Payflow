@@ -59,7 +59,7 @@ export default function CombinedSalaryCard({ onEditMid, onEditEnd, currentMonth 
       <div className="grid grid-cols-3 gap-4 mb-6">
         <div>
           <p className="text-xs opacity-80 mb-1">Allocated</p>
-          <p className="font-semibold">RM {(midAllocatedAmount + endAllocatedAmount).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</p>
+          <p className="font-semibold">RM {((midAllocatedAmount + endAllocatedAmount) || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</p>
         </div>
         <div>
           <p className="text-xs opacity-80 mb-1">Remaining</p>

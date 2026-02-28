@@ -41,7 +41,7 @@ export default function SalaryHero({ salary, remaining }: SalaryHeroProps) {
       <div className="space-y-2 animate-fade-in">
         <p className="salary-label">Monthly Salary</p>
         <div className="salary-amount animate-count-up">
-          RM {displaySalary.toLocaleString()}
+          RM {(displaySalary || 0).toLocaleString()}
         </div>
       </div>
 
@@ -54,7 +54,7 @@ export default function SalaryHero({ salary, remaining }: SalaryHeroProps) {
         <div className={`text-4xl font-bold ${
           remaining >= 0 ? 'text-accent' : 'text-destructive'
         }`}>
-          RM {displayRemaining.toLocaleString()}
+          RM {(displayRemaining || 0).toLocaleString()}
         </div>
         <p className="text-sm text-secondary-foreground">
           {remaining >= 0 ? 'Available to spend' : 'Over budget'}
