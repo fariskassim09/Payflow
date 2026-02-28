@@ -101,7 +101,7 @@ export default function Summary() {
                       <div>
                         <p className="font-semibold text-foreground">{group.name}</p>
                         <p className="text-xs text-secondary-foreground">
-                          {stats.percentage}% of salary
+                          {stats.percentage.toFixed(2)}% of salary
                         </p>
                       </div>
                     </div>
@@ -209,7 +209,7 @@ export default function Summary() {
                     <div>
                       <p className="font-semibold text-foreground">{group.name}</p>
                       <p className="text-xs text-secondary-foreground">
-                        {stats.percentage}% of salary
+                        {stats.percentage.toFixed(2)}% of salary
                       </p>
                     </div>
                   </div>
@@ -264,7 +264,7 @@ export default function Summary() {
                     <div>
                       <p className="font-semibold text-foreground">{group.name}</p>
                       <p className="text-xs text-secondary-foreground">
-                        {stats.percentage}% of salary
+                        {stats.percentage.toFixed(2)}% of salary
                       </p>
                     </div>
                   </div>

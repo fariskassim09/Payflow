@@ -7,9 +7,9 @@ interface SalaryCardProps {
 }
 
 export default function SalaryCard({ onEditClick, currentMonth }: SalaryCardProps) {
-  const { getMonthlySalary, budgetItems, getBudgetsByGroup } = useSalary();
+  const { expectedSalary, budgetItems, getBudgetsByGroup } = useSalary();
   const month = currentMonth || new Date(2026, 1);
-  const monthlySalary = getMonthlySalary(month);
+  const monthlySalary = expectedSalary;
 
   // Get all items for current month
   const needsItems = getBudgetsByGroup('NEEDS', month);
