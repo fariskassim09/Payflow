@@ -63,7 +63,7 @@ export default function AddCategoryModal({ isOpen, onClose }: AddCategoryModalPr
 
   if (!isOpen) return null;
 
-  const amount = (expectedSalary * formData.percentage) / 100;
+  const percentage = expectedSalary > 0 ? (formData.amount / expectedSalary) * 100 : 0;
 
   return (
     <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-end z-[60]">
@@ -116,15 +116,15 @@ export default function AddCategoryModal({ isOpen, onClose }: AddCategoryModalPr
                 <span className="text-accent font-semibold">RM</span>
                 <input
                   type="number"
-                  value={formData.percentage === 0 ? '' : formData.percentage}
-                  onChange={(e) => setFormData({ ...formData, percentage: parseFloat(e.target.value) || 0 })}
+                  value={formData.amount === 0 ? '' : formData.amount}
+                  onChange={(e) => setFormData({ ...formData, amount: parseFloat(e.target.value) || 0 })}
                   placeholder="0.00"
                   className="flex-1 bg-transparent text-foreground placeholder-secondary-foreground focus:outline-none"
-                  step="0.1"
+                  step="0.01"
                 />
               </div>
               <p className="text-xs text-secondary-foreground mt-2">
-                {amount.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} ({formData.percentage}% of salary)
+                {percentage.toFixed(1)}% of salary (RM {formData.amount.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })})
               </p>
             </div>
 
