@@ -296,19 +296,23 @@ export default function AddCategoryModal({ isOpen, onClose }: AddCategoryModalPr
         {/* Color Picker */}
         {step === 'colors' && (
           <div className="space-y-4">
-            <div className="grid grid-cols-10 gap-3">
+            <div className="grid grid-cols-5 gap-4">
               {COLOR_OPTIONS.map((color) => (
-                <button
-                  key={color}
-                  onClick={() => {
-                    setFormData({ ...formData, color });
-                    setStep('form');
-                  }}
-                  className={`w-12 h-12 rounded-full transition-all duration-300 ${
-                    formData.color === color ? 'ring-2 ring-offset-2 ring-accent' : ''
-                  }`}
-                  style={{ backgroundColor: color }}
-                />
+                <div key={color} className="flex flex-col items-center gap-2">
+                  <button
+                    onClick={() => {
+                      setFormData({ ...formData, color });
+                      setStep('form');
+                    }}
+                    className={`w-16 h-16 rounded-full transition-all duration-300 border-4 ${
+                      formData.color === color ? 'border-accent scale-110' : 'border-transparent'
+                    }`}
+                    style={{ backgroundColor: color }}
+                  />
+                  {formData.color === color && (
+                    <span className="text-xs font-medium text-accent">Selected</span>
+                  )}
+                </div>
               ))}
             </div>
           </div>

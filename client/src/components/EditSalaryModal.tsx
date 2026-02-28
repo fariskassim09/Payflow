@@ -9,21 +9,20 @@ interface EditSalaryModalProps {
 }
 
 export default function EditSalaryModal({ isOpen, onClose, currentMonth }: EditSalaryModalProps) {
-  const { getMonthlySalary, setMonthlySalary } = useSalary();
+  const { expectedSalary, setExpectedSalary } = useSalary();
   const month = currentMonth || new Date(2026, 1);
-  const currentSalary = getMonthlySalary(month);
-  const [inputValue, setInputValue] = useState(currentSalary.toString());
+  const [inputValue, setInputValue] = useState(expectedSalary.toString());
 
   useEffect(() => {
     if (isOpen) {
-      setInputValue(getMonthlySalary(month).toString());
+      setInputValue(expectedSalary.toString());
     }
-  }, [isOpen, month]);
+  }, [isOpen, expectedSalary]);
 
   const handleSave = () => {
     const value = parseFloat(inputValue);
     if (!isNaN(value) && value >= 0) {
-      setMonthlySalary(month, value);
+      setExpectedSalary(value);
       onClose();
     }
   };
@@ -31,9 +30,6 @@ export default function EditSalaryModal({ isOpen, onClose, currentMonth }: EditS
 
 
   if (!isOpen) return null;
-
-  const monthName = month.toLocaleString('en-US', { month: 'long', year: 'numeric' });
-  const displaySalary = getMonthlySalary(month);
 
   return (
     <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
@@ -49,17 +45,17 @@ export default function EditSalaryModal({ isOpen, onClose, currentMonth }: EditS
           </button>
         </div>
 
-        {/* Month Info */}
+        {/* Global Salary Info */}
         <div className="mb-4 p-3 bg-secondary/50 rounded-xl">
-          <p className="text-sm text-secondary-foreground">Month</p>
-          <p className="text-lg font-semibold text-foreground">{monthName}</p>
-          <p className="text-xs text-secondary-foreground mt-1">Current: RM {(displaySalary || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</p>
+          <p className="text-sm text-secondary-foreground">Global Expected Salary</p>
+          <p className="text-xs text-secondary-foreground mt-1">This salary applies to all months</p>
+          <p className="text-lg font-semibold text-foreground mt-2">Current: RM {(expectedSalary || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</p>
         </div>
 
         {/* Input */}
         <div className="mb-6">
           <label className="block text-sm font-medium text-secondary-foreground mb-2">
-            Expected Monthly Salary
+            Expected Salary (Global)
           </label>
           <div className="flex items-center gap-2">
             <span className="text-lg font-semibold text-foreground">RM</span>

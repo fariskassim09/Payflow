@@ -7,10 +7,21 @@ import BottomNavigation from '@/components/BottomNavigation';
 // - Remaining amount highlighted in bright green
 // - Group breakdown with icon, name, percentage, and amount
 // - Support for 1x and 2x monthly salary with separate breakdowns
+// - Month navigation to view different months
 
 export default function Summary() {
   const { getMonthlySalary, getMidMonthlySalary, getEndMonthlySalary, getBudgetsByGroup, salaryFrequency, isMonthPaid } = useSalary();
-  const [currentMonth] = useState(new Date(2026, 1)); // February 2026
+  const [currentMonth, setCurrentMonth] = useState(new Date(2026, 1)); // February 2026
+
+  const handlePreviousMonth = () => {
+    setCurrentMonth(new Date(currentMonth.getFullYear(), currentMonth.getMonth() - 1));
+  };
+
+  const handleNextMonth = () => {
+    setCurrentMonth(new Date(currentMonth.getFullYear(), currentMonth.getMonth() + 1));
+  };
+
+  const monthName = currentMonth.toLocaleString('default', { month: 'long', year: 'numeric' });
   const monthPaid = isMonthPaid(currentMonth);
   const monthlySalary = getMonthlySalary(currentMonth);
   const midSalary = getMidMonthlySalary(currentMonth);
@@ -59,11 +70,27 @@ export default function Summary() {
         <main className="container mx-auto px-4 pt-8 max-w-2xl">
           {/* Header */}
           <div className="mb-8 animate-fade-in">
-            <div className="flex items-center justify-between">
+            <div className="flex items-center justify-between mb-4">
               <h1 className="text-3xl font-bold">Summary</h1>
               <div className="flex items-center gap-2 px-3 py-1 rounded-full bg-accent/20 text-accent text-sm font-medium">
                 <span>{monthPaid ? '✓ Paid' : '○ Unpaid'}</span>
               </div>
+            </div>
+            {/* Month Navigation */}
+            <div className="flex items-center justify-between gap-4">
+              <button
+                onClick={handlePreviousMonth}
+                className="px-4 py-2 bg-secondary border border-border rounded-lg text-foreground hover:border-accent transition-colors font-medium"
+              >
+                ← Previous
+              </button>
+              <span className="text-sm font-semibold text-secondary-foreground">{monthName}</span>
+              <button
+                onClick={handleNextMonth}
+                className="px-4 py-2 bg-secondary border border-border rounded-lg text-foreground hover:border-accent transition-colors font-medium"
+              >
+                Next →
+              </button>
             </div>
           </div>
 
@@ -142,11 +169,27 @@ export default function Summary() {
       <main className="container mx-auto px-4 pt-8 max-w-2xl">
         {/* Header */}
         <div className="mb-8 animate-fade-in">
-          <div className="flex items-center justify-between">
+          <div className="flex items-center justify-between mb-4">
             <h1 className="text-3xl font-bold">Summary</h1>
             <div className="flex items-center gap-2 px-3 py-1 rounded-full bg-accent/20 text-accent text-sm font-medium">
               <span>{monthPaid ? '✓ Paid' : '○ Unpaid'}</span>
             </div>
+          </div>
+          {/* Month Navigation */}
+          <div className="flex items-center justify-between gap-4">
+            <button
+              onClick={handlePreviousMonth}
+              className="px-4 py-2 bg-secondary border border-border rounded-lg text-foreground hover:border-accent transition-colors font-medium"
+            >
+              ← Previous
+            </button>
+            <span className="text-sm font-semibold text-secondary-foreground">{monthName}</span>
+            <button
+              onClick={handleNextMonth}
+              className="px-4 py-2 bg-secondary border border-border rounded-lg text-foreground hover:border-accent transition-colors font-medium"
+            >
+              Next →
+            </button>
           </div>
         </div>
 
