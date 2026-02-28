@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { BudgetItem } from '@/contexts/SalaryContext';
 import { useSalary } from '@/contexts/SalaryContext';
 import SwipeableCategory from './SwipeableCategory';
@@ -30,6 +30,16 @@ export default function CategoryGroup({ group, items, onCategoryTap, currentMont
   const groupTotal = items.reduce((sum, item) => sum + item.percentage, 0);
   const groupAmount = (expectedSalary * groupTotal) / 100;
 
+  // Sort items with useMemo to ensure proper re-rendering when paid status changes
+  const sortedItems = useMemo(() => {
+    return [...items].sort((a, b) => {
+      const aIsPaid = isCategoryPaidForMonth(a.id, currentMonth);
+      const bIsPaid = isCategoryPaidForMonth(b.id, currentMonth);
+      // Unpaid items (false) come first, paid items (true) come last
+      return aIsPaid === bIsPaid ? 0 : aIsPaid ? 1 : -1;
+    });
+  }, [items, currentMonth, isCategoryPaidForMonth]);
+
   return (
     <div className="space-y-3">
       {/* Group Header */}
@@ -44,14 +54,7 @@ export default function CategoryGroup({ group, items, onCategoryTap, currentMont
 
       {/* Group Items */}
       <div className="space-y-2">
-        {items
-          .sort((a, b) => {
-            const aIsPaid = isCategoryPaidForMonth(a.id, currentMonth);
-            const bIsPaid = isCategoryPaidForMonth(b.id, currentMonth);
-            // Unpaid items (false) come first, paid items (true) come last
-            return aIsPaid === bIsPaid ? 0 : aIsPaid ? 1 : -1;
-          })
-          .map((item) => {
+        {sortedItems.map((item) => {
           const amount = (expectedSalary * item.percentage) / 100;
           return (
             <SwipeableCategory
