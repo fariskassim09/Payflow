@@ -27,7 +27,7 @@ export default function AddCategoryModal({ isOpen, onClose }: AddCategoryModalPr
   const shouldShowSalaryType = salaryFrequency === '2x';
   const [formData, setFormData] = useState({
     name: '',
-    percentage: 0,
+    amount: 0,
     group: 'NEEDS' as 'NEEDS' | 'WANTS' | 'SAVINGS' | 'DEBTS',
     icon: '🏠',
     color: '#3B82F6',
@@ -38,18 +38,19 @@ export default function AddCategoryModal({ isOpen, onClose }: AddCategoryModalPr
 
   const handleAddCategory = () => {
     if (formData.name.trim()) {
+      const percentage = expectedSalary > 0 ? (formData.amount / expectedSalary) * 100 : 0;
       const newCategory = {
         id: `custom-${Date.now()}`,
         name: formData.name,
         icon: formData.icon,
-        percentage: formData.percentage,
+        percentage: percentage,
         group: formData.group,
       };
       addBudgetItem(newCategory);
       onClose();
       setFormData({
         name: '',
-        percentage: 0,
+        amount: 0,
         group: 'NEEDS',
         icon: '🏠',
         color: '#3B82F6',
