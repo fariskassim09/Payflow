@@ -105,6 +105,13 @@ export function SalaryProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
+  // Update expectedSalary based on current month's salary
+  useEffect(() => {
+    const currentMonth = new Date();
+    const currentMonthSalary = getMonthlySalary(currentMonth);
+    setExpectedSalary(currentMonthSalary);
+  }, [monthlySalaries]);
+
   const getMidMonthlySalary = (date: Date): number => {
     const existing = monthlySalaries.find(
       ms => ms.year === date.getFullYear() && ms.month === date.getMonth()
