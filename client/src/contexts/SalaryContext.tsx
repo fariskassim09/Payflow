@@ -53,7 +53,7 @@ interface SalaryContextType {
 const SalaryContext = createContext<SalaryContextType | undefined>(undefined);
 
 export function SalaryProvider({ children }: { children: React.ReactNode }) {
-  const DEFAULT_SALARY = 3400;
+  const DEFAULT_SALARY = 0;
   const [isInitialized, setIsInitialized] = useState(false);
   
   // Load from localStorage on mount
@@ -72,7 +72,7 @@ export function SalaryProvider({ children }: { children: React.ReactNode }) {
   const [salaryFrequency, setSalaryFrequencyState] = useState<'1x' | '2x'>(initialData?.salaryFrequency || '1x');
   const [expectedSalary, setExpectedSalary] = useState(DEFAULT_SALARY);
   const [monthlySalaries, setMonthlySalariesState] = useState<MonthlySalary[]>(
-    initialData?.monthlySalaries || [{ year: 2026, month: 1, midSalary: 1700, endSalary: 1700 }]
+    initialData?.monthlySalaries || []
   );
   const currentDate = new Date(2026, 1); // February 2026
   
