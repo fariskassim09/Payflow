@@ -1,0 +1,30 @@
+{
+  "cli": {
+    "version": ">= 18.0.0"
+  },
+  "build": {
+    "development": {
+      "developmentClient": true,
+      "distribution": "internal"
+    },
+    "preview": {
+      "distribution": "internal"
+    },
+    "production": {
+      "distribution": "store"
+    },
+    "android": {
+      "release": {
+        "workflow": "generic"
+      }
+    },
+    "ios": {
+      "release": {
+        "workflow": "generic"
+      }
+    }
+  },
+  "submit": {
+    "production": {}
+  }
+}

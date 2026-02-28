@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">Payflow</string>
+    <string name="title_activity_main">Payflow</string>
+    <string name="package_name">com.faris.payflow</string>
+    <string name="custom_url_scheme">com.faris.payflow</string>
+</resources>
