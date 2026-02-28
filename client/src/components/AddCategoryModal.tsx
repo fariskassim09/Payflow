@@ -37,17 +37,33 @@ export default function AddCategoryModal({ isOpen, onClose }: AddCategoryModalPr
   });
 
   const handleAddCategory = () => {
-    if (formData.name.trim()) {
-      const percentage = expectedSalary > 0 ? (formData.amount / expectedSalary) * 100 : 0;
-      const newCategory = {
-        id: `custom-${Date.now()}`,
-        name: formData.name,
-        icon: formData.icon,
-        percentage: percentage,
-        group: formData.group,
-      };
-      addBudgetItem(newCategory);
-      onClose();
+    if (!formData.name.trim()) {
+      alert('Please enter a category name');
+      return;
+    }
+    if (formData.amount <= 0) {
+      alert('Please enter a valid amount');
+      return;
+    }
+    if (expectedSalary <= 0) {
+      alert('Please set your expected salary first');
+      return;
+    }
+    if (formData.amount > expectedSalary) {
+      alert(`Category amount (RM ${formData.amount.toFixed(2)}) cannot exceed expected salary (RM ${expectedSalary.toFixed(2)})`);
+      return;
+    }
+    
+    const percentage = (formData.amount / expectedSalary) * 100;
+    const newCategory = {
+      id: `custom-${Date.now()}`,
+      name: formData.name,
+      icon: formData.icon,
+      percentage: percentage,
+      group: formData.group,
+    };
+    addBudgetItem(newCategory);
+    onClose();
       setFormData({
         name: '',
         amount: 0,
