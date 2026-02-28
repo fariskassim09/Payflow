@@ -245,7 +245,10 @@ export function SalaryProvider({ children }: { children: React.ReactNode }) {
         
         if (!isSameMonth && item.repeatNextMonth) {
           // Return a copy with monthlyPaidStatus preserved (so each month can have independent paid status)
-          return { ...item };
+          return {
+            ...item,
+            monthlyPaidStatus: { ...(item.monthlyPaidStatus || {}) } // Deep copy to avoid shared reference
+          };
         }
       }
       return item;
