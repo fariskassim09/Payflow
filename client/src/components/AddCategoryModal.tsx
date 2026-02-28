@@ -63,19 +63,18 @@ export default function AddCategoryModal({ isOpen, onClose }: AddCategoryModalPr
       group: formData.group,
     };
     addBudgetItem(newCategory);
+    setFormData({
+      name: '',
+      amount: 0,
+      group: 'NEEDS',
+      icon: '🏠',
+      color: '#3B82F6',
+      repeatNextMonth: true,
+      markAsPaid: false,
+      salaryType: 'mid',
+    });
+    setStep('form');
     onClose();
-      setFormData({
-        name: '',
-        amount: 0,
-        group: 'NEEDS',
-        icon: '🏠',
-        color: '#3B82F6',
-        repeatNextMonth: true,
-        markAsPaid: false,
-        salaryType: 'mid',
-      });
-      setStep('form');
-    }
   };
 
   if (!isOpen) return null;
