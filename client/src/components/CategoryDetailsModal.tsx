@@ -161,7 +161,7 @@ export default function CategoryDetailsModal({ isOpen, categoryId, onClose }: Ca
               Percentage
             </label>
             <div className="w-full bg-secondary border border-border rounded-xl px-4 py-3 text-foreground font-semibold">
-              {category.percentage.toFixed(1)}%
+              {category.percentage.toFixed(2)}%
             </div>
           </div>
         </div>

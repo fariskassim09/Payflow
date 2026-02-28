@@ -125,7 +125,7 @@ export default function AddCategoryModal({ isOpen, onClose }: AddCategoryModalPr
                 />
               </div>
               <p className="text-xs text-secondary-foreground mt-2">
-                {percentage.toFixed(1)}% of salary (RM {(formData.amount || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })})
+                {percentage.toFixed(2)}% of salary (RM {(formData.amount || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })})
               </p>
             </div>
 
