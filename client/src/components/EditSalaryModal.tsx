@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { X, RotateCcw } from 'lucide-react';
+import { X } from 'lucide-react';
 import { useSalary } from '@/contexts/SalaryContext';
 
 interface EditSalaryModalProps {
@@ -9,7 +9,7 @@ interface EditSalaryModalProps {
 }
 
 export default function EditSalaryModal({ isOpen, onClose, currentMonth }: EditSalaryModalProps) {
-  const { getMonthlySalary, setMonthlySalary, resetMonthlySalary } = useSalary();
+  const { getMonthlySalary, setMonthlySalary } = useSalary();
   const month = currentMonth || new Date(2026, 1);
   const currentSalary = getMonthlySalary(month);
   const [inputValue, setInputValue] = useState(currentSalary.toString());
@@ -28,12 +28,7 @@ export default function EditSalaryModal({ isOpen, onClose, currentMonth }: EditS
     }
   };
 
-  const handleReset = () => {
-    resetMonthlySalary(month);
-    setTimeout(() => {
-      setInputValue('3400');
-    }, 0);
-  };
+
 
   if (!isOpen) return null;
 
@@ -95,14 +90,6 @@ export default function EditSalaryModal({ isOpen, onClose, currentMonth }: EditS
           </button>
         </div>
 
-        {/* Reset Button */}
-        <button
-          onClick={handleReset}
-          className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-secondary/50 border border-border rounded-xl text-foreground hover:bg-secondary/70 transition-all duration-300 font-medium"
-        >
-          <RotateCcw size={18} />
-          Reset to Default
-        </button>
       </div>
     </div>
   );
