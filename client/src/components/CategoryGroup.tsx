@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { BudgetItem } from '@/contexts/SalaryContext';
 import { useSalary } from '@/contexts/SalaryContext';
 import SwipeableCategory from './SwipeableCategory';
@@ -6,6 +7,7 @@ interface CategoryGroupProps {
   group: 'NEEDS' | 'WANTS' | 'SAVINGS' | 'DEBTS';
   items: BudgetItem[];
   onCategoryTap?: (id: string) => void;
+  currentMonth?: Date;
 }
 
 const groupColors: Record<string, string> = {
@@ -22,8 +24,8 @@ const groupLabels: Record<string, string> = {
   DEBTS: 'DEBTS',
 };
 
-export default function CategoryGroup({ group, items, onCategoryTap }: CategoryGroupProps) {
-  const { expectedSalary, togglePaidStatus, removeBudgetItem } = useSalary();
+export default function CategoryGroup({ group, items, onCategoryTap, currentMonth = new Date(2026, 1) }: CategoryGroupProps) {
+  const { expectedSalary, togglePaidStatus, removeBudgetItem, isCategoryPaidForMonth, toggleCategoryPaidStatus } = useSalary();
 
   const groupTotal = items.reduce((sum, item) => sum + item.percentage, 0);
   const groupAmount = (expectedSalary * groupTotal) / 100;
@@ -57,6 +59,8 @@ export default function CategoryGroup({ group, items, onCategoryTap }: CategoryG
               onMarkPaid={togglePaidStatus}
               onDelete={removeBudgetItem}
               onTap={onCategoryTap}
+              isMonthPaid={isCategoryPaidForMonth(item.id, currentMonth)}
+              onToggleMonthPaid={(id) => toggleCategoryPaidStatus(id, currentMonth)}
             />
           );
         })}

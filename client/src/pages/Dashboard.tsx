@@ -20,14 +20,14 @@ import { useSalary } from '@/contexts/SalaryContext';
 // - Smooth animations and transitions
 
 export default function Dashboard() {
-  const { getBudgetsByGroup, salaryFrequency } = useSalary();
+  const { getBudgetsByGroup, salaryFrequency, isCategoryPaidForMonth, toggleCategoryPaidStatus, budgetItems } = useSalary();
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isEditDualModalOpen, setIsEditDualModalOpen] = useState(false);
   const [editingSalaryType, setEditingSalaryType] = useState<'mid' | 'end'>('mid');
   const [isAddCategoryOpen, setIsAddCategoryOpen] = useState(false);
   const [selectedCategoryId, setSelectedCategoryId] = useState<string | null>(null);
   const [isCategoryDetailsOpen, setIsCategoryDetailsOpen] = useState(false);
-  const [currentMonth, setCurrentMonth] = useState(new Date(2026, 1)); // February 2026
+  const [currentMonth, setCurrentMonth] = useState(new Date()); // Current month
   const [salaryTypeFilter, setSalaryTypeFilter] = useState<'all' | 'mid' | 'end'>('all');
 
   const getFilteredItems = (items: any[]) => {
@@ -50,6 +50,24 @@ export default function Dashboard() {
     setIsEditDualModalOpen(true);
   };
 
+  const handleMarkAllPaid = () => {
+    const allCategories = [...needsItems, ...wantsItems, ...savingsItems, ...debtsItems];
+    allCategories.forEach(item => {
+      if (!isCategoryPaidForMonth(item.id, currentMonth)) {
+        toggleCategoryPaidStatus(item.id, currentMonth);
+      }
+    });
+  };
+
+  const handleMarkAllUnpaid = () => {
+    const allCategories = [...needsItems, ...wantsItems, ...savingsItems, ...debtsItems];
+    allCategories.forEach(item => {
+      if (isCategoryPaidForMonth(item.id, currentMonth)) {
+        toggleCategoryPaidStatus(item.id, currentMonth);
+      }
+    });
+  };
+
   return (
     <div className="min-h-screen bg-background text-foreground flex flex-col">
       {/* Main Content */}
@@ -68,8 +86,24 @@ export default function Dashboard() {
 
         {/* Budget Categories Section */}
         <div className="mb-12">
-          <div className="flex items-center justify-between mb-6">
-            <h2 className="text-xl font-bold text-foreground">Budget Categories</h2>
+          <div className="mb-6">
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-xl font-bold text-foreground">Budget Categories</h2>
+            </div>
+            <div className="flex gap-2 mb-4">
+              <button
+                onClick={handleMarkAllPaid}
+                className="flex-1 px-4 py-2 bg-accent text-accent-foreground rounded-lg text-sm font-medium hover:bg-accent/90 transition-all"
+              >
+                Mark All Paid
+              </button>
+              <button
+                onClick={handleMarkAllUnpaid}
+                className="flex-1 px-4 py-2 bg-secondary text-secondary-foreground rounded-lg text-sm font-medium hover:bg-secondary/80 transition-all"
+              >
+                Mark All Unpaid
+              </button>
+            </div>
           </div>
 
           {/* Filter Tabs - Only show for 2x salary */}
@@ -93,16 +127,16 @@ export default function Dashboard() {
 
           <div className="space-y-8">
             {needsItems.length > 0 && (
-              <CategoryGroup group="NEEDS" items={needsItems} onCategoryTap={(id) => { setSelectedCategoryId(id); setIsCategoryDetailsOpen(true); }} />
+              <CategoryGroup key={`NEEDS-${currentMonth.getFullYear()}-${currentMonth.getMonth()}`} group="NEEDS" items={needsItems} onCategoryTap={(id) => { setSelectedCategoryId(id); setIsCategoryDetailsOpen(true); }} currentMonth={currentMonth} />
             )}
             {wantsItems.length > 0 && (
-              <CategoryGroup group="WANTS" items={wantsItems} onCategoryTap={(id) => { setSelectedCategoryId(id); setIsCategoryDetailsOpen(true); }} />
+              <CategoryGroup key={`WANTS-${currentMonth.getFullYear()}-${currentMonth.getMonth()}`} group="WANTS" items={wantsItems} onCategoryTap={(id) => { setSelectedCategoryId(id); setIsCategoryDetailsOpen(true); }} currentMonth={currentMonth} />
             )}
             {savingsItems.length > 0 && (
-              <CategoryGroup group="SAVINGS" items={savingsItems} onCategoryTap={(id) => { setSelectedCategoryId(id); setIsCategoryDetailsOpen(true); }} />
+              <CategoryGroup key={`SAVINGS-${currentMonth.getFullYear()}-${currentMonth.getMonth()}`} group="SAVINGS" items={savingsItems} onCategoryTap={(id) => { setSelectedCategoryId(id); setIsCategoryDetailsOpen(true); }} currentMonth={currentMonth} />
             )}
             {debtsItems.length > 0 && (
-              <CategoryGroup group="DEBTS" items={debtsItems} onCategoryTap={(id) => { setSelectedCategoryId(id); setIsCategoryDetailsOpen(true); }} />
+              <CategoryGroup key={`DEBTS-${currentMonth.getFullYear()}-${currentMonth.getMonth()}`} group="DEBTS" items={debtsItems} onCategoryTap={(id) => { setSelectedCategoryId(id); setIsCategoryDetailsOpen(true); }} currentMonth={currentMonth} />
             )}
           </div>
         </div>

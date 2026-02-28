@@ -13,6 +13,8 @@ interface SwipeableCategoryProps {
   onMarkPaid?: (id: string) => void;
   onDelete?: (id: string) => void;
   onTap?: (id: string) => void;
+  isMonthPaid?: boolean;
+  onToggleMonthPaid?: (id: string) => void;
 }
 
 export default function SwipeableCategory({
@@ -26,6 +28,8 @@ export default function SwipeableCategory({
   onMarkPaid,
   onDelete,
   onTap,
+  isMonthPaid = false,
+  onToggleMonthPaid,
 }: SwipeableCategoryProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [startX, setStartX] = useState(0);
@@ -68,9 +72,9 @@ export default function SwipeableCategory({
   };
 
   const handleMarkPaid = () => {
-    if (onMarkPaid) {
-      onMarkPaid(id);
-      toast.success(isPaid ? 'Marked as unpaid' : 'Marked as paid');
+    if (onToggleMonthPaid) {
+      onToggleMonthPaid(id);
+      toast.success(isMonthPaid ? 'Marked as unpaid for this month' : 'Marked as paid for this month');
       setIsOpen(false);
     }
   };
@@ -96,8 +100,8 @@ export default function SwipeableCategory({
           onClick={handleMarkPaid}
           className="flex items-center gap-1 px-2 py-2 bg-accent text-accent-foreground rounded-lg hover:bg-accent/90 transition-all duration-300 text-xs font-medium whitespace-nowrap pointer-events-auto"
         >
-          {isPaid ? <Circle size={16} /> : <CheckCircle2 size={16} />}
-          {isPaid ? 'Unpaid' : 'Paid'}
+          {isMonthPaid ? <Circle size={16} /> : <CheckCircle2 size={16} />}
+          {isMonthPaid ? 'Unpaid' : 'Paid'}
         </button>
         <button
           onClick={handleDelete}
@@ -117,19 +121,19 @@ export default function SwipeableCategory({
         onClick={handleContentClick}
       >
         <div className="flex items-center gap-3 flex-1">
-          <div className={`text-2xl ${isPaid ? 'opacity-50' : ''}`}>{icon}</div>
+          <div className={`text-2xl ${isMonthPaid ? 'opacity-50' : ''}`}>{icon}</div>
           <div className="flex-1">
             <div className="flex items-center gap-2 flex-wrap">
-              <p className={`font-semibold ${isPaid ? 'line-through opacity-50' : 'text-foreground'}`}>
+              <p className={`font-semibold ${isMonthPaid ? 'line-through opacity-50' : 'text-foreground'}`}>
                 {name}
               </p>
-              {isPaid && <span className="text-xs bg-accent/20 text-accent px-2 py-1 rounded-full">✓ Paid</span>}
+              {isMonthPaid && <span className="text-xs bg-accent/20 text-accent px-2 py-1 rounded-full">✓ Paid</span>}
               {repeatNextMonth && <span className="text-xs bg-secondary text-secondary-foreground px-2 py-1 rounded-full">↻ Repeat</span>}
             </div>
             <p className="text-xs text-secondary-foreground">{percentage.toFixed(2)}% of salary</p>
           </div>
         </div>
-        <p className={`font-bold text-lg ${isPaid ? 'opacity-50' : 'text-accent'}`}>
+        <p className={`font-bold text-lg ${isMonthPaid ? 'opacity-50' : 'text-accent'}`}>
           RM {(amount || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
         </p>
       </div>

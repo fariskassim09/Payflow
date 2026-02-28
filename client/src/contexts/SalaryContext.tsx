@@ -12,6 +12,7 @@ export interface BudgetItem {
   createdAt?: Date;
   salaryType?: 'full' | 'mid' | 'end'; // Which salary cycle this belongs to
   amount?: number; // Deducted amount if applicable
+  monthlyPaidStatus?: Record<string, boolean>; // Track paid status per month as "YYYY-MM" key
 }
 
 export interface BudgetGroup {
@@ -24,6 +25,7 @@ interface MonthlySalary {
   month: number;
   midSalary: number;
   endSalary: number;
+  isPaid?: boolean; // Track if salary is paid for this month
 }
 
 interface SalaryContextType {
@@ -48,6 +50,10 @@ interface SalaryContextType {
   getBudgetsByGroup: (group: 'NEEDS' | 'WANTS' | 'SAVINGS' | 'DEBTS', currentMonth?: Date, salaryType?: 'full' | 'mid' | 'end') => BudgetItem[];
   getTotalPercentage: (currentMonth?: Date, salaryType?: 'full' | 'mid' | 'end') => number;
   getMonthlySalariesData: () => Array<{ year: number; month: number; midSalary: number; endSalary: number }>;
+  isMonthPaid: (date: Date) => boolean;
+  toggleMonthPaidStatus: (date: Date) => void;
+  isCategoryPaidForMonth: (categoryId: string, date: Date) => boolean;
+  toggleCategoryPaidStatus: (categoryId: string, date: Date) => void;
 }
 
 const SalaryContext = createContext<SalaryContextType | undefined>(undefined);
@@ -231,6 +237,18 @@ export function SalaryProvider({ children }: { children: React.ReactNode }) {
       if (salaryType && item.salaryType && item.salaryType !== salaryType) return false;
       
       return true;
+    }).map(item => {
+      // If this item is repeated to a different month, return a copy with reset paid status
+      if (currentMonth && item.createdAt) {
+        const itemDate = new Date(item.createdAt);
+        const isSameMonth = itemDate.getFullYear() === currentMonth.getFullYear() && itemDate.getMonth() === currentMonth.getMonth();
+        
+        if (!isSameMonth && item.repeatNextMonth) {
+          // Return a copy with monthlyPaidStatus preserved (so each month can have independent paid status)
+          return { ...item };
+        }
+      }
+      return item;
     });
     
     return items;
@@ -259,6 +277,61 @@ export function SalaryProvider({ children }: { children: React.ReactNode }) {
     setSalaryFrequencyState(frequency);
   };
 
+  const isMonthPaid = (date: Date): boolean => {
+    const existing = monthlySalaries.find(
+      ms => ms.year === date.getFullYear() && ms.month === date.getMonth()
+    );
+    return existing?.isPaid || false;
+  };
+
+  const toggleMonthPaidStatus = (date: Date) => {
+    setMonthlySalariesState(prev => {
+      const existing = prev.find(
+        ms => ms.year === date.getFullYear() && ms.month === date.getMonth()
+      );
+      if (existing) {
+        return prev.map(ms =>
+          ms.year === date.getFullYear() && ms.month === date.getMonth()
+            ? { ...ms, isPaid: !ms.isPaid }
+            : ms
+        );
+      } else {
+        return [...prev, { year: date.getFullYear(), month: date.getMonth(), midSalary: DEFAULT_SALARY / 2, endSalary: DEFAULT_SALARY / 2, isPaid: true }];
+      }
+    });
+  };
+
+
+  const isCategoryPaidForMonth = (categoryId: string, date: Date): boolean => {
+    const item = budgetItems.find(item => item.id === categoryId);
+    if (!item) return false;
+    const monthKey = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
+    const status = item.monthlyPaidStatus?.[monthKey] || false;
+    console.log(`Checking ${item.name} for ${monthKey}: ${status}`);
+    return status;
+  };
+
+  const toggleCategoryPaidStatus = (categoryId: string, date: Date) => {
+    setBudgetItemsState(prev =>
+      prev.map(item => {
+        if (item.id === categoryId) {
+          const monthKey = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
+          const currentStatus = item.monthlyPaidStatus?.[monthKey] || false;
+          const newStatus = !currentStatus;
+          console.log(`Toggling ${item.name} for ${monthKey}: ${currentStatus} -> ${newStatus}`);
+          return {
+            ...item,
+            monthlyPaidStatus: {
+              ...(item.monthlyPaidStatus || {}),
+              [monthKey]: newStatus
+            }
+          };
+        }
+        return item;
+      })
+    );
+  };
+
   return (
     <SalaryContext.Provider
       value={{
@@ -283,6 +356,10 @@ export function SalaryProvider({ children }: { children: React.ReactNode }) {
         getBudgetsByGroup,
         getTotalPercentage,
         getMonthlySalariesData: () => monthlySalaries,
+        isMonthPaid,
+        toggleMonthPaidStatus,
+        isCategoryPaidForMonth,
+        toggleCategoryPaidStatus,
       }}
     >
       {children}

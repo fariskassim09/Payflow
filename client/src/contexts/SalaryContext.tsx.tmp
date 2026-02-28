@@ -1,0 +1,35 @@
+
+  const isCategoryPaidForMonth = (categoryId: string, date: Date): boolean => {
+    const item = budgetItems.find(item => item.id === categoryId);
+    if (!item || !item.paidMonths) return false;
+    return item.paidMonths.some(
+      pm => pm.year === date.getFullYear() && pm.month === date.getMonth()
+    );
+  };
+
+  const toggleCategoryPaidStatus = (categoryId: string, date: Date) => {
+    setBudgetItemsState(prev =>
+      prev.map(item => {
+        if (item.id === categoryId) {
+          const paidMonths = item.paidMonths || [];
+          const isCurrentlyPaid = paidMonths.some(
+            pm => pm.year === date.getFullYear() && pm.month === date.getMonth()
+          );
+          if (isCurrentlyPaid) {
+            return {
+              ...item,
+              paidMonths: paidMonths.filter(
+                pm => !(pm.year === date.getFullYear() && pm.month === date.getMonth())
+              )
+            };
+          } else {
+            return {
+              ...item,
+              paidMonths: [...paidMonths, { year: date.getFullYear(), month: date.getMonth() }]
+            };
+          }
+        }
+        return item;
+      })
+    );
+  };

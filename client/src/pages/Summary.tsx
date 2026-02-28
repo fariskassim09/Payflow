@@ -9,8 +9,9 @@ import BottomNavigation from '@/components/BottomNavigation';
 // - Support for 1x and 2x monthly salary with separate breakdowns
 
 export default function Summary() {
-  const { getMonthlySalary, getMidMonthlySalary, getEndMonthlySalary, getBudgetsByGroup, salaryFrequency } = useSalary();
+  const { getMonthlySalary, getMidMonthlySalary, getEndMonthlySalary, getBudgetsByGroup, salaryFrequency, isMonthPaid } = useSalary();
   const [currentMonth] = useState(new Date(2026, 1)); // February 2026
+  const monthPaid = isMonthPaid(currentMonth);
   const monthlySalary = getMonthlySalary(currentMonth);
   const midSalary = getMidMonthlySalary(currentMonth);
   const endSalary = getEndMonthlySalary(currentMonth);
@@ -58,7 +59,12 @@ export default function Summary() {
         <main className="container mx-auto px-4 pt-8 max-w-2xl">
           {/* Header */}
           <div className="mb-8 animate-fade-in">
-            <h1 className="text-3xl font-bold">Summary</h1>
+            <div className="flex items-center justify-between">
+              <h1 className="text-3xl font-bold">Summary</h1>
+              <div className="flex items-center gap-2 px-3 py-1 rounded-full bg-accent/20 text-accent text-sm font-medium">
+                <span>{monthPaid ? '✓ Paid' : '○ Unpaid'}</span>
+              </div>
+            </div>
           </div>
 
           {/* Main Card */}
@@ -136,7 +142,12 @@ export default function Summary() {
       <main className="container mx-auto px-4 pt-8 max-w-2xl">
         {/* Header */}
         <div className="mb-8 animate-fade-in">
-          <h1 className="text-3xl font-bold">Summary</h1>
+          <div className="flex items-center justify-between">
+            <h1 className="text-3xl font-bold">Summary</h1>
+            <div className="flex items-center gap-2 px-3 py-1 rounded-full bg-accent/20 text-accent text-sm font-medium">
+              <span>{monthPaid ? '✓ Paid' : '○ Unpaid'}</span>
+            </div>
+          </div>
         </div>
 
         {/* Total Monthly Card */}

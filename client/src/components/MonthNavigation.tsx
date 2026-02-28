@@ -1,5 +1,4 @@
 import { ChevronLeft, ChevronRight } from 'lucide-react';
-import { useState } from 'react';
 
 interface MonthNavigationProps {
   onMonthChange?: (date: Date) => void;
@@ -7,7 +6,7 @@ interface MonthNavigationProps {
 }
 
 export default function MonthNavigation({ onMonthChange, currentMonth: initialMonth }: MonthNavigationProps) {
-  const [date, setDate] = useState(initialMonth || new Date(2026, 1)); // February 2026
+  const date = initialMonth || new Date(2026, 1); // February 2026
 
   const monthYear = date.toLocaleDateString('en-US', {
     month: 'long',
@@ -16,13 +15,11 @@ export default function MonthNavigation({ onMonthChange, currentMonth: initialMo
 
   const handlePrevMonth = () => {
     const newDate = new Date(date.getFullYear(), date.getMonth() - 1);
-    setDate(newDate);
     onMonthChange?.(newDate);
   };
 
   const handleNextMonth = () => {
     const newDate = new Date(date.getFullYear(), date.getMonth() + 1);
-    setDate(newDate);
     onMonthChange?.(newDate);
   };
 

@@ -1,4 +1,4 @@
-import { Edit2 } from 'lucide-react';
+import { Edit2, CheckCircle2, Circle } from 'lucide-react';
 import { useSalary } from '@/contexts/SalaryContext';
 
 interface CombinedSalaryCardProps {
@@ -8,8 +8,9 @@ interface CombinedSalaryCardProps {
 }
 
 export default function CombinedSalaryCard({ onEditMid, onEditEnd, currentMonth }: CombinedSalaryCardProps) {
-  const { getMidMonthlySalary, getEndMonthlySalary, getBudgetsByGroup } = useSalary();
+  const { getMidMonthlySalary, getEndMonthlySalary, getBudgetsByGroup, isMonthPaid, toggleMonthPaidStatus } = useSalary();
   const month = currentMonth || new Date(2026, 1);
+  const monthPaid = isMonthPaid(month);
   const midSalary = getMidMonthlySalary(month);
   const endSalary = getEndMonthlySalary(month);
   const totalSalary = midSalary + endSalary;
@@ -39,6 +40,18 @@ export default function CombinedSalaryCard({ onEditMid, onEditEnd, currentMonth 
 
   return (
     <div className="bg-gradient-to-br from-accent to-accent/80 rounded-3xl p-6 text-white relative overflow-hidden animate-fade-in">
+      {/* Paid Status Button */}
+      <button
+        onClick={() => toggleMonthPaidStatus(month)}
+        className="absolute top-6 left-6 w-10 h-10 rounded-full bg-white/20 hover:bg-white/30 flex items-center justify-center transition-all duration-300"
+      >
+        {monthPaid ? (
+          <CheckCircle2 size={18} className="text-green-400" />
+        ) : (
+          <Circle size={18} />
+        )}
+      </button>
+
       {/* Title */}
       <p className="text-sm font-medium opacity-90 mb-4">Expected Salary</p>
 
