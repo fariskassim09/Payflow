@@ -67,7 +67,9 @@ export default function AddCategoryModal({ isOpen, onClose }: AddCategoryModalPr
 
   return (
     <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-end z-50">
-      <div className="bg-card w-full rounded-t-3xl p-6 pb-32 max-h-[90vh] overflow-y-auto animate-fade-in">
+      <div className="bg-card w-full rounded-t-3xl flex flex-col max-h-[90vh] animate-fade-in">
+        {/* Scrollable Content */}
+        <div className="overflow-y-auto flex-1 p-6">
         {/* Header */}
         <div className="flex items-center justify-between mb-6">
           {step !== 'form' && (
@@ -243,21 +245,7 @@ export default function AddCategoryModal({ isOpen, onClose }: AddCategoryModalPr
               </div>
             </div>
 
-            {/* Action Buttons */}
-            <div className="flex gap-3 pt-4">
-              <button
-                onClick={onClose}
-                className="flex-1 px-4 py-3 bg-secondary border border-border rounded-xl text-foreground hover:bg-secondary/80 transition-all duration-300 font-medium"
-              >
-                Cancel
-              </button>
-              <button
-                onClick={handleAddCategory}
-                className="flex-1 px-4 py-3 bg-accent text-accent-foreground rounded-xl hover:bg-accent/90 transition-all duration-300 font-medium active:scale-95"
-              >
-                Add Category
-              </button>
-            </div>
+
           </div>
         )}
 
@@ -303,6 +291,24 @@ export default function AddCategoryModal({ isOpen, onClose }: AddCategoryModalPr
                 />
               ))}
             </div>
+          </div>
+        )}
+        </div>
+        {/* Fixed Action Buttons */}
+        {step === 'form' && (
+          <div className="flex gap-3 p-6 border-t border-border bg-card">
+            <button
+              onClick={onClose}
+              className="flex-1 px-4 py-3 bg-secondary border border-border rounded-xl text-foreground hover:bg-secondary/80 transition-all duration-300 font-medium"
+            >
+              Cancel
+            </button>
+            <button
+              onClick={handleAddCategory}
+              className="flex-1 px-4 py-3 bg-accent text-accent-foreground rounded-xl hover:bg-accent/90 transition-all duration-300 font-medium active:scale-95"
+            >
+              Add Category
+            </button>
           </div>
         )}
       </div>
