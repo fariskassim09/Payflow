@@ -22,7 +22,7 @@ export default function EditSalaryModal({ isOpen, onClose, currentMonth }: EditS
 
   const handleSave = () => {
     const value = parseFloat(inputValue);
-    if (!isNaN(value) && value > 0) {
+    if (!isNaN(value) && value >= 0) {
       setMonthlySalary(month, value);
       onClose();
     }
