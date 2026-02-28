@@ -67,7 +67,7 @@ export default function AddCategoryModal({ isOpen, onClose }: AddCategoryModalPr
 
   return (
     <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-end z-50">
-      <div className="bg-card w-full rounded-t-3xl p-6 max-h-[90vh] overflow-y-auto animate-fade-in">
+      <div className="bg-card w-full rounded-t-3xl p-6 pb-32 max-h-[90vh] overflow-y-auto animate-fade-in">
         {/* Header */}
         <div className="flex items-center justify-between mb-6">
           {step !== 'form' && (
@@ -114,7 +114,7 @@ export default function AddCategoryModal({ isOpen, onClose }: AddCategoryModalPr
                 <span className="text-accent font-semibold">RM</span>
                 <input
                   type="number"
-                  value={formData.percentage}
+                  value={formData.percentage === 0 ? '' : formData.percentage}
                   onChange={(e) => setFormData({ ...formData, percentage: parseFloat(e.target.value) || 0 })}
                   placeholder="0.00"
                   className="flex-1 bg-transparent text-foreground placeholder-secondary-foreground focus:outline-none"
