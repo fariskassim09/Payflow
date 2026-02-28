@@ -1,4 +1,4 @@
-import { Edit2, CheckCircle2, Circle } from 'lucide-react';
+import { Edit2 } from 'lucide-react';
 import { useSalary } from '@/contexts/SalaryContext';
 
 interface SalaryCardProps {
@@ -7,9 +7,8 @@ interface SalaryCardProps {
 }
 
 export default function SalaryCard({ onEditClick, currentMonth }: SalaryCardProps) {
-  const { getMonthlySalary, budgetItems, getBudgetsByGroup, isMonthPaid, toggleMonthPaidStatus } = useSalary();
+  const { getMonthlySalary, budgetItems, getBudgetsByGroup } = useSalary();
   const month = currentMonth || new Date(2026, 1);
-  const monthPaid = isMonthPaid(month);
   const monthlySalary = getMonthlySalary(month);
 
   // Get all items for current month
@@ -26,18 +25,6 @@ export default function SalaryCard({ onEditClick, currentMonth }: SalaryCardProp
 
   return (
     <div className="bg-gradient-to-br from-accent to-accent/80 rounded-3xl p-6 text-white relative overflow-hidden animate-fade-in">
-      {/* Paid Status Button */}
-      <button
-        onClick={() => toggleMonthPaidStatus(month)}
-        className="absolute top-6 left-6 w-10 h-10 rounded-full bg-white/20 hover:bg-white/30 flex items-center justify-center transition-all duration-300"
-      >
-        {monthPaid ? (
-          <CheckCircle2 size={18} className="text-green-400" />
-        ) : (
-          <Circle size={18} />
-        )}
-      </button>
-
       {/* Edit Button */}
       <button
         onClick={onEditClick}
