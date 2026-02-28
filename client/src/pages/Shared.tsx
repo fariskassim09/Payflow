@@ -240,7 +240,7 @@ export default function Shared() {
                         </div>
                       </div>
                       <p className="font-bold text-lg" style={{ color }}>
-                        RM {stats.((amount || 0)).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                        RM {((stats.amount || 0)).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                       </p>
                     </div>
                   );
