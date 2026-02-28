@@ -45,17 +45,17 @@ export default function EditSalaryModal({ isOpen, onClose, currentMonth }: EditS
           </button>
         </div>
 
-        {/* Global Salary Info */}
+        {/* Salary Info */}
         <div className="mb-4 p-3 bg-secondary/50 rounded-xl">
-          <p className="text-sm text-secondary-foreground">Global Expected Salary</p>
-          <p className="text-xs text-secondary-foreground mt-1">This salary applies to all months</p>
+          <p className="text-sm text-secondary-foreground">Expected Salary</p>
+          <p className="text-xs text-secondary-foreground mt-1">Used for all budget calculations</p>
           <p className="text-lg font-semibold text-foreground mt-2">Current: RM {(expectedSalary || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</p>
         </div>
 
         {/* Input */}
         <div className="mb-6">
           <label className="block text-sm font-medium text-secondary-foreground mb-2">
-            Expected Salary (Global)
+            Expected Salary
           </label>
           <div className="flex items-center gap-2">
             <span className="text-lg font-semibold text-foreground">RM</span>

@@ -9,6 +9,7 @@ export interface StoredSalaryData {
     midSalary: number;
     endSalary: number;
   }>;
+  expectedSalary?: number;
 }
 
 const STORAGE_KEY = 'salary-planner-data';

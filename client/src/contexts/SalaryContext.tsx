@@ -76,7 +76,7 @@ export function SalaryProvider({ children }: { children: React.ReactNode }) {
   const initialData = loadInitialData();
   
   const [salaryFrequency, setSalaryFrequencyState] = useState<'1x' | '2x'>(initialData?.salaryFrequency || '1x');
-  const [expectedSalary, setExpectedSalary] = useState(DEFAULT_SALARY);
+  const [expectedSalary, setExpectedSalaryState] = useState(initialData?.expectedSalary || DEFAULT_SALARY);
   const [monthlySalaries, setMonthlySalariesState] = useState<MonthlySalary[]>(
     initialData?.monthlySalaries || []
   );
@@ -91,9 +91,10 @@ export function SalaryProvider({ children }: { children: React.ReactNode }) {
         salaryFrequency,
         budgetItems,
         monthlySalaries,
+        expectedSalary,
       });
     }
-  }, [salaryFrequency, budgetItems, monthlySalaries, isInitialized]);
+  }, [salaryFrequency, budgetItems, monthlySalaries, expectedSalary, isInitialized]);
 
   // Mark as initialized after first render
   useEffect(() => {
@@ -111,12 +112,10 @@ export function SalaryProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
-  // Update expectedSalary based on current month's salary
-  useEffect(() => {
-    const currentMonth = new Date();
-    const currentMonthSalary = getMonthlySalary(currentMonth);
-    setExpectedSalary(currentMonthSalary);
-  }, [monthlySalaries]);
+  // Wrapper for setExpectedSalary to persist to localStorage
+  const setExpectedSalary = (salary: number) => {
+    setExpectedSalaryState(salary);
+  };
 
   const getMidMonthlySalary = (date: Date): number => {
     const existing = monthlySalaries.find(
@@ -334,14 +333,13 @@ export function SalaryProvider({ children }: { children: React.ReactNode }) {
       })
     );
   };
-
   return (
     <SalaryContext.Provider
       value={{
         salaryFrequency,
         setSalaryFrequency,
-        expectedSalary,
-        setExpectedSalary,
+        expectedSalary: expectedSalary,
+        setExpectedSalary: setExpectedSalary,
         monthlySalaries,
         getMonthlySalary,
         getMidMonthlySalary,
