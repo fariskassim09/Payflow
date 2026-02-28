@@ -7,9 +7,9 @@ interface SalaryCardProps {
 }
 
 export default function SalaryCard({ onEditClick, currentMonth }: SalaryCardProps) {
-  const { getMonthlySalary, budgetItems, getBudgetsByGroup } = useSalary();
+  const { expectedSalary, budgetItems, getBudgetsByGroup } = useSalary();
   const month = currentMonth || new Date(2026, 1);
-  const monthlySalary = getMonthlySalary(month);
+  const monthlySalary = expectedSalary;
 
   // Get all items for current month
   const needsItems = getBudgetsByGroup('NEEDS', month);
@@ -37,7 +37,7 @@ export default function SalaryCard({ onEditClick, currentMonth }: SalaryCardProp
       <p className="text-sm font-medium opacity-90 mb-2">Expected Salary</p>
 
       {/* Amount */}
-      <h2 className="text-4xl font-bold mb-6">RM {((monthlySalary || 0)).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</h2>
+      <h2 className="text-4xl font-bold mb-6">RM {((expectedSalary || 0)).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</h2>
 
       {/* Progress Bar */}
       <div className="mb-6">
