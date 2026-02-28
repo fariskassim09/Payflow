@@ -40,10 +40,10 @@ export default function CombinedSalaryCard({ onEditMid, onEditEnd, currentMonth 
   return (
     <div className="bg-gradient-to-br from-accent to-accent/80 rounded-3xl p-6 text-white relative overflow-hidden animate-fade-in">
       {/* Title */}
-      <p className="text-sm font-medium opacity-90 mb-4">Expected Salary</p>
+      <p className="text-sm font-medium opacity-90 mb-4">Percentage</p>
 
       {/* Total Amount */}
-      <h2 className="text-4xl font-bold mb-6">RM {((expectedSalary || 0)).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</h2>
+      <h2 className="text-4xl font-bold mb-6">RM {Math.round(expectedSalary || 0)}</h2>
 
       {/* Progress Bar */}
       <div className="mb-6">
@@ -59,11 +59,11 @@ export default function CombinedSalaryCard({ onEditMid, onEditEnd, currentMonth 
       <div className="grid grid-cols-3 gap-4 mb-6">
         <div>
           <p className="text-xs opacity-80 mb-1">Allocated</p>
-          <p className="font-semibold">RM {((midAllocatedAmount + endAllocatedAmount) || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</p>
+          <p className="font-semibold">RM {Math.round((midAllocatedAmount + endAllocatedAmount) || 0)}</p>
         </div>
         <div>
           <p className="text-xs opacity-80 mb-1">Remaining</p>
-          <p className="font-semibold">RM {((totalRemaining || 0)).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</p>
+          <p className="font-semibold">RM {Math.round(totalRemaining || 0)}</p>
         </div>
         <div>
           <p className="text-xs opacity-80 mb-1">Allocated</p>
@@ -87,15 +87,15 @@ export default function CombinedSalaryCard({ onEditMid, onEditEnd, currentMonth 
               <Edit2 size={14} />
             </button>
           </div>
-          <p className="text-lg font-bold mb-2">RM {((midSalary || 0)).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</p>
+          <p className="text-lg font-bold mb-2">RM {Math.round(midSalary || 0)}</p>
           <div className="space-y-1 text-xs">
             <div className="flex justify-between opacity-80">
               <span>Allocated:</span>
-              <span>RM {((midAllocatedAmount || 0)).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
+              <span>RM {Math.round(midAllocatedAmount || 0)}</span>
             </div>
             <div className="flex justify-between opacity-80">
               <span>Remaining:</span>
-              <span>RM {((midRemainingAmount || 0)).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
+              <span>RM {Math.round(midRemainingAmount || 0)}</span>
             </div>
             <div className="flex justify-between opacity-80">
               <span>Allocated:</span>
@@ -115,15 +115,15 @@ export default function CombinedSalaryCard({ onEditMid, onEditEnd, currentMonth 
               <Edit2 size={14} />
             </button>
           </div>
-          <p className="text-lg font-bold mb-2">RM {((endSalary || 0)).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</p>
+          <p className="text-lg font-bold mb-2">RM {Math.round(endSalary || 0)}</p>
           <div className="space-y-1 text-xs">
             <div className="flex justify-between opacity-80">
               <span>Allocated:</span>
-              <span>RM {((endAllocatedAmount || 0)).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
+              <span>RM {Math.round(endAllocatedAmount || 0)}</span>
             </div>
             <div className="flex justify-between opacity-80">
               <span>Remaining:</span>
-              <span>RM {((endRemainingAmount || 0)).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
+              <span>RM {Math.round(endRemainingAmount || 0)}</span>
             </div>
             <div className="flex justify-between opacity-80">
               <span>Allocated:</span>
