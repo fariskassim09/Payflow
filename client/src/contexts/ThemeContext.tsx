@@ -22,6 +22,17 @@ export function ThemeProvider({
   const [theme, setThemeState] = useState<Theme>(defaultTheme);
   const [mounted, setMounted] = useState(false);
 
+  const applyTheme = (newTheme: Theme) => {
+    const root = document.documentElement;
+    if (newTheme === "dark") {
+      root.classList.add("dark");
+      root.classList.remove("light");
+    } else {
+      root.classList.add("light");
+      root.classList.remove("dark");
+    }
+  };
+
   // Initialize theme on mount with system preference detection
   useEffect(() => {
     const savedTheme = localStorage.getItem("theme") as Theme | null;
@@ -40,16 +51,12 @@ export function ThemeProvider({
     setMounted(true);
   }, []);
 
-  const applyTheme = (newTheme: Theme) => {
-    const root = document.documentElement;
-    if (newTheme === "dark") {
-      root.classList.add("dark");
-      root.classList.remove("light");
-    } else {
-      root.classList.add("light");
-      root.classList.remove("dark");
+  // Sync theme changes to DOM
+  useEffect(() => {
+    if (mounted) {
+      applyTheme(theme);
     }
-  };
+  }, [theme, mounted]);
 
   const setTheme = (newTheme: Theme) => {
     setThemeState(newTheme);
