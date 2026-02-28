@@ -76,23 +76,7 @@ export function SalaryProvider({ children }: { children: React.ReactNode }) {
   );
   const currentDate = new Date(2026, 1); // February 2026
   
-  const [budgetItems, setBudgetItemsState] = useState<BudgetItem[]>(initialData?.budgetItems || [
-    // NEEDS - Full month (1x salary)
-    { id: 'sewa', name: 'Sewa', icon: '🏠', percentage: 9, group: 'NEEDS', isPaid: false, repeatNextMonth: true, createdAt: currentDate, salaryType: 'full' },
-    { id: 'motorcycle', name: 'Motorcycle service', icon: '🔧', percentage: 2, group: 'NEEDS', isPaid: false, repeatNextMonth: true, createdAt: currentDate, salaryType: 'full' },
-    { id: 'pba', name: 'Pba', icon: '💧', percentage: 1, group: 'NEEDS', isPaid: false, repeatNextMonth: true, createdAt: currentDate, salaryType: 'full' },
-    { id: 'thb', name: 'Thb', icon: '⚡', percentage: 1, group: 'NEEDS', isPaid: false, repeatNextMonth: true, createdAt: currentDate, salaryType: 'full' },
-    { id: 'prudential', name: 'Prudential', icon: '🏥', percentage: 4, group: 'NEEDS', isPaid: false, repeatNextMonth: true, createdAt: currentDate, salaryType: 'full' },
-    { id: 'hibah', name: 'Hibah', icon: '🏥', percentage: 3, group: 'NEEDS', isPaid: false, repeatNextMonth: true, createdAt: currentDate, salaryType: 'full' },
-    { id: 'mak', name: 'Mak & Ayah', icon: '👨‍👩‍👧', percentage: 9, group: 'NEEDS', isPaid: false, repeatNextMonth: true, createdAt: currentDate, salaryType: 'full' },
-    // WANTS
-    { id: 'food', name: 'Food & Dining', icon: '🍽️', percentage: 8, group: 'WANTS', isPaid: false, repeatNextMonth: true, createdAt: currentDate, salaryType: 'full' },
-    { id: 'entertainment', name: 'Entertainment', icon: '🎮', percentage: 5, group: 'WANTS', isPaid: false, repeatNextMonth: true, createdAt: currentDate, salaryType: 'full' },
-    // SAVINGS
-    { id: 'savings', name: 'Savings', icon: '💰', percentage: 40, group: 'SAVINGS', isPaid: false, repeatNextMonth: true, createdAt: currentDate, salaryType: 'full' },
-    // DEBTS
-    { id: 'loan', name: 'Loan Payment', icon: '💳', percentage: 8, group: 'DEBTS', isPaid: false, repeatNextMonth: true, createdAt: currentDate, salaryType: 'full' },
-  ]);
+  const [budgetItems, setBudgetItemsState] = useState<BudgetItem[]>(initialData?.budgetItems || []);
 
   // Save to localStorage whenever data changes
   useEffect(() => {
