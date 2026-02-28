@@ -69,8 +69,7 @@ export default function Dashboard() {
 
         {/* Budget Categories Section */}
         <div className="mb-12">
-          <div className="mb-12">
-            <h2 className="text-xl font-bold text-foreground mb-6">Budget Categories</h2>
+          <h2 className="text-xl font-bold text-foreground mb-6">Budget Categories</h2>
 
           {/* Filter Tabs - Only show for 2x salary */}
           {salaryFrequency === '2x' && (
