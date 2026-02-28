@@ -2,8 +2,9 @@ import { useState } from 'react';
 import BottomNavigation from '@/components/BottomNavigation';
 import GoogleLoginButton from '@/components/GoogleLoginButton';
 import SharedPartnerModal from '@/components/SharedPartnerModal';
-import { Lock, HelpCircle, Info, Cloud, Share2, DollarSign } from 'lucide-react';
+import { Lock, HelpCircle, Info, Cloud, Share2, DollarSign, Moon, Sun } from 'lucide-react';
 import { useSalary } from '@/contexts/SalaryContext';
+import { useTheme } from '@/contexts/ThemeContext';
 
 // Design Philosophy: Salary Allocation Planner
 // - Clean settings interface with toggle switches
@@ -13,31 +14,18 @@ import { useSalary } from '@/contexts/SalaryContext';
 
 export default function Settings() {
   const { salaryFrequency, setSalaryFrequency } = useSalary();
-  const [settings, setSettings] = useState({
-    darkMode: true,
-  });
+  const { theme, toggleTheme } = useTheme();
   const [isSharedPartnerOpen, setIsSharedPartnerOpen] = useState(false);
-
-  const toggleSetting = (key: keyof typeof settings) => {
-    setSettings(prev => ({
-      ...prev,
-      [key]: !prev[key],
-    }));
-  };
 
   const SettingItem = ({
     icon: Icon,
     title,
     description,
-    toggle,
-    value,
     onClick,
   }: {
     icon: React.ReactNode;
     title: string;
     description: string;
-    toggle?: keyof typeof settings;
-    value?: boolean;
     onClick?: () => void;
   }) => (
     <button
@@ -51,23 +39,7 @@ export default function Settings() {
           <p className="text-xs text-secondary-foreground">{description}</p>
         </div>
       </div>
-      {toggle && (
-        <button
-          onClick={(e) => {
-            e.stopPropagation();
-            toggleSetting(toggle);
-          }}
-          className={`relative w-12 h-6 rounded-full transition-all duration-300 ${
-            value ? 'bg-accent' : 'bg-secondary'
-          }`}
-        >
-          <div
-            className={`absolute top-1 w-4 h-4 bg-background rounded-full transition-all duration-300 ${
-              value ? 'right-1' : 'left-1'
-            }`}
-          />
-        </button>
-      )}
+
     </button>
   );
 
@@ -154,13 +126,23 @@ export default function Settings() {
         <div className="mb-12 animate-fade-in" style={{ animationDelay: '0.3s' }}>
           <h2 className="text-lg font-semibold mb-4 text-foreground">Display</h2>
           <div className="space-y-3">
-            <SettingItem
-              icon={<Lock size={24} />}
-              title="Dark Mode"
-              description="Always use dark theme"
-              toggle="darkMode"
-              value={settings.darkMode}
-            />
+            <button
+              onClick={toggleTheme}
+              className="w-full text-left flex items-center justify-between p-4 bg-card rounded-2xl border border-border hover:shadow-lg hover:shadow-accent/10 transition-all duration-300 active:scale-95"
+            >
+              <div className="flex items-center gap-4">
+                <div className="text-accent">
+                  {theme === 'dark' ? <Moon size={24} /> : <Sun size={24} />}
+                </div>
+                <div>
+                  <h3 className="font-semibold text-foreground">{theme === 'dark' ? 'Dark' : 'Light'} Theme</h3>
+                  <p className="text-xs text-secondary-foreground">Current theme: {theme === 'dark' ? 'Dark' : 'Light'}</p>
+                </div>
+              </div>
+              <div className="text-accent text-sm font-medium">
+                {theme === 'dark' ? '🌙' : '☀️'}
+              </div>
+            </button>
           </div>
         </div>
 
