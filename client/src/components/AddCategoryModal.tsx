@@ -15,22 +15,16 @@ const ICON_OPTIONS = [
   '🚗', '✈️', '🔫', '⛽', '🚌', '🍔', '🏪', '🎨',
 ];
 
-const COLOR_OPTIONS = [
-  '#3B82F6', '#10B981', '#F59E0B', '#EF4444',
-  '#8B5CF6', '#EC4899', '#06B6D4', '#F97316',
-  '#6366F1', '#84CC16',
-];
-
 export default function AddCategoryModal({ isOpen, onClose }: AddCategoryModalProps) {
   const { addBudgetItem, expectedSalary, salaryFrequency } = useSalary();
-  const [step, setStep] = useState<'form' | 'icons' | 'colors'>('form');
+  const [step, setStep] = useState<'form' | 'icons'>('form');
   const shouldShowSalaryType = salaryFrequency === '2x';
   const [formData, setFormData] = useState({
     name: '',
     amount: 0,
     group: 'NEEDS' as 'NEEDS' | 'WANTS' | 'SAVINGS' | 'DEBTS',
     icon: '🏠',
-    color: '#3B82F6',
+    color: '#3B82F6', // Always blue
     repeatNextMonth: true,
     markAsPaid: false,
     salaryType: 'mid' as 'mid' | 'end',
@@ -64,7 +58,7 @@ export default function AddCategoryModal({ isOpen, onClose }: AddCategoryModalPr
       repeatNextMonth: formData.repeatNextMonth,
       markAsPaid: formData.markAsPaid,
       salaryType: formData.salaryType,
-      color: formData.color,
+      color: '#3B82F6', // Always blue
     };
     addBudgetItem(newCategory);
     setFormData({
@@ -207,23 +201,6 @@ export default function AddCategoryModal({ isOpen, onClose }: AddCategoryModalPr
               </button>
             </div>
 
-            {/* Color Selector */}
-            <div>
-              <label className="block text-sm font-medium text-secondary-foreground mb-3 uppercase">
-                Color
-              </label>
-              <button
-                onClick={() => setStep('colors')}
-                className="w-full bg-secondary border border-border rounded-xl px-4 py-3 text-foreground hover:border-accent transition-colors text-left flex items-center gap-2"
-              >
-                <div
-                  className="w-6 h-6 rounded-full"
-                  style={{ backgroundColor: formData.color }}
-                />
-                Select Color
-              </button>
-            </div>
-
             {/* Toggles */}
             <div className="space-y-3">
               <div className="flex items-center justify-between bg-secondary/50 rounded-xl p-4">
@@ -288,31 +265,6 @@ export default function AddCategoryModal({ isOpen, onClose }: AddCategoryModalPr
                 >
                   {icon}
                 </button>
-              ))}
-            </div>
-          </div>
-        )}
-
-        {/* Color Picker */}
-        {step === 'colors' && (
-          <div className="space-y-4">
-            <div className="grid grid-cols-5 gap-4">
-              {COLOR_OPTIONS.map((color) => (
-                <div key={color} className="flex flex-col items-center gap-2">
-                  <button
-                    onClick={() => {
-                      setFormData({ ...formData, color });
-                      setStep('form');
-                    }}
-                    className={`w-16 h-16 rounded-full transition-all duration-300 border-4 ${
-                      formData.color === color ? 'border-accent scale-110' : 'border-transparent'
-                    }`}
-                    style={{ backgroundColor: color }}
-                  />
-                  {formData.color === color && (
-                    <span className="text-xs font-medium text-accent">Selected</span>
-                  )}
-                </div>
               ))}
             </div>
           </div>

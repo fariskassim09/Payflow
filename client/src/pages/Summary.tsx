@@ -72,9 +72,6 @@ export default function Summary() {
           <div className="mb-8 animate-fade-in">
             <div className="flex items-center justify-between mb-4">
               <h1 className="text-3xl font-bold">Summary</h1>
-              <div className="flex items-center gap-2 px-3 py-1 rounded-full bg-accent/20 text-accent text-sm font-medium">
-                <span>{monthPaid ? '✓ Paid' : '○ Unpaid'}</span>
-              </div>
             </div>
             {/* Month Navigation */}
             <div className="flex items-center justify-between gap-4">
@@ -171,9 +168,6 @@ export default function Summary() {
         <div className="mb-8 animate-fade-in">
           <div className="flex items-center justify-between mb-4">
             <h1 className="text-3xl font-bold">Summary</h1>
-            <div className="flex items-center gap-2 px-3 py-1 rounded-full bg-accent/20 text-accent text-sm font-medium">
-              <span>{monthPaid ? '✓ Paid' : '○ Unpaid'}</span>
-            </div>
           </div>
           {/* Month Navigation */}
           <div className="flex items-center justify-between gap-4">
