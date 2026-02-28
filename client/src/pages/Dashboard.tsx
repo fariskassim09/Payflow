@@ -20,7 +20,7 @@ import { useSalary } from '@/contexts/SalaryContext';
 // - Smooth animations and transitions
 
 export default function Dashboard() {
-  const { getBudgetsByGroup, salaryFrequency, isCategoryPaidForMonth, toggleCategoryPaidStatus, budgetItems } = useSalary();
+  const { getBudgetsByGroup, salaryFrequency } = useSalary();
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isEditDualModalOpen, setIsEditDualModalOpen] = useState(false);
   const [editingSalaryType, setEditingSalaryType] = useState<'mid' | 'end'>('mid');
@@ -50,23 +50,6 @@ export default function Dashboard() {
     setIsEditDualModalOpen(true);
   };
 
-  const handleMarkAllPaid = () => {
-    const allCategories = [...needsItems, ...wantsItems, ...savingsItems, ...debtsItems];
-    allCategories.forEach(item => {
-      if (!isCategoryPaidForMonth(item.id, currentMonth)) {
-        toggleCategoryPaidStatus(item.id, currentMonth);
-      }
-    });
-  };
-
-  const handleMarkAllUnpaid = () => {
-    const allCategories = [...needsItems, ...wantsItems, ...savingsItems, ...debtsItems];
-    allCategories.forEach(item => {
-      if (isCategoryPaidForMonth(item.id, currentMonth)) {
-        toggleCategoryPaidStatus(item.id, currentMonth);
-      }
-    });
-  };
 
   return (
     <div className="min-h-screen bg-background text-foreground flex flex-col">
@@ -86,25 +69,8 @@ export default function Dashboard() {
 
         {/* Budget Categories Section */}
         <div className="mb-12">
-          <div className="mb-6">
-            <div className="flex items-center justify-between mb-4">
-              <h2 className="text-xl font-bold text-foreground">Budget Categories</h2>
-            </div>
-            <div className="flex gap-2 mb-4">
-              <button
-                onClick={handleMarkAllPaid}
-                className="flex-1 px-4 py-2 bg-accent text-accent-foreground rounded-lg text-sm font-medium hover:bg-accent/90 transition-all"
-              >
-                Mark All Paid
-              </button>
-              <button
-                onClick={handleMarkAllUnpaid}
-                className="flex-1 px-4 py-2 bg-secondary text-secondary-foreground rounded-lg text-sm font-medium hover:bg-secondary/80 transition-all"
-              >
-                Mark All Unpaid
-              </button>
-            </div>
-          </div>
+          <div className="mb-12">
+            <h2 className="text-xl font-bold text-foreground mb-6">Budget Categories</h2>
 
           {/* Filter Tabs - Only show for 2x salary */}
           {salaryFrequency === '2x' && (
