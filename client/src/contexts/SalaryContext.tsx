@@ -195,7 +195,11 @@ export function SalaryProvider({ children }: { children: React.ReactNode }) {
   };
 
   const addBudgetItem = (item: BudgetItem) => {
-    setBudgetItemsState(prev => [...prev, item]);
+    const itemWithTimestamp = {
+      ...item,
+      createdAt: item.createdAt || new Date(),
+    };
+    setBudgetItemsState(prev => [...prev, itemWithTimestamp]);
   };
 
   const removeBudgetItem = (id: string) => {
