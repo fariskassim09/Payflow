@@ -127,7 +127,7 @@ export default function Dashboard() {
       <AddCategoryModal isOpen={isAddCategoryOpen} onClose={() => setIsAddCategoryOpen(false)} />
 
       {/* Category Details Modal */}
-      <CategoryDetailsModal isOpen={isCategoryDetailsOpen} categoryId={selectedCategoryId} onClose={() => setIsCategoryDetailsOpen(false)} />
+      <CategoryDetailsModal isOpen={isCategoryDetailsOpen} categoryId={selectedCategoryId} onClose={() => setIsCategoryDetailsOpen(false)} currentMonth={currentMonth} />
 
       {/* Bottom Navigation - Fixed */}
       <BottomNavigation />

@@ -7,6 +7,7 @@ interface CategoryDetailsModalProps {
   isOpen: boolean;
   categoryId: string | null;
   onClose: () => void;
+  currentMonth?: Date;
 }
 
 const ICON_OPTIONS = [
@@ -17,8 +18,8 @@ const ICON_OPTIONS = [
   '🚗', '✈️', '🔫', '⛽', '🚌', '🍔', '🏪', '🎨',
 ];
 
-export default function CategoryDetailsModal({ isOpen, categoryId, onClose }: CategoryDetailsModalProps) {
-  const { budgetItems, updateBudgetItem, removeBudgetItem, expectedSalary, salaryFrequency } = useSalary();
+export default function CategoryDetailsModal({ isOpen, categoryId, onClose, currentMonth = new Date() }: CategoryDetailsModalProps) {
+  const { budgetItems, updateBudgetItem, removeBudgetItem, expectedSalary, salaryFrequency, isCategoryPaidForMonth, toggleCategoryPaidStatus } = useSalary();
   const shouldShowSalaryType = salaryFrequency === '2x';
   const [showIconPicker, setShowIconPicker] = useState(false);
   const [editAmount, setEditAmount] = useState<string>('');
@@ -184,13 +185,25 @@ export default function CategoryDetailsModal({ isOpen, categoryId, onClose }: Ca
           </div>
         )}
 
-        {/* Group Info */}
+        {/* Group Selector */}
         <div className="mb-6">
-          <label className="block text-sm font-medium text-secondary-foreground mb-2 uppercase">
-            Group
+          <label className="block text-sm font-medium text-secondary-foreground mb-3 uppercase">
+            Category Group
           </label>
-          <div className="bg-secondary border border-border rounded-xl px-4 py-3 text-foreground font-semibold">
-            {category.group}
+          <div className="grid grid-cols-2 gap-2">
+            {(['NEEDS', 'WANTS', 'SAVINGS', 'DEBTS'] as const).map((group) => (
+              <button
+                key={group}
+                onClick={() => handleUpdateCategory({ group })}
+                className={`py-3 rounded-xl font-medium transition-all duration-300 ${
+                  category.group === group
+                    ? 'bg-accent text-accent-foreground'
+                    : 'bg-secondary border border-border text-foreground hover:border-accent'
+                }`}
+              >
+                {group}
+              </button>
+            ))}
           </div>
         </div>
 
@@ -221,16 +234,16 @@ export default function CategoryDetailsModal({ isOpen, categoryId, onClose }: Ca
         {/* Status Toggles */}
         <div className="space-y-3 mb-6">
           <div className="flex items-center justify-between bg-secondary/50 rounded-xl p-4">
-            <span className="font-semibold text-foreground">Paid</span>
+            <span className="font-semibold text-foreground">Paid (This Month)</span>
             <button
-              onClick={() => handleUpdateCategory({ isPaid: !category.isPaid })}
+              onClick={() => toggleCategoryPaidStatus(category.id, currentMonth)}
               className={`relative w-12 h-6 rounded-full transition-all duration-300 ${
-                category.isPaid ? 'bg-accent' : 'bg-secondary'
+                isCategoryPaidForMonth(category.id, currentMonth) ? 'bg-accent' : 'bg-secondary'
               }`}
             >
               <div
                 className={`absolute top-1 w-4 h-4 bg-background rounded-full transition-all duration-300 ${
-                  category.isPaid ? 'right-1' : 'left-1'
+                  isCategoryPaidForMonth(category.id, currentMonth) ? 'right-1' : 'left-1'
                 }`}
               />
             </button>
