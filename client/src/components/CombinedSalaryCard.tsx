@@ -67,7 +67,7 @@ export default function CombinedSalaryCard({ onEditMid, onEditEnd, currentMonth 
         </div>
         <div>
           <p className="text-xs opacity-80 mb-1">Allocated</p>
-          <p className="font-semibold">{avgAllocatedPercentage.toFixed(1)}%</p>
+          <p className="font-semibold">{avgAllocatedPercentage.toFixed(2)}%</p>
         </div>
       </div>
 
@@ -99,7 +99,7 @@ export default function CombinedSalaryCard({ onEditMid, onEditEnd, currentMonth 
             </div>
             <div className="flex justify-between opacity-80">
               <span>Allocated:</span>
-              <span>{midTotalAllocated}%</span>
+              <span>{midTotalAllocated.toFixed(2)}%</span>
             </div>
           </div>
         </div>
@@ -127,7 +127,7 @@ export default function CombinedSalaryCard({ onEditMid, onEditEnd, currentMonth 
             </div>
             <div className="flex justify-between opacity-80">
               <span>Allocated:</span>
-              <span>{endTotalAllocated}%</span>
+              <span>{endTotalAllocated.toFixed(2)}%</span>
             </div>
           </div>
         </div>
