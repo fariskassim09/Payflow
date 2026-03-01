@@ -28,9 +28,9 @@ export default function Summary() {
 
   const monthName = currentMonth.toLocaleString('default', { month: 'long', year: 'numeric' });
   const monthPaid = isMonthPaid(currentMonth);
-  const monthlySalary = getMonthlySalary(currentMonth);
-  const midSalary = getMidMonthlySalary(currentMonth);
-  const endSalary = getEndMonthlySalary(currentMonth);
+  const monthlySalary = getMonthlySalary(currentMonth) || 0;
+  const midSalary = getMidMonthlySalary(currentMonth) || 0;
+  const endSalary = getEndMonthlySalary(currentMonth) || 0;
 
   const groups = [
     { name: 'Needs', icon: '🛒', key: 'NEEDS' as const },
