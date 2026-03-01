@@ -34,7 +34,7 @@ export default function SalaryCard({ onEditClick, currentMonth }: SalaryCardProp
       </button>
 
       {/* Title */}
-      <p className="text-sm font-medium opacity-90 mb-2">Percentage</p>
+      <p className="text-sm font-medium opacity-90 mb-2">Total Salary</p>
 
       {/* Amount */}
       <h2 className="text-4xl font-bold mb-6">RM {Math.round(monthlySalary || 0)}</h2>
@@ -60,7 +60,7 @@ export default function SalaryCard({ onEditClick, currentMonth }: SalaryCardProp
           <p className="font-semibold">RM {Math.round(remainingAmount || 0)}</p>
         </div>
         <div>
-          <p className="text-xs opacity-80 mb-1">Allocated</p>
+          <p className="text-xs opacity-80 mb-1">Percentage</p>
           <p className="font-semibold">{allocatedPercentage.toFixed(2)}%</p>
         </div>
       </div>
