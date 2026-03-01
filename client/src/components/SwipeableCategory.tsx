@@ -133,7 +133,7 @@ export default function SwipeableCategory({
           </div>
         </div>
         <p className={`font-bold text-lg ${isMonthPaid ? 'opacity-50' : 'text-accent'}`}>
-          RM {(amount || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+          RM {(amount || 0).toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}
         </p>
       </div>
     </div>
