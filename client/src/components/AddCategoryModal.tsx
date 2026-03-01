@@ -208,9 +208,7 @@ export default function AddCategoryModal({ isOpen, onClose, currentMonth, editin
                   step="0.01"
                 />
               </div>
-              <p className="text-xs text-secondary-foreground mt-2">
-                {percentage.toFixed(2)}% of salary (RM {(formData.amount || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })})
-              </p>
+
             </div>
 
             {/* Category Group */}

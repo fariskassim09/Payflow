@@ -121,14 +121,38 @@ export function SalaryProvider({ children }: { children: React.ReactNode }) {
     const existing = monthlySalaries.find(
       ms => ms.year === date.getFullYear() && ms.month === date.getMonth()
     );
-    return existing ? existing.midSalary : DEFAULT_SALARY / 2;
+    if (existing) return existing.midSalary;
+    
+    // If no salary for this month, find the most recent month with salary data
+    if (monthlySalaries.length > 0) {
+      const sorted = [...monthlySalaries].sort((a, b) => {
+        const aDate = new Date(a.year, a.month);
+        const bDate = new Date(b.year, b.month);
+        return bDate.getTime() - aDate.getTime();
+      });
+      return sorted[0].midSalary;
+    }
+    
+    return DEFAULT_SALARY / 2;
   };
 
   const getEndMonthlySalary = (date: Date): number => {
     const existing = monthlySalaries.find(
       ms => ms.year === date.getFullYear() && ms.month === date.getMonth()
     );
-    return existing ? existing.endSalary : DEFAULT_SALARY / 2;
+    if (existing) return existing.endSalary;
+    
+    // If no salary for this month, find the most recent month with salary data
+    if (monthlySalaries.length > 0) {
+      const sorted = [...monthlySalaries].sort((a, b) => {
+        const aDate = new Date(a.year, a.month);
+        const bDate = new Date(b.year, b.month);
+        return bDate.getTime() - aDate.getTime();
+      });
+      return sorted[0].endSalary;
+    }
+    
+    return DEFAULT_SALARY / 2;
   };
 
   const setMonthlySalary = (date: Date, salary: number) => {
