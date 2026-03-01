@@ -129,8 +129,6 @@ export default function Summary() {
                 const stats = getGroupStats(group.key, monthlySalary, 'full');
                 const color = getGroupColor(group.key);
 
-                if (stats.percentage === 0) return null;
-
                 return (
                   <button
                     key={group.key}
@@ -307,8 +305,6 @@ export default function Summary() {
               const stats = getGroupStats(group.key, midSalary, 'mid');
               const color = getGroupColor(group.key);
 
-              if (stats.percentage === 0) return null;
-
               return (
                 <button
                   key={`mid-${group.key}`}
@@ -365,8 +361,6 @@ export default function Summary() {
             {groups.map((group) => {
               const stats = getGroupStats(group.key, endSalary, 'end');
               const color = getGroupColor(group.key);
-
-              if (stats.percentage === 0) return null;
 
               return (
                 <button

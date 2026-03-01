@@ -9,7 +9,7 @@ interface EditSalaryModalProps {
 }
 
 export default function EditSalaryModal({ isOpen, onClose, currentMonth }: EditSalaryModalProps) {
-  const { expectedSalary, setExpectedSalary } = useSalary();
+  const { expectedSalary, setExpectedSalary, setMonthlySalary } = useSalary();
   const month = currentMonth || new Date(2026, 1);
   const [inputValue, setInputValue] = useState(expectedSalary.toString());
 
@@ -23,6 +23,8 @@ export default function EditSalaryModal({ isOpen, onClose, currentMonth }: EditS
     const value = parseFloat(inputValue);
     if (!isNaN(value) && value >= 0) {
       setExpectedSalary(value);
+      // Also update the month-specific salary so Summary page shows the correct amount
+      setMonthlySalary(month, value);
       onClose();
     }
   };
