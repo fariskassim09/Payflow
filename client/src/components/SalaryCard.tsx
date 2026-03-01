@@ -60,7 +60,7 @@ export default function SalaryCard({ onEditClick, currentMonth }: SalaryCardProp
         </div>
         <div>
           <p className="text-xs opacity-80 mb-1">Percentage</p>
-          <p className="font-semibold">{allocatedPercentage.toFixed(2)}%</p>
+          <p className="font-semibold">{Math.round(allocatedPercentage)}%</p>
         </div>
       </div>
     </div>
