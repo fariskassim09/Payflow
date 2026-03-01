@@ -66,7 +66,7 @@ export default function Summary() {
 
   // 1x Salary Mode
   if (salaryFrequency === '1x') {
-    const totalAllocated = getTotalStats(monthlySalary, 'full');
+    const totalAllocated = getTotalStats(monthlySalary, undefined);
     const remainingAmount = monthlySalary - (monthlySalary * totalAllocated) / 100;
 
     return (
@@ -126,7 +126,7 @@ export default function Summary() {
             {/* Group Breakdown */}
             <div className="space-y-3">
               {groups.map((group) => {
-                const stats = getGroupStats(group.key, monthlySalary, 'full');
+                const stats = getGroupStats(group.key, monthlySalary, undefined);
                 const color = getGroupColor(group.key);
 
                 return (
@@ -174,8 +174,8 @@ export default function Summary() {
               {/* Content */}
               <div className="overflow-y-auto flex-1 p-6">
                 <div className="space-y-3">
-                  {getGroupStats(selectedGroup, monthlySalary, 'full').items.length > 0 ? (
-                    getGroupStats(selectedGroup, monthlySalary, 'full').items.map((item) => {
+                  {getGroupStats(selectedGroup, monthlySalary, undefined).items.length > 0 ? (
+                    getGroupStats(selectedGroup, monthlySalary, undefined).items.map((item) => {
                       const itemAmount = (item.percentage * monthlySalary) / 100;
                       return (
                         <div key={item.id} className="bg-secondary/50 rounded-xl p-4">

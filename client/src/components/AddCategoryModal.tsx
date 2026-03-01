@@ -27,7 +27,7 @@ export default function AddCategoryModal({ isOpen, onClose }: AddCategoryModalPr
     color: '#3B82F6', // Always blue
     repeatNextMonth: true,
     markAsPaid: false,
-    salaryType: 'mid' as 'mid' | 'end',
+    salaryType: salaryFrequency === '2x' ? ('mid' as 'mid' | 'end') : undefined,
   });
 
   const handleAddCategory = () => {
@@ -69,7 +69,7 @@ export default function AddCategoryModal({ isOpen, onClose }: AddCategoryModalPr
       color: '#3B82F6',
       repeatNextMonth: true,
       markAsPaid: false,
-      salaryType: 'mid',
+      salaryType: salaryFrequency === '2x' ? ('mid' as 'mid' | 'end') : undefined,
     });
     setStep('form');
     onClose();
