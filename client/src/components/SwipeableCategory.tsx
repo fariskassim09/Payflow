@@ -130,7 +130,7 @@ export default function SwipeableCategory({
               {isMonthPaid && <span className="text-xs bg-accent/20 text-accent px-2 py-1 rounded-full">✓ Paid</span>}
               {repeatNextMonth && <span className="text-xs bg-secondary text-secondary-foreground px-2 py-1 rounded-full">↻ Repeat</span>}
             </div>
-            <p className="text-xs text-secondary-foreground">{percentage.toFixed(2)}% of salary</p>
+
           </div>
         </div>
         <p className={`font-bold text-lg ${isMonthPaid ? 'opacity-50' : 'text-accent'}`}>
