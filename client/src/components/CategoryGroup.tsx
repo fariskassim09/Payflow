@@ -25,10 +25,26 @@ const groupLabels: Record<string, string> = {
 };
 
 export default function CategoryGroup({ group, items, onCategoryTap, currentMonth = new Date(2026, 1) }: CategoryGroupProps) {
-  const { expectedSalary, togglePaidStatus, removeBudgetItem, isCategoryPaidForMonth, toggleCategoryPaidStatus } = useSalary();
+  const { expectedSalary, getMonthlySalary, getMidMonthlySalary, getEndMonthlySalary, salaryFrequency, togglePaidStatus, removeBudgetItem, isCategoryPaidForMonth, toggleCategoryPaidStatus } = useSalary();
 
   const groupTotal = items.reduce((sum, item) => sum + item.percentage, 0);
-  const groupAmount = (expectedSalary * groupTotal) / 100;
+  
+  // Get the correct salary for calculation
+  let baseSalary = expectedSalary;
+  if (salaryFrequency === '2x') {
+    // In 2x mode, check if items are for mid or end month
+    const firstItemType = items[0]?.salaryType;
+    if (firstItemType === 'mid') {
+      baseSalary = getMidMonthlySalary(currentMonth) || 0;
+    } else if (firstItemType === 'end') {
+      baseSalary = getEndMonthlySalary(currentMonth) || 0;
+    } else {
+      // Mixed or no type specified, use total
+      baseSalary = getMonthlySalary(currentMonth) || 0;
+    }
+  }
+  
+  const groupAmount = (baseSalary * groupTotal) / 100;
 
   // Sort items with useMemo to ensure proper re-rendering when paid status changes
   const sortedItems = useMemo(() => {
@@ -55,7 +71,18 @@ export default function CategoryGroup({ group, items, onCategoryTap, currentMont
       {/* Group Items */}
       <div className="space-y-2">
         {sortedItems.map((item) => {
-          const amount = (expectedSalary * item.percentage) / 100;
+          // Get the correct salary for this item's calculation
+          let itemSalary = expectedSalary;
+          if (salaryFrequency === '2x') {
+            if (item.salaryType === 'mid') {
+              itemSalary = getMidMonthlySalary(currentMonth) || 0;
+            } else if (item.salaryType === 'end') {
+              itemSalary = getEndMonthlySalary(currentMonth) || 0;
+            } else {
+              itemSalary = getMonthlySalary(currentMonth) || 0;
+            }
+          }
+          const amount = (itemSalary * item.percentage) / 100;
           return (
             <SwipeableCategory
               key={item.id}
