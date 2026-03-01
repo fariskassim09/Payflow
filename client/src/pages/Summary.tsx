@@ -176,22 +176,29 @@ export default function Summary() {
               {/* Content */}
               <div className="overflow-y-auto flex-1 p-6">
                 <div className="space-y-3">
-                  {getGroupStats(selectedGroup, monthlySalary, 'full').items.map((item) => (
-                    <div key={item.id} className="bg-secondary/50 rounded-xl p-4">
-                      <div className="flex items-center justify-between mb-2">
-                        <div className="flex items-center gap-2">
-                          <span className="text-2xl">{item.icon}</span>
-                          <p className="font-semibold text-foreground">{item.name}</p>
+                  {getGroupStats(selectedGroup, monthlySalary, 'full').items.length > 0 ? (
+                    getGroupStats(selectedGroup, monthlySalary, 'full').items.map((item) => {
+                      const itemAmount = (item.percentage * monthlySalary) / 100;
+                      return (
+                        <div key={item.id} className="bg-secondary/50 rounded-xl p-4">
+                          <div className="flex items-center justify-between mb-2">
+                            <div className="flex items-center gap-2">
+                              <span className="text-2xl">{item.icon}</span>
+                              <p className="font-semibold text-foreground">{item.name}</p>
+                            </div>
+                            <p className="font-bold text-accent">
+                              RM {itemAmount.toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}
+                            </p>
+                          </div>
+                          <p className="text-xs text-secondary-foreground">
+                            {item.percentage.toFixed(2)}% of salary
+                          </p>
                         </div>
-                        <p className="font-bold text-accent">
-                          RM {((item.percentage * monthlySalary) / 100).toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}
-                        </p>
-                      </div>
-                      <p className="text-xs text-secondary-foreground">
-                        {item.percentage.toFixed(2)}% of salary
-                      </p>
-                    </div>
-                  ))}
+                      );
+                    })
+                  ) : (
+                    <p className="text-center text-secondary-foreground py-8">No items in this category</p>
+                  )}
                 </div>
               </div>
             </div>
