@@ -48,7 +48,13 @@ export default function AddCategoryModal({ isOpen, onClose }: AddCategoryModalPr
       return;
     }
     
-    const percentage = (formData.amount / expectedSalary) * 100;
+    // In 2x mode, calculate percentage based on mid/end salary, not full salary
+    let baseSalary = expectedSalary;
+    if (salaryFrequency === '2x' && formData.salaryType) {
+      // For 2x mode, use half the salary as the base for mid/end month categories
+      baseSalary = expectedSalary / 2;
+    }
+    const percentage = (formData.amount / baseSalary) * 100;
     const newCategory = {
       id: `custom-${Date.now()}`,
       name: formData.name,
@@ -77,7 +83,13 @@ export default function AddCategoryModal({ isOpen, onClose }: AddCategoryModalPr
 
   if (!isOpen) return null;
 
-  const percentage = expectedSalary > 0 ? (formData.amount / expectedSalary) * 100 : 0;
+  // Calculate percentage display based on the correct salary
+  let displayBaseSalary = expectedSalary;
+  if (salaryFrequency === '2x' && formData.salaryType) {
+    // For 2x mode, use half the salary as the base for mid/end month categories
+    displayBaseSalary = expectedSalary / 2;
+  }
+  const percentage = displayBaseSalary > 0 ? (formData.amount / displayBaseSalary) * 100 : 0;
 
   return (
     <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-end z-[60]">
