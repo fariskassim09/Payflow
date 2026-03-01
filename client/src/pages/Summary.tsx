@@ -8,10 +8,15 @@ import BottomNavigation from '@/components/BottomNavigation';
 // - Group breakdown with icon, name, percentage, and amount
 // - Support for 1x and 2x monthly salary with separate breakdowns
 // - Month navigation to view different months
+// - Click on group to see detailed breakdown
 
 export default function Summary() {
   const { getMonthlySalary, getMidMonthlySalary, getEndMonthlySalary, getBudgetsByGroup, salaryFrequency, isMonthPaid } = useSalary();
-  const [currentMonth, setCurrentMonth] = useState(new Date(2026, 1)); // February 2026
+  const [currentMonth, setCurrentMonth] = useState(() => {
+    const today = new Date();
+    return new Date(today.getFullYear(), today.getMonth());
+  });
+  const [selectedGroup, setSelectedGroup] = useState<'NEEDS' | 'WANTS' | 'SAVINGS' | 'DEBTS' | null>(null);
 
   const handlePreviousMonth = () => {
     setCurrentMonth(new Date(currentMonth.getFullYear(), currentMonth.getMonth() - 1));
@@ -39,7 +44,7 @@ export default function Summary() {
     const percentage = items.reduce((sum, item) => sum + item.percentage, 0);
     const baseSalary = salary || monthlySalary;
     const amount = (baseSalary * percentage) / 100;
-    return { percentage, amount };
+    return { percentage, amount, items };
   };
 
   const getTotalStats = (salary?: number, salaryType?: 'full' | 'mid' | 'end') => {
@@ -100,7 +105,7 @@ export default function Summary() {
                 <h2 className="text-lg font-semibold text-foreground">Budget</h2>
               </div>
               <p className="text-2xl font-bold text-accent">
-                RM {((monthlySalary || 0)).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                RM {((monthlySalary || 0)).toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}
               </p>
             </div>
 
@@ -111,7 +116,7 @@ export default function Summary() {
             <div className="bg-secondary/30 rounded-2xl p-4 text-center space-y-2">
               <p className="text-sm text-secondary-foreground">Remaining</p>
               <p className="text-4xl font-bold" style={{ color: '#10B981' }}>
-                RM {((remainingAmount || 0)).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                RM {((remainingAmount || 0)).toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}
               </p>
             </div>
 
@@ -124,8 +129,14 @@ export default function Summary() {
                 const stats = getGroupStats(group.key, monthlySalary, 'full');
                 const color = getGroupColor(group.key);
 
+                if (stats.percentage === 0) return null;
+
                 return (
-                  <div key={group.key} className="flex items-center justify-between">
+                  <button
+                    key={group.key}
+                    onClick={() => setSelectedGroup(group.key)}
+                    className="w-full flex items-center justify-between p-3 rounded-xl bg-secondary/50 hover:bg-secondary transition-colors text-left"
+                  >
                     <div className="flex items-center gap-3 flex-1">
                       <span className="text-2xl">{group.icon}</span>
                       <div>
@@ -136,14 +147,56 @@ export default function Summary() {
                       </div>
                     </div>
                     <p className="font-bold text-lg" style={{ color }}>
-                      RM {((stats.amount || 0)).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                      RM {((stats.amount || 0)).toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}
                     </p>
-                  </div>
+                  </button>
                 );
               })}
             </div>
           </div>
         </main>
+
+        {/* Detail Modal */}
+        {selectedGroup && (
+          <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-end z-[60]">
+            <div className="bg-card w-full rounded-t-3xl flex flex-col max-h-[80vh] animate-fade-in">
+              {/* Header */}
+              <div className="flex items-center justify-between p-6 border-b border-border">
+                <h2 className="text-2xl font-bold text-foreground">
+                  {groups.find(g => g.key === selectedGroup)?.name} Details
+                </h2>
+                <button
+                  onClick={() => setSelectedGroup(null)}
+                  className="text-secondary-foreground hover:text-foreground transition-colors"
+                >
+                  ✕
+                </button>
+              </div>
+
+              {/* Content */}
+              <div className="overflow-y-auto flex-1 p-6">
+                <div className="space-y-3">
+                  {getGroupStats(selectedGroup, monthlySalary, 'full').items.map((item) => (
+                    <div key={item.id} className="bg-secondary/50 rounded-xl p-4">
+                      <div className="flex items-center justify-between mb-2">
+                        <div className="flex items-center gap-2">
+                          <span className="text-2xl">{item.icon}</span>
+                          <p className="font-semibold text-foreground">{item.name}</p>
+                        </div>
+                        <p className="font-bold text-accent">
+                          RM {((item.percentage * monthlySalary) / 100).toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}
+                        </p>
+                      </div>
+                      <p className="text-xs text-secondary-foreground">
+                        {item.percentage.toFixed(2)}% of salary
+                      </p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* Bottom Navigation */}
         <BottomNavigation />
@@ -154,10 +207,8 @@ export default function Summary() {
   // 2x Salary Mode
   const midTotalAllocated = getTotalStats(midSalary, 'mid');
   const midRemainingAmount = midSalary - (midSalary * midTotalAllocated) / 100;
-
   const endTotalAllocated = getTotalStats(endSalary, 'end');
   const endRemainingAmount = endSalary - (endSalary * endTotalAllocated) / 100;
-
   const totalRemaining = midRemainingAmount + endRemainingAmount;
 
   return (
@@ -187,15 +238,16 @@ export default function Summary() {
           </div>
         </div>
 
-        {/* Total Monthly Card */}
-        <div className="bg-card border border-border rounded-3xl p-6 space-y-4 mb-6 animate-fade-in">
+        {/* Total Card */}
+        <div className="bg-card border border-border rounded-3xl p-6 space-y-6 mb-6 animate-fade-in">
+          {/* Budget Header */}
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
               <span className="text-2xl">💰</span>
-              <h2 className="text-lg font-semibold text-foreground">Total Monthly</h2>
+              <h2 className="text-lg font-semibold text-foreground">Total Budget</h2>
             </div>
             <p className="text-2xl font-bold text-accent">
-              RM {((monthlySalary || 0)).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+              RM {((monthlySalary || 0)).toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}
             </p>
           </div>
           <div className="h-px bg-border" />
@@ -203,7 +255,7 @@ export default function Summary() {
             <div>
               <p className="text-xs text-secondary-foreground mb-1">Total Remaining</p>
               <p className="text-xl font-bold" style={{ color: '#10B981' }}>
-                RM {((totalRemaining || 0)).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                RM {((totalRemaining || 0)).toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}
               </p>
             </div>
             <div>
@@ -224,7 +276,7 @@ export default function Summary() {
               <h2 className="text-lg font-semibold text-foreground">Mid-Month</h2>
             </div>
             <p className="text-2xl font-bold text-accent">
-              RM {((midSalary || 0)).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+              RM {((midSalary || 0)).toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}
             </p>
           </div>
 
@@ -235,7 +287,7 @@ export default function Summary() {
           <div className="bg-secondary/30 rounded-2xl p-4 text-center space-y-2">
             <p className="text-sm text-secondary-foreground">Remaining</p>
             <p className="text-3xl font-bold" style={{ color: '#10B981' }}>
-              RM {((midRemainingAmount || 0)).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+              RM {((midRemainingAmount || 0)).toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}
             </p>
           </div>
 
@@ -251,7 +303,11 @@ export default function Summary() {
               if (stats.percentage === 0) return null;
 
               return (
-                <div key={`mid-${group.key}`} className="flex items-center justify-between">
+                <button
+                  key={`mid-${group.key}`}
+                  onClick={() => setSelectedGroup(group.key)}
+                  className="w-full flex items-center justify-between p-3 rounded-xl bg-secondary/50 hover:bg-secondary transition-colors text-left"
+                >
                   <div className="flex items-center gap-3 flex-1">
                     <span className="text-2xl">{group.icon}</span>
                     <div>
@@ -262,9 +318,9 @@ export default function Summary() {
                     </div>
                   </div>
                   <p className="font-bold text-lg" style={{ color }}>
-                    RM {((stats.amount || 0)).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                    RM {((stats.amount || 0)).toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}
                   </p>
-                </div>
+                </button>
               );
             })}
           </div>
@@ -279,7 +335,7 @@ export default function Summary() {
               <h2 className="text-lg font-semibold text-foreground">End-Month</h2>
             </div>
             <p className="text-2xl font-bold text-accent">
-              RM {((endSalary || 0)).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+              RM {((endSalary || 0)).toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}
             </p>
           </div>
 
@@ -290,7 +346,7 @@ export default function Summary() {
           <div className="bg-secondary/30 rounded-2xl p-4 text-center space-y-2">
             <p className="text-sm text-secondary-foreground">Remaining</p>
             <p className="text-3xl font-bold" style={{ color: '#10B981' }}>
-              RM {((endRemainingAmount || 0)).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+              RM {((endRemainingAmount || 0)).toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}
             </p>
           </div>
 
@@ -306,7 +362,11 @@ export default function Summary() {
               if (stats.percentage === 0) return null;
 
               return (
-                <div key={`end-${group.key}`} className="flex items-center justify-between">
+                <button
+                  key={`end-${group.key}`}
+                  onClick={() => setSelectedGroup(group.key)}
+                  className="w-full flex items-center justify-between p-3 rounded-xl bg-secondary/50 hover:bg-secondary transition-colors text-left"
+                >
                   <div className="flex items-center gap-3 flex-1">
                     <span className="text-2xl">{group.icon}</span>
                     <div>
@@ -317,14 +377,56 @@ export default function Summary() {
                     </div>
                   </div>
                   <p className="font-bold text-lg" style={{ color }}>
-                    RM {((stats.amount || 0)).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                    RM {((stats.amount || 0)).toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}
                   </p>
-                </div>
+                </button>
               );
             })}
           </div>
         </div>
       </main>
+
+      {/* Detail Modal */}
+      {selectedGroup && (
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-end z-[60]">
+          <div className="bg-card w-full rounded-t-3xl flex flex-col max-h-[80vh] animate-fade-in">
+            {/* Header */}
+            <div className="flex items-center justify-between p-6 border-b border-border">
+              <h2 className="text-2xl font-bold text-foreground">
+                {groups.find(g => g.key === selectedGroup)?.name} Details
+              </h2>
+              <button
+                onClick={() => setSelectedGroup(null)}
+                className="text-secondary-foreground hover:text-foreground transition-colors"
+              >
+                ✕
+              </button>
+            </div>
+
+            {/* Content */}
+            <div className="overflow-y-auto flex-1 p-6">
+              <div className="space-y-3">
+                {getGroupStats(selectedGroup, midSalary, 'mid').items.map((item) => (
+                  <div key={item.id} className="bg-secondary/50 rounded-xl p-4">
+                    <div className="flex items-center justify-between mb-2">
+                      <div className="flex items-center gap-2">
+                        <span className="text-2xl">{item.icon}</span>
+                        <p className="font-semibold text-foreground">{item.name}</p>
+                      </div>
+                      <p className="font-bold text-accent">
+                        RM {((item.percentage * midSalary) / 100).toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}
+                      </p>
+                    </div>
+                    <p className="text-xs text-secondary-foreground">
+                      {item.percentage.toFixed(2)}% of salary
+                    </p>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Bottom Navigation */}
       <BottomNavigation />
