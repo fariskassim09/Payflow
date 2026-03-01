@@ -18,7 +18,7 @@ const ICON_OPTIONS = [
 ];
 
 export default function AddCategoryModal({ isOpen, onClose, currentMonth, editingCategoryId }: AddCategoryModalProps) {
-  const { addBudgetItem, updateBudgetItem, budgetItems, expectedSalary, salaryFrequency, getMidMonthlySalary, getEndMonthlySalary } = useSalary();
+  const { addBudgetItem, updateBudgetItem, budgetItems, expectedSalary, salaryFrequency, getMidMonthlySalary, getEndMonthlySalary, getMonthlySalary } = useSalary();
   const editingCategory = editingCategoryId ? budgetItems.find(item => item.id === editingCategoryId) : null;
   const [step, setStep] = useState<'form' | 'icons'>('form');
   const shouldShowSalaryType = salaryFrequency === '2x';
@@ -80,8 +80,8 @@ export default function AddCategoryModal({ isOpen, onClose, currentMonth, editin
     if (salaryFrequency === '2x' && formData.salaryType) {
       validationSalary = formData.salaryType === 'mid' ? getMidMonthlySalary(currentMonth) : getEndMonthlySalary(currentMonth);
     } else if (salaryFrequency === '1x') {
-      // For 1x mode, use getMonthlySalary which returns the total
-      validationSalary = expectedSalary;
+      // For 1x mode, use getMonthlySalary which returns the total from monthlySalaries or expectedSalary
+      validationSalary = getMonthlySalary(currentMonth);
     }
     
     if (validationSalary <= 0) {
