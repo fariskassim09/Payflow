@@ -93,18 +93,14 @@ export default function AddCategoryModal({ isOpen, onClose, currentMonth, editin
       return;
     }
     
-    // In 2x mode, calculate percentage based on actual mid/end salary
-    let baseSalary = expectedSalary;
-    if (salaryFrequency === '2x') {
-      // For 2x mode, ALWAYS use the actual mid or end month salary, never expectedSalary
-      baseSalary = formData.salaryType === 'mid' ? getMidMonthlySalary(currentMonth) : getEndMonthlySalary(currentMonth);
-    }
-    const percentage = (formData.amount / baseSalary) * 100;
+    // Store fixed amount, not percentage
+    // Percentage is calculated dynamically from the fixed amount and current salary
     const newCategory = {
       id: `custom-${Date.now()}`,
       name: formData.name,
       icon: formData.icon,
-      percentage: percentage,
+      percentage: 0, // Will be calculated dynamically
+      amount: formData.amount, // Store the fixed amount
       group: formData.group,
       repeatNextMonth: formData.repeatNextMonth,
       markAsPaid: formData.markAsPaid,
@@ -116,7 +112,8 @@ export default function AddCategoryModal({ isOpen, onClose, currentMonth, editin
       updateBudgetItem(editingCategory.id, {
         name: formData.name,
         icon: formData.icon,
-        percentage: percentage,
+        percentage: 0, // Will be calculated dynamically
+        amount: formData.amount, // Store the fixed amount
         group: formData.group,
         repeatNextMonth: formData.repeatNextMonth,
         isPaid: formData.markAsPaid,

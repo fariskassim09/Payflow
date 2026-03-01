@@ -20,9 +20,9 @@ export default function CombinedSalaryCard({ onEditMid, onEditEnd, currentMonth 
   const midSavingsItems = getBudgetsByGroup('SAVINGS', month, 'mid');
   const midDebtsItems = getBudgetsByGroup('DEBTS', month, 'mid');
   const midItems = [...midNeedsItems, ...midWantsItems, ...midSavingsItems, ...midDebtsItems];
-  const midTotalAllocated = midItems.reduce((sum, item) => sum + item.percentage, 0);
-  const midAllocatedAmount = (midSalary * midTotalAllocated) / 100;
+  const midAllocatedAmount = midItems.reduce((sum, item) => sum + (item.amount || 0), 0);
   const midRemainingAmount = midSalary - midAllocatedAmount;
+  const midAllocatedPercentage = midSalary > 0 ? (midAllocatedAmount / midSalary) * 100 : 0;
 
   // Get items for end-month
   const endNeedsItems = getBudgetsByGroup('NEEDS', month, 'end');
@@ -30,12 +30,12 @@ export default function CombinedSalaryCard({ onEditMid, onEditEnd, currentMonth 
   const endSavingsItems = getBudgetsByGroup('SAVINGS', month, 'end');
   const endDebtsItems = getBudgetsByGroup('DEBTS', month, 'end');
   const endItems = [...endNeedsItems, ...endWantsItems, ...endSavingsItems, ...endDebtsItems];
-  const endTotalAllocated = endItems.reduce((sum, item) => sum + item.percentage, 0);
-  const endAllocatedAmount = (endSalary * endTotalAllocated) / 100;
+  const endAllocatedAmount = endItems.reduce((sum, item) => sum + (item.amount || 0), 0);
   const endRemainingAmount = endSalary - endAllocatedAmount;
+  const endAllocatedPercentage = endSalary > 0 ? (endAllocatedAmount / endSalary) * 100 : 0;
 
   const totalRemaining = midRemainingAmount + endRemainingAmount;
-  const avgAllocatedPercentage = (midTotalAllocated + endTotalAllocated) / 2;
+  const avgAllocatedPercentage = (midAllocatedPercentage + endAllocatedPercentage) / 2;
 
   return (
     <div className="bg-gradient-to-br from-accent to-accent/80 rounded-3xl p-6 text-white relative overflow-hidden animate-fade-in">
@@ -99,7 +99,7 @@ export default function CombinedSalaryCard({ onEditMid, onEditEnd, currentMonth 
             </div>
             <div className="flex justify-between opacity-80">
               <span>Allocated:</span>
-              <span>{midTotalAllocated.toFixed(2)}%</span>
+              <span>{midAllocatedPercentage.toFixed(2)}%</span>
             </div>
           </div>
         </div>
@@ -127,7 +127,7 @@ export default function CombinedSalaryCard({ onEditMid, onEditEnd, currentMonth 
             </div>
             <div className="flex justify-between opacity-80">
               <span>Allocated:</span>
-              <span>{endTotalAllocated.toFixed(2)}%</span>
+              <span>{endAllocatedPercentage.toFixed(2)}%</span>
             </div>
           </div>
         </div>
