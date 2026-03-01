@@ -26,15 +26,10 @@ export default function AddCategoryModal({ isOpen, onClose, currentMonth, editin
   // Initialize form data - either from editing category or empty
   const getInitialFormData = () => {
     if (editingCategory) {
-      // Calculate amount from percentage and salary
-      let baseSalary = expectedSalary;
-      if (salaryFrequency === '2x' && editingCategory.salaryType) {
-        baseSalary = editingCategory.salaryType === 'mid' ? getMidMonthlySalary(currentMonth) : getEndMonthlySalary(currentMonth);
-      }
-      const amount = (editingCategory.percentage * baseSalary) / 100;
+      // Use the actual amount stored in the category, not calculated from percentage
       return {
         name: editingCategory.name,
-        amount: amount,
+        amount: editingCategory.amount || 0,
         group: editingCategory.group,
         icon: editingCategory.icon,
         color: '#3B82F6',

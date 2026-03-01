@@ -18,6 +18,10 @@ export default function Shared() {
   const [isShared, setIsShared] = useState(false);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+  const [currentMonth, setCurrentMonth] = useState(() => {
+    const today = new Date();
+    return new Date(today.getFullYear(), today.getMonth());
+  });
   const [sharedData, setSharedData] = useState<{
     salaryFrequency: '1x' | '2x';
     budgetItems: BudgetItem[];
@@ -33,33 +37,41 @@ export default function Shared() {
 
   const getGroupStats = (groupKey: 'NEEDS' | 'WANTS' | 'SAVINGS' | 'DEBTS', items?: BudgetItem[]) => {
     const itemsToUse = items || getBudgetsByGroup(groupKey);
-    const percentage = itemsToUse.reduce((sum, item) => sum + item.percentage, 0);
-    const salary = sharedData
-      ? sharedData.salaryFrequency === '1x'
-        ? sharedData.monthlySalaries[0]?.midSalary + sharedData.monthlySalaries[0]?.endSalary || 3400
-        : sharedData.monthlySalaries[0]?.midSalary + sharedData.monthlySalaries[0]?.endSalary || 3400
-      : expectedSalary;
-    const amount = (salary * percentage) / 100;
+    // Sum up actual amounts from items
+    const amount = itemsToUse.reduce((sum, item) => sum + (item.amount || 0), 0);
+    // Get the appropriate salary
+    let salary = expectedSalary;
+    if (sharedData) {
+      const monthData = sharedData.monthlySalaries.find(
+        m => m.year === currentMonth.getFullYear() && m.month === currentMonth.getMonth()
+      );
+      salary = monthData?.midSalary || 0;
+    }
+    // Calculate percentage based on actual amount and salary
+    const percentage = salary > 0 ? (amount / salary) * 100 : 0;
     return { percentage, amount };
   };
 
   const getCurrentSalary = () => {
     if (sharedData) {
-      return sharedData.monthlySalaries[0]?.midSalary + sharedData.monthlySalaries[0]?.endSalary || 3400;
+      const monthData = sharedData.monthlySalaries.find(
+        m => m.year === currentMonth.getFullYear() && m.month === currentMonth.getMonth()
+      );
+      return monthData?.midSalary || 0;
     }
     return expectedSalary;
   };
 
-  const totalAllocated = groups.reduce((sum, group) => {
+  const totalAllocatedAmount = groups.reduce((sum, group) => {
     const items = sharedData
       ? sharedData.budgetItems.filter(item => item.group === group.key)
       : getBudgetsByGroup(group.key);
     const stats = getGroupStats(group.key, items);
-    return sum + stats.percentage;
+    return sum + stats.amount;
   }, 0);
 
   const currentSalary = getCurrentSalary();
-  const remainingAmount = currentSalary - (currentSalary * totalAllocated) / 100;
+  const remainingAmount = currentSalary - totalAllocatedAmount;
 
   const getGroupColor = (groupKey: 'NEEDS' | 'WANTS' | 'SAVINGS' | 'DEBTS') => {
     const colors: Record<string, string> = {
@@ -111,6 +123,16 @@ export default function Shared() {
     setError('');
     setSharedData(null);
   };
+
+  const handlePreviousMonth = () => {
+    setCurrentMonth(new Date(currentMonth.getFullYear(), currentMonth.getMonth() - 1));
+  };
+
+  const handleNextMonth = () => {
+    setCurrentMonth(new Date(currentMonth.getFullYear(), currentMonth.getMonth() + 1));
+  };
+
+  const monthName = currentMonth.toLocaleString('default', { month: 'long', year: 'numeric' });
 
   return (
     <div className="min-h-screen bg-background text-foreground pb-24">
@@ -179,17 +201,35 @@ export default function Shared() {
           // Shared Summary View
           <div className="animate-fade-in space-y-6">
             {/* Header */}
-            <div className="flex items-center justify-between mb-8">
-              <div>
-                <h1 className="text-3xl font-bold">Shared Summary</h1>
-                <p className="text-secondary-foreground">Code: {shareCode}</p>
+            <div className="mb-8">
+              <div className="flex items-center justify-between mb-4">
+                <div>
+                  <h1 className="text-3xl font-bold">Shared Summary</h1>
+                  <p className="text-secondary-foreground">Code: {shareCode}</p>
+                </div>
+                <button
+                  onClick={handleBackToInput}
+                  className="p-2 hover:bg-secondary rounded-lg transition-colors"
+                >
+                  <Eye size={24} />
+                </button>
               </div>
-              <button
-                onClick={handleBackToInput}
-                className="p-2 hover:bg-secondary rounded-lg transition-colors"
-              >
-                <Eye size={24} />
-              </button>
+              {/* Month Navigation */}
+              <div className="flex items-center justify-between gap-4">
+                <button
+                  onClick={handlePreviousMonth}
+                  className="px-4 py-2 bg-secondary border border-border rounded-lg text-foreground hover:border-accent transition-colors font-medium"
+                >
+                  ← Previous
+                </button>
+                <span className="text-sm font-semibold text-secondary-foreground">{monthName}</span>
+                <button
+                  onClick={handleNextMonth}
+                  className="px-4 py-2 bg-secondary border border-border rounded-lg text-foreground hover:border-accent transition-colors font-medium"
+                >
+                  Next →
+                </button>
+              </div>
             </div>
 
             {/* Main Card */}
@@ -235,7 +275,7 @@ export default function Shared() {
                         <div>
                           <p className="font-semibold text-foreground">{group.name}</p>
                           <p className="text-xs text-secondary-foreground">
-                            {stats.percentage.toFixed(2)}% of salary
+                            {Math.round(stats.percentage)}% of salary
                           </p>
                         </div>
                       </div>
