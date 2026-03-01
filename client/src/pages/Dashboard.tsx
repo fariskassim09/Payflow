@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Plus } from 'lucide-react';
 import BottomNavigation from '@/components/BottomNavigation';
 import MonthNavigation from '@/components/MonthNavigation';
@@ -19,7 +19,7 @@ import { useSalary } from '@/contexts/SalaryContext';
 // - Smooth animations and transitions
 
 export default function Dashboard() {
-  const { getBudgetsByGroup, salaryFrequency } = useSalary();
+  const { getBudgetsByGroup, salaryFrequency, setExpectedSalary } = useSalary();
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isEditDualModalOpen, setIsEditDualModalOpen] = useState(false);
   const [editingSalaryType, setEditingSalaryType] = useState<'mid' | 'end'>('mid');
@@ -27,6 +27,16 @@ export default function Dashboard() {
   const [editingCategoryId, setEditingCategoryId] = useState<string | null>(null);
   const [currentMonth, setCurrentMonth] = useState(new Date()); // Current month
   const [salaryTypeFilter, setSalaryTypeFilter] = useState<'all' | 'mid' | 'end'>('all');
+  const [lastMonth, setLastMonth] = useState<string>(new Date().toISOString().slice(0, 7));
+
+  // Reset Expected Salary when month changes
+  useEffect(() => {
+    const currentMonthStr = currentMonth.toISOString().slice(0, 7);
+    if (currentMonthStr !== lastMonth) {
+      setExpectedSalary(0);
+      setLastMonth(currentMonthStr);
+    }
+  }, [currentMonth, lastMonth, setExpectedSalary]);
 
   const getFilteredItems = (items: any[]) => {
     if (salaryTypeFilter === 'all') return items;

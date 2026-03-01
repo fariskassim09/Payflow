@@ -18,10 +18,9 @@ export default function SalaryCard({ onEditClick, currentMonth }: SalaryCardProp
   const debtsItems = getBudgetsByGroup('DEBTS', month);
   
   const monthlyItems = [...needsItems, ...wantsItems, ...savingsItems, ...debtsItems];
-  const totalAllocated = monthlyItems.reduce((sum, item) => sum + item.percentage, 0);
-  const allocatedAmount = (monthlySalary * totalAllocated) / 100;
+  const allocatedAmount = monthlyItems.reduce((sum, item) => sum + (item.amount || 0), 0);
   const remainingAmount = monthlySalary - allocatedAmount;
-  const allocatedPercentage = totalAllocated;
+  const allocatedPercentage = monthlySalary > 0 ? (allocatedAmount / monthlySalary) * 100 : 0;
 
   return (
     <div className="bg-gradient-to-br from-accent to-accent/80 rounded-3xl p-6 text-white relative overflow-hidden animate-fade-in">

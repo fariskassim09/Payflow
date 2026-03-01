@@ -139,6 +139,9 @@ export default function Summary() {
                       <span className="text-2xl">{group.icon}</span>
                       <div>
                         <p className="font-semibold text-foreground">{group.name}</p>
+                        <p className="text-xs text-secondary-foreground">
+                          {stats.percentage.toFixed(2)}% of salary
+                        </p>
                       </div>
                     </div>
                     <p className="font-bold text-lg" style={{ color }}>
@@ -312,6 +315,9 @@ export default function Summary() {
                     <span className="text-2xl">{group.icon}</span>
                     <div>
                       <p className="font-semibold text-foreground">{group.name}</p>
+                      <p className="text-xs text-secondary-foreground">
+                        {stats.percentage.toFixed(2)}% of salary
+                      </p>
                     </div>
                   </div>
                   <p className="font-bold text-lg" style={{ color }}>
@@ -368,6 +374,9 @@ export default function Summary() {
                     <span className="text-2xl">{group.icon}</span>
                     <div>
                       <p className="font-semibold text-foreground">{group.name}</p>
+                      <p className="text-xs text-secondary-foreground">
+                        {stats.percentage.toFixed(2)}% of salary
+                      </p>
                     </div>
                   </div>
                   <p className="font-bold text-lg" style={{ color }}>
