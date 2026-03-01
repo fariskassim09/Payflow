@@ -8,7 +8,6 @@ import CategoryGroup from '@/components/CategoryGroup';
 import EditSalaryModal from '@/components/EditSalaryModal';
 import EditDualSalaryModal from '@/components/EditDualSalaryModal';
 import AddCategoryModal from '@/components/AddCategoryModal';
-import CategoryDetailsModal from '@/components/CategoryDetailsModal';
 import { useSalary } from '@/contexts/SalaryContext';
 
 // Design Philosophy: Salary Allocation Planner
@@ -25,8 +24,7 @@ export default function Dashboard() {
   const [isEditDualModalOpen, setIsEditDualModalOpen] = useState(false);
   const [editingSalaryType, setEditingSalaryType] = useState<'mid' | 'end'>('mid');
   const [isAddCategoryOpen, setIsAddCategoryOpen] = useState(false);
-  const [selectedCategoryId, setSelectedCategoryId] = useState<string | null>(null);
-  const [isCategoryDetailsOpen, setIsCategoryDetailsOpen] = useState(false);
+  const [editingCategoryId, setEditingCategoryId] = useState<string | null>(null);
   const [currentMonth, setCurrentMonth] = useState(new Date()); // Current month
   const [salaryTypeFilter, setSalaryTypeFilter] = useState<'all' | 'mid' | 'end'>('all');
 
@@ -92,16 +90,16 @@ export default function Dashboard() {
 
           <div className="space-y-8">
             {needsItems.length > 0 && (
-              <CategoryGroup key={`NEEDS-${currentMonth.getFullYear()}-${currentMonth.getMonth()}`} group="NEEDS" items={needsItems} onCategoryTap={(id) => { setSelectedCategoryId(id); setIsCategoryDetailsOpen(true); }} currentMonth={currentMonth} />
+              <CategoryGroup key={`NEEDS-${currentMonth.getFullYear()}-${currentMonth.getMonth()}`} group="NEEDS" items={needsItems} onCategoryTap={(id) => { setEditingCategoryId(id); setIsAddCategoryOpen(true); }} currentMonth={currentMonth} />
             )}
             {wantsItems.length > 0 && (
-              <CategoryGroup key={`WANTS-${currentMonth.getFullYear()}-${currentMonth.getMonth()}`} group="WANTS" items={wantsItems} onCategoryTap={(id) => { setSelectedCategoryId(id); setIsCategoryDetailsOpen(true); }} currentMonth={currentMonth} />
+              <CategoryGroup key={`WANTS-${currentMonth.getFullYear()}-${currentMonth.getMonth()}`} group="WANTS" items={wantsItems} onCategoryTap={(id) => { setEditingCategoryId(id); setIsAddCategoryOpen(true); }} currentMonth={currentMonth} />
             )}
             {savingsItems.length > 0 && (
-              <CategoryGroup key={`SAVINGS-${currentMonth.getFullYear()}-${currentMonth.getMonth()}`} group="SAVINGS" items={savingsItems} onCategoryTap={(id) => { setSelectedCategoryId(id); setIsCategoryDetailsOpen(true); }} currentMonth={currentMonth} />
+              <CategoryGroup key={`SAVINGS-${currentMonth.getFullYear()}-${currentMonth.getMonth()}`} group="SAVINGS" items={savingsItems} onCategoryTap={(id) => { setEditingCategoryId(id); setIsAddCategoryOpen(true); }} currentMonth={currentMonth} />
             )}
             {debtsItems.length > 0 && (
-              <CategoryGroup key={`DEBTS-${currentMonth.getFullYear()}-${currentMonth.getMonth()}`} group="DEBTS" items={debtsItems} onCategoryTap={(id) => { setSelectedCategoryId(id); setIsCategoryDetailsOpen(true); }} currentMonth={currentMonth} />
+              <CategoryGroup key={`DEBTS-${currentMonth.getFullYear()}-${currentMonth.getMonth()}`} group="DEBTS" items={debtsItems} onCategoryTap={(id) => { setEditingCategoryId(id); setIsAddCategoryOpen(true); }} currentMonth={currentMonth} />
             )}
           </div>
         </div>
@@ -110,7 +108,7 @@ export default function Dashboard() {
       {/* Add Category Button - Fixed at bottom */}
       <div className="fixed bottom-24 right-6 z-40 animate-fade-in">
         <button
-          onClick={() => setIsAddCategoryOpen(true)}
+          onClick={() => { setEditingCategoryId(null); setIsAddCategoryOpen(true); }}
           className="w-14 h-14 rounded-full bg-accent text-accent-foreground flex items-center justify-center shadow-lg shadow-accent/30 hover:shadow-xl hover:shadow-accent/40 transition-all duration-300 active:scale-95"
         >
           <Plus size={24} />
@@ -123,11 +121,8 @@ export default function Dashboard() {
       {/* Edit Dual Salary Modal (2x mode) */}
       <EditDualSalaryModal isOpen={isEditDualModalOpen} onClose={() => setIsEditDualModalOpen(false)} currentMonth={currentMonth} salaryType={editingSalaryType} />
 
-      {/* Add Category Modal */}
-      <AddCategoryModal isOpen={isAddCategoryOpen} onClose={() => setIsAddCategoryOpen(false)} currentMonth={currentMonth} />
-
-      {/* Category Details Modal */}
-      <CategoryDetailsModal isOpen={isCategoryDetailsOpen} categoryId={selectedCategoryId} onClose={() => setIsCategoryDetailsOpen(false)} currentMonth={currentMonth} />
+      {/* Add/Edit Category Modal */}
+      <AddCategoryModal isOpen={isAddCategoryOpen} onClose={() => { setIsAddCategoryOpen(false); setEditingCategoryId(null); }} currentMonth={currentMonth} editingCategoryId={editingCategoryId} />
 
       {/* Bottom Navigation - Fixed */}
       <BottomNavigation />

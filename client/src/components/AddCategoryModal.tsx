@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { X, ChevronLeft } from 'lucide-react';
 import { useSalary } from '@/contexts/SalaryContext';
 
@@ -6,6 +6,7 @@ interface AddCategoryModalProps {
   isOpen: boolean;
   onClose: () => void;
   currentMonth: Date;
+  editingCategoryId?: string | null;
 }
 
 const ICON_OPTIONS = [
@@ -16,20 +17,53 @@ const ICON_OPTIONS = [
   '🚗', '✈️', '🔫', '⛽', '🚌', '🍔', '🏪', '🎨',
 ];
 
-export default function AddCategoryModal({ isOpen, onClose, currentMonth }: AddCategoryModalProps) {
-  const { addBudgetItem, expectedSalary, salaryFrequency, getMidMonthlySalary, getEndMonthlySalary } = useSalary();
+export default function AddCategoryModal({ isOpen, onClose, currentMonth, editingCategoryId }: AddCategoryModalProps) {
+  const { addBudgetItem, updateBudgetItem, budgetItems, expectedSalary, salaryFrequency, getMidMonthlySalary, getEndMonthlySalary } = useSalary();
+  const editingCategory = editingCategoryId ? budgetItems.find(item => item.id === editingCategoryId) : null;
   const [step, setStep] = useState<'form' | 'icons'>('form');
   const shouldShowSalaryType = salaryFrequency === '2x';
-  const [formData, setFormData] = useState({
-    name: '',
-    amount: 0,
-    group: 'NEEDS' as 'NEEDS' | 'WANTS' | 'SAVINGS' | 'DEBTS',
-    icon: '🏠',
-    color: '#3B82F6', // Always blue
-    repeatNextMonth: true,
-    markAsPaid: false,
-    salaryType: salaryFrequency === '2x' ? ('mid' as 'mid' | 'end') : undefined,
-  });
+  
+  // Initialize form data - either from editing category or empty
+  const getInitialFormData = () => {
+    if (editingCategory) {
+      // Calculate amount from percentage and salary
+      let baseSalary = expectedSalary;
+      if (salaryFrequency === '2x' && editingCategory.salaryType) {
+        baseSalary = editingCategory.salaryType === 'mid' ? getMidMonthlySalary(currentMonth) : getEndMonthlySalary(currentMonth);
+      }
+      const amount = (editingCategory.percentage * baseSalary) / 100;
+      return {
+        name: editingCategory.name,
+        amount: amount,
+        group: editingCategory.group,
+        icon: editingCategory.icon,
+        color: '#3B82F6',
+        repeatNextMonth: editingCategory.repeatNextMonth ?? true,
+        markAsPaid: editingCategory.isPaid ?? false,
+        salaryType: editingCategory.salaryType as 'mid' | 'end' | undefined,
+      };
+    }
+    return {
+      name: '',
+      amount: 0,
+      group: 'NEEDS' as 'NEEDS' | 'WANTS' | 'SAVINGS' | 'DEBTS',
+      icon: '🏠',
+      color: '#3B82F6',
+      repeatNextMonth: true,
+      markAsPaid: false,
+      salaryType: salaryFrequency === '2x' ? ('mid' as 'mid' | 'end') : undefined,
+    };
+  };
+  
+  const [formData, setFormData] = useState(getInitialFormData());
+
+  // Reset form when modal opens/closes or editing category changes
+  useEffect(() => {
+    if (isOpen) {
+      setFormData(getInitialFormData());
+      setStep('form');
+    }
+  }, [isOpen, editingCategoryId]);
 
   const handleAddCategory = () => {
     if (!formData.name.trim()) {
@@ -77,7 +111,21 @@ export default function AddCategoryModal({ isOpen, onClose, currentMonth }: AddC
       salaryType: formData.salaryType,
       color: '#3B82F6', // Always blue
     };
-    addBudgetItem(newCategory);
+    if (editingCategory) {
+      // Update existing category
+      updateBudgetItem(editingCategory.id, {
+        name: formData.name,
+        icon: formData.icon,
+        percentage: percentage,
+        group: formData.group,
+        repeatNextMonth: formData.repeatNextMonth,
+        isPaid: formData.markAsPaid,
+        salaryType: formData.salaryType,
+      });
+    } else {
+      // Add new category
+      addBudgetItem(newCategory);
+    }
     setFormData({
       name: '',
       amount: 0,
@@ -306,7 +354,7 @@ export default function AddCategoryModal({ isOpen, onClose, currentMonth }: AddC
               onClick={handleAddCategory}
               className="flex-1 px-4 py-3 bg-accent text-accent-foreground rounded-xl hover:bg-accent/90 transition-all duration-300 font-medium active:scale-95"
             >
-              Add Category
+              {editingCategory ? 'Update Category' : 'Add Category'}
             </button>
           </div>
         )}
