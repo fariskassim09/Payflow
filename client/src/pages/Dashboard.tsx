@@ -124,7 +124,7 @@ export default function Dashboard() {
       <EditDualSalaryModal isOpen={isEditDualModalOpen} onClose={() => setIsEditDualModalOpen(false)} currentMonth={currentMonth} salaryType={editingSalaryType} />
 
       {/* Add Category Modal */}
-      <AddCategoryModal isOpen={isAddCategoryOpen} onClose={() => setIsAddCategoryOpen(false)} />
+      <AddCategoryModal isOpen={isAddCategoryOpen} onClose={() => setIsAddCategoryOpen(false)} currentMonth={currentMonth} />
 
       {/* Category Details Modal */}
       <CategoryDetailsModal isOpen={isCategoryDetailsOpen} categoryId={selectedCategoryId} onClose={() => setIsCategoryDetailsOpen(false)} currentMonth={currentMonth} />

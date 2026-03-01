@@ -5,6 +5,7 @@ import { useSalary } from '@/contexts/SalaryContext';
 interface AddCategoryModalProps {
   isOpen: boolean;
   onClose: () => void;
+  currentMonth: Date;
 }
 
 const ICON_OPTIONS = [
@@ -15,8 +16,8 @@ const ICON_OPTIONS = [
   '🚗', '✈️', '🔫', '⛽', '🚌', '🍔', '🏪', '🎨',
 ];
 
-export default function AddCategoryModal({ isOpen, onClose }: AddCategoryModalProps) {
-  const { addBudgetItem, expectedSalary, salaryFrequency } = useSalary();
+export default function AddCategoryModal({ isOpen, onClose, currentMonth }: AddCategoryModalProps) {
+  const { addBudgetItem, expectedSalary, salaryFrequency, getMidMonthlySalary, getEndMonthlySalary } = useSalary();
   const [step, setStep] = useState<'form' | 'icons'>('form');
   const shouldShowSalaryType = salaryFrequency === '2x';
   const [formData, setFormData] = useState({
@@ -39,12 +40,22 @@ export default function AddCategoryModal({ isOpen, onClose }: AddCategoryModalPr
       alert('Please enter a valid amount');
       return;
     }
-    if (expectedSalary <= 0) {
+    
+    // Get the appropriate salary for validation based on salary frequency and type
+    let validationSalary = expectedSalary;
+    if (salaryFrequency === '2x' && formData.salaryType) {
+      validationSalary = formData.salaryType === 'mid' ? getMidMonthlySalary(currentMonth) : getEndMonthlySalary(currentMonth);
+    } else if (salaryFrequency === '1x') {
+      // For 1x mode, use getMonthlySalary which returns the total
+      validationSalary = expectedSalary;
+    }
+    
+    if (validationSalary <= 0) {
       alert('Please set your expected salary first');
       return;
     }
-    if (formData.amount > expectedSalary) {
-      alert(`Category amount (RM ${formData.amount.toFixed(2)}) cannot exceed expected salary (RM ${expectedSalary.toFixed(2)})`);
+    if (formData.amount > validationSalary) {
+      alert(`Category amount (RM ${formData.amount.toFixed(2)}) cannot exceed salary (RM ${validationSalary.toFixed(2)})`);
       return;
     }
     
