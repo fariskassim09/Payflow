@@ -178,7 +178,7 @@ export default function Summary() {
                 <div className="space-y-3">
                   {getGroupStats(selectedGroup, monthlySalary, undefined).items.length > 0 ? (
                     getGroupStats(selectedGroup, monthlySalary, undefined).items.map((item) => {
-                      const itemAmount = (item.percentage * monthlySalary) / 100;
+                      const itemAmount = item.amount || 0;
                       return (
                         <div key={item.id} className="bg-secondary/50 rounded-xl p-4">
                           <div className="flex items-center justify-between mb-2">
@@ -419,7 +419,7 @@ export default function Summary() {
                         <p className="font-semibold text-foreground">{item.name}</p>
                       </div>
                       <p className="font-bold text-accent">
-                        RM {((item.percentage * midSalary) / 100).toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}
+                        RM {((item.amount || 0)).toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}
                       </p>
                     </div>
                   </div>
