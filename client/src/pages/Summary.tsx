@@ -41,16 +41,18 @@ export default function Summary() {
 
   const getGroupStats = (groupKey: 'NEEDS' | 'WANTS' | 'SAVINGS' | 'DEBTS', salary?: number, salaryType?: 'full' | 'mid' | 'end') => {
     const items = getBudgetsByGroup(groupKey, currentMonth, salaryType);
-    const percentage = items.reduce((sum, item) => sum + item.percentage, 0);
+    // Sum up the actual amounts from items
+    const amount = items.reduce((sum, item) => sum + (item.amount || 0), 0);
+    // Calculate percentage based on the actual amount and salary
     const baseSalary = salary || monthlySalary;
-    const amount = (baseSalary * percentage) / 100;
+    const percentage = baseSalary > 0 ? (amount / baseSalary) * 100 : 0;
     return { percentage, amount, items };
   };
 
   const getTotalStats = (salary?: number, salaryType?: 'full' | 'mid' | 'end') => {
     return groups.reduce((sum, group) => {
       const stats = getGroupStats(group.key, salary, salaryType);
-      return sum + stats.percentage;
+      return sum + stats.amount;
     }, 0);
   };
 
@@ -66,8 +68,8 @@ export default function Summary() {
 
   // 1x Salary Mode
   if (salaryFrequency === '1x') {
-    const totalAllocated = getTotalStats(monthlySalary, undefined);
-    const remainingAmount = monthlySalary - (monthlySalary * totalAllocated) / 100;
+    const totalAllocatedAmount = getTotalStats(monthlySalary, undefined);
+    const remainingAmount = monthlySalary - totalAllocatedAmount;
 
     return (
       <div className="min-h-screen bg-background text-foreground pb-24">
@@ -207,11 +209,11 @@ export default function Summary() {
   }
 
   // 2x Salary Mode
-  // Calculate percentages based on mid/end salary for each section
-  const midTotalAllocated = getTotalStats(midSalary, 'mid');
-  const midRemainingAmount = midSalary - (midSalary * midTotalAllocated) / 100;
-  const endTotalAllocated = getTotalStats(endSalary, 'end');
-  const endRemainingAmount = endSalary - (endSalary * endTotalAllocated) / 100;
+  // Calculate amounts based on mid/end salary for each section
+  const midTotalAllocatedAmount = getTotalStats(midSalary, 'mid');
+  const midRemainingAmount = midSalary - midTotalAllocatedAmount;
+  const endTotalAllocatedAmount = getTotalStats(endSalary, 'end');
+  const endRemainingAmount = endSalary - endTotalAllocatedAmount;
   const totalRemaining = midRemainingAmount + endRemainingAmount;
 
   return (
@@ -264,7 +266,7 @@ export default function Summary() {
             <div>
               <p className="text-xs text-secondary-foreground mb-1">Total Allocated</p>
               <p className="text-xl font-bold text-foreground">
-                {((midTotalAllocated + endTotalAllocated) / 2).toFixed(1)}%
+                RM {((midTotalAllocatedAmount + endTotalAllocatedAmount) || 0).toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}
               </p>
             </div>
           </div>
