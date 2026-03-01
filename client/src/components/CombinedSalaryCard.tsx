@@ -40,7 +40,7 @@ export default function CombinedSalaryCard({ onEditMid, onEditEnd, currentMonth 
   return (
     <div className="bg-gradient-to-br from-accent to-accent/80 rounded-3xl p-6 text-white relative overflow-hidden animate-fade-in">
       {/* Title */}
-      <p className="text-sm font-medium opacity-90 mb-4">Percentage</p>
+      <p className="text-sm font-medium opacity-90 mb-4">Total Salary</p>
 
       {/* Total Amount */}
       <h2 className="text-4xl font-bold mb-6">RM {Math.round(totalSalary || 0)}</h2>
@@ -66,7 +66,7 @@ export default function CombinedSalaryCard({ onEditMid, onEditEnd, currentMonth 
           <p className="font-semibold">RM {Math.round(totalRemaining || 0)}</p>
         </div>
         <div>
-          <p className="text-xs opacity-80 mb-1">Allocated</p>
+          <p className="text-xs opacity-80 mb-1">Percentage</p>
           <p className="font-semibold">{avgAllocatedPercentage.toFixed(2)}%</p>
         </div>
       </div>
