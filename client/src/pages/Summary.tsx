@@ -210,10 +210,11 @@ export default function Summary() {
   }
 
   // 2x Salary Mode
-  const midTotalAllocated = getTotalStats(midSalary, 'mid');
-  const midRemainingAmount = midSalary - (midSalary * midTotalAllocated) / 100;
-  const endTotalAllocated = getTotalStats(endSalary, 'end');
-  const endRemainingAmount = endSalary - (endSalary * endTotalAllocated) / 100;
+  // Calculate percentages based on FULL monthly salary, not mid/end salary
+  const midTotalAllocated = getTotalStats(monthlySalary, 'mid');
+  const midRemainingAmount = midSalary - (monthlySalary * midTotalAllocated) / 100;
+  const endTotalAllocated = getTotalStats(monthlySalary, 'end');
+  const endRemainingAmount = endSalary - (monthlySalary * endTotalAllocated) / 100;
   const totalRemaining = midRemainingAmount + endRemainingAmount;
 
   return (
@@ -302,8 +303,10 @@ export default function Summary() {
           {/* Group Breakdown */}
           <div className="space-y-3">
             {groups.map((group) => {
-              const stats = getGroupStats(group.key, midSalary, 'mid');
+              const stats = getGroupStats(group.key, monthlySalary, 'mid');
               const color = getGroupColor(group.key);
+              // In 2x mode, divide the amount by 2 to show half-month allocation
+              const displayAmount = stats.amount / 2;
 
               return (
                 <button
@@ -321,7 +324,7 @@ export default function Summary() {
                     </div>
                   </div>
                   <p className="font-bold text-lg" style={{ color }}>
-                    RM {((stats.amount || 0)).toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}
+                    RM {((displayAmount || 0)).toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}
                   </p>
                 </button>
               );
@@ -359,8 +362,10 @@ export default function Summary() {
           {/* Group Breakdown */}
           <div className="space-y-3">
             {groups.map((group) => {
-              const stats = getGroupStats(group.key, endSalary, 'end');
+              const stats = getGroupStats(group.key, monthlySalary, 'end');
               const color = getGroupColor(group.key);
+              // In 2x mode, divide the amount by 2 to show half-month allocation
+              const displayAmount = stats.amount / 2;
 
               return (
                 <button
@@ -378,7 +383,7 @@ export default function Summary() {
                     </div>
                   </div>
                   <p className="font-bold text-lg" style={{ color }}>
-                    RM {((stats.amount || 0)).toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}
+                    RM {((displayAmount || 0)).toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}
                   </p>
                 </button>
               );

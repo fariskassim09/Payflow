@@ -233,6 +233,7 @@ export function SalaryProvider({ children }: { children: React.ReactNode }) {
         }
       }
       
+      // Include categories without salaryType in both mid and end modes
       if (salaryType && item.salaryType && item.salaryType !== salaryType) return false;
       
       return true;
