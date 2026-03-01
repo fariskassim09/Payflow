@@ -8,11 +8,11 @@ interface CombinedSalaryCardProps {
 }
 
 export default function CombinedSalaryCard({ onEditMid, onEditEnd, currentMonth }: CombinedSalaryCardProps) {
-  const { expectedSalary, getMidMonthlySalary, getEndMonthlySalary, getBudgetsByGroup } = useSalary();
+  const { expectedSalary, getMidMonthlySalary, getEndMonthlySalary, getMonthlySalary, getBudgetsByGroup } = useSalary();
   const month = currentMonth || new Date(2026, 1);
   const midSalary = getMidMonthlySalary(month);
   const endSalary = getEndMonthlySalary(month);
-  const totalSalary = expectedSalary;
+  const totalSalary = getMonthlySalary(month);
 
   // Get items for mid-month
   const midNeedsItems = getBudgetsByGroup('NEEDS', month, 'mid');
@@ -43,7 +43,7 @@ export default function CombinedSalaryCard({ onEditMid, onEditEnd, currentMonth 
       <p className="text-sm font-medium opacity-90 mb-4">Percentage</p>
 
       {/* Total Amount */}
-      <h2 className="text-4xl font-bold mb-6">RM {Math.round(expectedSalary || 0)}</h2>
+      <h2 className="text-4xl font-bold mb-6">RM {Math.round(totalSalary || 0)}</h2>
 
       {/* Progress Bar */}
       <div className="mb-6">

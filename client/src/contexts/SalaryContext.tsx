@@ -106,9 +106,9 @@ export function SalaryProvider({ children }: { children: React.ReactNode }) {
       ms => ms.year === date.getFullYear() && ms.month === date.getMonth()
     );
     if (salaryFrequency === '1x') {
-      return existing ? existing.midSalary + existing.endSalary : DEFAULT_SALARY;
+      return existing ? existing.midSalary + existing.endSalary : expectedSalary;
     } else {
-      return existing ? existing.midSalary + existing.endSalary : DEFAULT_SALARY;
+      return existing ? existing.midSalary + existing.endSalary : expectedSalary;
     }
   };
 
