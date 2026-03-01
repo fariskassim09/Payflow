@@ -61,8 +61,8 @@ export default function AddCategoryModal({ isOpen, onClose, currentMonth }: AddC
     
     // In 2x mode, calculate percentage based on actual mid/end salary
     let baseSalary = expectedSalary;
-    if (salaryFrequency === '2x' && formData.salaryType) {
-      // For 2x mode, use the actual mid or end month salary
+    if (salaryFrequency === '2x') {
+      // For 2x mode, ALWAYS use the actual mid or end month salary, never expectedSalary
       baseSalary = formData.salaryType === 'mid' ? getMidMonthlySalary(currentMonth) : getEndMonthlySalary(currentMonth);
     }
     const percentage = (formData.amount / baseSalary) * 100;
@@ -96,8 +96,8 @@ export default function AddCategoryModal({ isOpen, onClose, currentMonth }: AddC
 
   // Calculate percentage display based on the correct salary
   let displayBaseSalary = expectedSalary;
-  if (salaryFrequency === '2x' && formData.salaryType) {
-    // For 2x mode, use the actual mid or end month salary
+  if (salaryFrequency === '2x') {
+    // For 2x mode, ALWAYS use the actual mid or end month salary, never expectedSalary
     displayBaseSalary = formData.salaryType === 'mid' ? getMidMonthlySalary(currentMonth) : getEndMonthlySalary(currentMonth);
   }
   const percentage = displayBaseSalary > 0 ? (formData.amount / displayBaseSalary) * 100 : 0;
