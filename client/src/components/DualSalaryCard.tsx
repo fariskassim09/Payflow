@@ -70,7 +70,7 @@ export default function DualSalaryCard({ onEditMid, onEditEnd, currentMonth }: D
           </div>
           <div>
             <p className="text-xs opacity-80 mb-1">Allocated</p>
-            <p className="font-semibold">{midTotalAllocated.toFixed(2)}%</p>
+            <p className="font-semibold">{Math.round(midTotalAllocated)}%</p>
           </div>
         </div>
       </div>
@@ -107,7 +107,7 @@ export default function DualSalaryCard({ onEditMid, onEditEnd, currentMonth }: D
           </div>
           <div>
             <p className="text-xs opacity-80 mb-1">Allocated</p>
-            <p className="font-semibold">{endTotalAllocated.toFixed(2)}%</p>
+            <p className="font-semibold">{Math.round(endTotalAllocated)}%</p>
           </div>
         </div>
       </div>
@@ -123,7 +123,7 @@ export default function DualSalaryCard({ onEditMid, onEditEnd, currentMonth }: D
           </div>
           <div>
             <p className="text-xs text-secondary-foreground mb-1">Total Allocated</p>
-            <p className="text-lg font-semibold text-foreground">{((midTotalAllocated + endTotalAllocated) / 2).toFixed(2)}%</p>
+            <p className="text-lg font-semibold text-foreground">{Math.round((midTotalAllocated + endTotalAllocated) / 2)}%</p>
           </div>
         </div>
       </div>
