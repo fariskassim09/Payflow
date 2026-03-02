@@ -284,17 +284,18 @@ export default function AddCategoryModal({ isOpen, onClose, currentMonth, editin
             </div>
           ) : (
             // Icon Selection Grid
-            <div className="grid grid-cols-6 gap-3">
+            <div className="grid grid-cols-5 sm:grid-cols-6 gap-2 sm:gap-3">
               {ICON_OPTIONS.map((icon) => (
                 <button
                   key={icon}
+                  type="button"
                   onClick={() => {
                     setFormData({ ...formData, icon });
                     setStep('form');
                   }}
-                  className={`aspect-square rounded-xl flex items-center justify-center text-2xl transition-all ${
+                  className={`aspect-square rounded-lg flex items-center justify-center text-xl sm:text-2xl transition-all ${
                     formData.icon === icon
-                      ? 'bg-accent border-2 border-accent scale-110'
+                      ? 'bg-accent border-2 border-accent scale-105'
                       : 'bg-secondary hover:bg-secondary/80 border border-border'
                   }`}
                 >
