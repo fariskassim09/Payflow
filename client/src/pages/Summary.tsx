@@ -107,7 +107,7 @@ export default function Summary() {
                 <h2 className="text-lg font-semibold text-foreground">Budget</h2>
               </div>
               <p className="text-2xl font-bold text-accent">
-                RM {((monthlySalary || 0)).toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}
+                RM {Math.round(monthlySalary || 0)}
               </p>
             </div>
 
@@ -118,7 +118,7 @@ export default function Summary() {
             <div className="bg-secondary/30 rounded-2xl p-4 text-center space-y-2">
               <p className="text-sm text-secondary-foreground">Remaining</p>
               <p className="text-4xl font-bold" style={{ color: '#10B981' }}>
-                RM {((remainingAmount || 0)).toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}
+                RM {Math.round(remainingAmount || 0)}
               </p>
             </div>
 
@@ -147,7 +147,7 @@ export default function Summary() {
                       </div>
                     </div>
                     <p className="font-bold text-lg" style={{ color }}>
-                      RM {((stats.amount || 0)).toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}
+                      RM {Math.round(stats.amount || 0)}
                     </p>
                   </button>
                 );
@@ -252,7 +252,7 @@ export default function Summary() {
               <h2 className="text-lg font-semibold text-foreground">Total Budget</h2>
             </div>
             <p className="text-2xl font-bold text-accent">
-              RM {((monthlySalary || 0)).toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}
+              RM {Math.round(monthlySalary || 0)}
             </p>
           </div>
           <div className="h-px bg-border" />
@@ -260,13 +260,13 @@ export default function Summary() {
             <div>
               <p className="text-xs text-secondary-foreground mb-1">Total Remaining</p>
               <p className="text-xl font-bold" style={{ color: '#10B981' }}>
-                RM {((totalRemaining || 0)).toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}
+                RM {Math.round(totalRemaining || 0)}
               </p>
             </div>
             <div>
               <p className="text-xs text-secondary-foreground mb-1">Total Allocated</p>
               <p className="text-xl font-bold text-foreground">
-                RM {((midTotalAllocatedAmount + endTotalAllocatedAmount) || 0).toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}
+                RM {Math.round((midTotalAllocatedAmount + endTotalAllocatedAmount) || 0)}
               </p>
             </div>
           </div>
@@ -281,7 +281,7 @@ export default function Summary() {
               <h2 className="text-lg font-semibold text-foreground">Mid-Month</h2>
             </div>
             <p className="text-2xl font-bold text-accent">
-              RM {((midSalary || 0)).toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}
+              RM {Math.round(midSalary || 0)}
             </p>
           </div>
 
@@ -292,7 +292,7 @@ export default function Summary() {
           <div className="bg-secondary/30 rounded-2xl p-4 text-center space-y-2">
             <p className="text-sm text-secondary-foreground">Remaining</p>
             <p className="text-3xl font-bold" style={{ color: '#10B981' }}>
-              RM {((midRemainingAmount || 0)).toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}
+              RM {Math.round(midRemainingAmount || 0)}
             </p>
           </div>
 
@@ -323,7 +323,7 @@ export default function Summary() {
                     </div>
                   </div>
                   <p className="font-bold text-lg" style={{ color }}>
-                    RM {((displayAmount || 0)).toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}
+                    RM {Math.round(displayAmount || 0)}
                   </p>
                 </button>
               );
@@ -340,7 +340,7 @@ export default function Summary() {
               <h2 className="text-lg font-semibold text-foreground">End-Month</h2>
             </div>
             <p className="text-2xl font-bold text-accent">
-              RM {((endSalary || 0)).toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}
+              RM {Math.round(endSalary || 0)}
             </p>
           </div>
 
@@ -351,7 +351,7 @@ export default function Summary() {
           <div className="bg-secondary/30 rounded-2xl p-4 text-center space-y-2">
             <p className="text-sm text-secondary-foreground">Remaining</p>
             <p className="text-3xl font-bold" style={{ color: '#10B981' }}>
-              RM {((endRemainingAmount || 0)).toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}
+              RM {Math.round(endRemainingAmount || 0)}
             </p>
           </div>
 
@@ -382,7 +382,7 @@ export default function Summary() {
                     </div>
                   </div>
                   <p className="font-bold text-lg" style={{ color }}>
-                    RM {((displayAmount || 0)).toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}
+                    RM {Math.round(displayAmount || 0)}
                   </p>
                 </button>
               );

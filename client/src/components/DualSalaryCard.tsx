@@ -48,7 +48,7 @@ export default function DualSalaryCard({ onEditMid, onEditEnd, currentMonth }: D
         </button>
 
         <p className="text-sm font-medium opacity-90 mb-2">Mid-Month Salary</p>
-        <h2 className="text-3xl font-bold mb-4">RM {((midSalary || 0)).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</h2>
+        <h2 className="text-3xl font-bold mb-4">RM {Math.round(midSalary || 0)}</h2>
 
         <div className="mb-4">
           <div className="h-1.5 bg-white/20 rounded-full overflow-hidden">
@@ -62,11 +62,11 @@ export default function DualSalaryCard({ onEditMid, onEditEnd, currentMonth }: D
         <div className="grid grid-cols-3 gap-3 text-sm">
           <div>
             <p className="text-xs opacity-80 mb-1">Allocated</p>
-            <p className="font-semibold">RM {((midAllocatedAmount || 0)).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</p>
+            <p className="font-semibold">RM {Math.round(midAllocatedAmount || 0)}</p>
           </div>
           <div>
             <p className="text-xs opacity-80 mb-1">Remaining</p>
-            <p className="font-semibold">RM {((midRemainingAmount || 0)).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</p>
+            <p className="font-semibold">RM {Math.round(midRemainingAmount || 0)}</p>
           </div>
           <div>
             <p className="text-xs opacity-80 mb-1">Allocated</p>
@@ -85,7 +85,7 @@ export default function DualSalaryCard({ onEditMid, onEditEnd, currentMonth }: D
         </button>
 
         <p className="text-sm font-medium opacity-90 mb-2">End-Month Salary</p>
-        <h2 className="text-3xl font-bold mb-4">RM {((endSalary || 0)).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</h2>
+        <h2 className="text-3xl font-bold mb-4">RM {Math.round(endSalary || 0)}</h2>
 
         <div className="mb-4">
           <div className="h-1.5 bg-white/20 rounded-full overflow-hidden">
@@ -99,11 +99,11 @@ export default function DualSalaryCard({ onEditMid, onEditEnd, currentMonth }: D
         <div className="grid grid-cols-3 gap-3 text-sm">
           <div>
             <p className="text-xs opacity-80 mb-1">Allocated</p>
-            <p className="font-semibold">RM {((endAllocatedAmount || 0)).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</p>
+            <p className="font-semibold">RM {Math.round(endAllocatedAmount || 0)}</p>
           </div>
           <div>
             <p className="text-xs opacity-80 mb-1">Remaining</p>
-            <p className="font-semibold">RM {((endRemainingAmount || 0)).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</p>
+            <p className="font-semibold">RM {Math.round(endRemainingAmount || 0)}</p>
           </div>
           <div>
             <p className="text-xs opacity-80 mb-1">Allocated</p>
@@ -115,11 +115,11 @@ export default function DualSalaryCard({ onEditMid, onEditEnd, currentMonth }: D
       {/* Total Summary */}
       <div className="bg-card border border-border rounded-3xl p-6 animate-fade-in">
         <p className="text-sm text-secondary-foreground mb-2">Total Monthly</p>
-        <h3 className="text-2xl font-bold text-foreground mb-4">RM {((totalSalary || 0)).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</h3>
+        <h3 className="text-2xl font-bold text-foreground mb-4">RM {Math.round(totalSalary || 0)}</h3>
         <div className="grid grid-cols-2 gap-4">
           <div>
             <p className="text-xs text-secondary-foreground mb-1">Total Remaining</p>
-            <p className="text-lg font-semibold text-accent">RM {((totalRemaining || 0)).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</p>
+            <p className="text-lg font-semibold text-accent">RM {Math.round(totalRemaining || 0)}</p>
           </div>
           <div>
             <p className="text-xs text-secondary-foreground mb-1">Total Allocated</p>
