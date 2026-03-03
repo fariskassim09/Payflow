@@ -1,0 +1,65 @@
+PAYFLOW MOBILE APP - BUILD INSTRUCTIONS
+========================================
+
+STEP 1: DOWNLOAD KEYSTORE FILE
+==============================
+File: payflow-upload-keystore.jks
+Location: https://github.com/fariskassim09/Payflow
+Download it to your phone
+
+STEP 2: UPLOAD TO EAS
+====================
+1. Go to https://expo.dev/eas
+2. Login with your Expo account
+3. Select "Payflow" project
+4. Click "Credentials" → "Android"
+5. Click "Upload Keystore"
+6. Select payflow-upload-keystore.jks
+7. Fill in the form:
+   - Keystore Password: payflow2024
+   - Key Alias: payflow-key
+   - Key Password: payflow2024
+8. Click "Upload"
+
+STEP 3: BUILD APK
+=================
+1. Go to https://expo.dev/eas
+2. Click "Builds"
+3. Click "New Build"
+4. Select "Android"
+5. Select "APK"
+6. Click "Build"
+7. Wait 5-15 minutes
+8. Download APK when ready
+
+STEP 4: INSTALL ON PHONE
+========================
+1. Find downloaded APK
+2. Tap to open
+3. Allow installation from unknown sources
+4. Tap "Install"
+5. Done! 🎉
+
+CREDENTIALS SUMMARY
+===================
+App ID: com.faris.payflow
+App Name: Payflow
+Keystore Password: payflow2024
+Key Alias: payflow-key
+Key Password: payflow2024
+
+LINKS
+=====
+GitHub: https://github.com/fariskassim09/Payflow
+EAS Build: https://expo.dev/eas
+Expo Docs: https://docs.expo.dev
+
+SUPPORT
+=======
+If build fails, check:
+1. Keystore uploaded correctly
+2. Passwords are correct
+3. Application ID matches
+4. Internet connection is stable
+
+Good luck! 🚀
