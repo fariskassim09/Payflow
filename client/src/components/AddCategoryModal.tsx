@@ -157,20 +157,27 @@ export default function AddCategoryModal({ isOpen, onClose, currentMonth, editin
                 />
               </div>
 
-              {/* Category Type */}
+              {/* Category Group */}
               <div>
                 <label className="block text-sm font-medium text-secondary-foreground mb-2">
-                  Category Type
+                  Category Group
                 </label>
-                <select
-                  value={formData.group}
-                  onChange={(e) => setFormData({ ...formData, group: e.target.value })}
-                  className="w-full bg-secondary border border-border rounded-xl px-4 py-3 text-foreground focus:outline-none focus:ring-2 focus:ring-accent"
-                >
-                  <option value="expense">Expense</option>
-                  <option value="savings">Savings</option>
-                  <option value="investment">Investment</option>
-                </select>
+                <div className="flex gap-2 flex-wrap">
+                  {['NEEDS', 'WANTS', 'SAVINGS', 'DEBTS'].map((group) => (
+                    <button
+                      key={group}
+                      type="button"
+                      onClick={() => setFormData({ ...formData, group: group.toLowerCase() })}
+                      className={`flex-1 min-w-[80px] px-3 py-2 rounded-lg font-medium transition-colors ${
+                        formData.group === group.toLowerCase()
+                          ? 'bg-accent text-white'
+                          : 'bg-secondary border border-border text-foreground hover:bg-secondary/80'
+                      }`}
+                    >
+                      {group}
+                    </button>
+                  ))}
+                </div>
               </div>
 
               {/* Salary Type (only for 2x salary) */}
