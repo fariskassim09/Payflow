@@ -41,162 +41,147 @@ export default function AddCategoryModal({ isOpen, onClose, currentMonth, editin
     return {
       name: '',
       amount: 0,
-      group: 'NEEDS' as 'NEEDS' | 'WANTS' | 'SAVINGS' | 'DEBTS',
+      group: 'expense',
       icon: '🏠',
       color: '#3B82F6',
       repeatNextMonth: true,
       markAsPaid: false,
-      salaryType: salaryFrequency === '2x' ? ('mid' as 'mid' | 'end') : undefined,
+      salaryType: undefined,
     };
   };
 
-  const [formData, setFormData] = useState(getInitialFormData());
+  const [formData, setFormData] = useState<{
+    name: string;
+    amount: number;
+    group: string;
+    icon: string;
+    color: string;
+    repeatNextMonth: boolean;
+    markAsPaid: boolean;
+    salaryType?: 'mid' | 'end';
+  }>(getInitialFormData());
 
   const handleSubmit = () => {
-    // Determine which salary to validate against
-    let validationSalary = expectedSalary;
-    if (salaryFrequency === '2x') {
-      validationSalary = formData.salaryType === 'mid' ? getMidMonthlySalary(currentMonth) : getEndMonthlySalary(currentMonth);
-    } else {
-      validationSalary = getMonthlySalary(currentMonth);
-    }
-
-    if (!validationSalary) {
-      alert('Please set your expected salary first');
+    if (!formData.name.trim()) {
+      alert('Please enter a category name');
       return;
     }
 
-    if (formData.amount > validationSalary) {
-      alert(`Category amount (RM ${formData.amount.toFixed(2)}) cannot exceed salary (RM ${validationSalary.toFixed(2)})`);
+    if (formData.amount <= 0) {
+      alert('Please enter a valid amount');
       return;
     }
 
-    // Store fixed amount, not percentage
-    const newItem = {
-      id: editingCategoryId || `${Date.now()}-${Math.random()}`,
+    const newItem: any = {
+      id: editingCategory?.id || Date.now().toString(),
       name: formData.name,
       amount: formData.amount,
       group: formData.group,
       icon: formData.icon,
-      color: formData.color,
+      percentage: 0,
       repeatNextMonth: formData.repeatNextMonth,
       isPaid: formData.markAsPaid,
-      percentage: 0, // Will be calculated dynamically
       salaryType: formData.salaryType,
-    }
+    };
 
-    if (editingCategoryId && editingCategory) {
-      updateBudgetItem(editingCategoryId, newItem);
+    if (editingCategory) {
+      updateBudgetItem(editingCategory.id, newItem);
     } else {
       addBudgetItem(newItem);
     }
 
+    // Reset form and close
     setFormData(getInitialFormData());
     setStep('form');
     onClose();
   };
 
-  // Calculate percentage display based on the correct salary
-  const displayBaseSalary = salaryFrequency === '2x'
-    ? (formData.salaryType === 'mid' ? getMidMonthlySalary(currentMonth) : getEndMonthlySalary(currentMonth))
-    : getMonthlySalary(currentMonth);
-
-  const percentage = displayBaseSalary > 0 ? (formData.amount / displayBaseSalary) * 100 : 0;
-
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-end z-[60]">
-      <div className="bg-card w-full rounded-t-3xl flex flex-col max-h-[90vh] animate-fade-in">
+    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+      <div className="bg-background rounded-2xl shadow-xl w-full max-w-md max-h-[90vh] overflow-hidden flex flex-col">
         {/* Header */}
         <div className="flex items-center justify-between p-6 border-b border-border">
-          {step === 'form' ? (
-            <>
-              <h2 className="text-2xl font-bold text-foreground">
-                {editingCategoryId ? 'Edit Category' : 'Add Category'}
-              </h2>
-              <button
-                onClick={onClose}
-                className="text-secondary-foreground hover:text-foreground transition-colors"
-              >
-                ✕
-              </button>
-            </>
-          ) : (
-            <>
-              <button
-                onClick={() => setStep('form')}
-                className="flex items-center gap-2 text-accent hover:text-accent/80 transition-colors"
-              >
-                <ChevronLeft size={20} />
-                Back
-              </button>
-              <h2 className="text-2xl font-bold text-foreground">Select Icon</h2>
-              <div className="w-6" />
-            </>
+          {step === 'icons' && (
+            <button
+              onClick={() => setStep('form')}
+              className="p-2 hover:bg-secondary rounded-lg transition-colors"
+            >
+              <ChevronLeft className="w-5 h-5" />
+            </button>
           )}
+          <h2 className="text-xl font-bold text-foreground flex-1 text-center">
+            {step === 'form' ? (editingCategoryId ? 'Edit Category' : 'Add Category') : 'Select Icon'}
+          </h2>
+          <button
+            onClick={onClose}
+            className="p-2 hover:bg-secondary rounded-lg transition-colors"
+          >
+            <X className="w-5 h-5" />
+          </button>
         </div>
 
         {/* Content */}
-        <div className="overflow-y-auto flex-1 p-6">
+        <div className="flex-1 overflow-y-auto p-6">
           {step === 'form' ? (
             <div className="space-y-4">
-              {/* Name Input */}
+              {/* Category Name */}
               <div>
                 <label className="block text-sm font-medium text-secondary-foreground mb-2">
                   Category Name
                 </label>
                 <input
                   type="text"
+                  placeholder="e.g., Groceries, Gas, Entertainment"
                   value={formData.name}
                   onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                  placeholder="e.g., Groceries, Gas, Entertainment"
-                  className="w-full bg-secondary border border-border rounded-xl px-4 py-3 text-foreground placeholder-secondary-foreground focus:outline-none focus:border-accent transition-colors"
+                  className="w-full bg-secondary border border-border rounded-xl px-4 py-3 text-foreground placeholder:text-secondary-foreground focus:outline-none focus:ring-2 focus:ring-accent"
                 />
               </div>
 
-              {/* Amount Input */}
+              {/* Amount */}
               <div>
                 <label className="block text-sm font-medium text-secondary-foreground mb-2">
                   Amount (RM)
                 </label>
                 <input
                   type="number"
-                  value={formData.amount}
-                  onChange={(e) => setFormData({ ...formData, amount: parseFloat(e.target.value) || 0 })}
                   placeholder="0.00"
-                  className="w-full bg-secondary border border-border rounded-xl px-4 py-3 text-foreground placeholder-secondary-foreground focus:outline-none focus:border-accent transition-colors"
+                  value={formData.amount || ''}
+                  onChange={(e) => setFormData({ ...formData, amount: parseFloat(e.target.value) || 0 })}
+                  className="w-full bg-secondary border border-border rounded-xl px-4 py-3 text-foreground placeholder:text-secondary-foreground focus:outline-none focus:ring-2 focus:ring-accent"
                 />
               </div>
 
-              {/* Group Selection */}
+              {/* Category Type */}
               <div>
                 <label className="block text-sm font-medium text-secondary-foreground mb-2">
-                  Category Group
+                  Category Type
                 </label>
                 <select
                   value={formData.group}
-                  onChange={(e) => setFormData({ ...formData, group: e.target.value as 'NEEDS' | 'WANTS' | 'SAVINGS' | 'DEBTS' })}
-                  className="w-full bg-secondary border border-border rounded-xl px-4 py-3 text-foreground focus:outline-none focus:border-accent transition-colors"
+                  onChange={(e) => setFormData({ ...formData, group: e.target.value })}
+                  className="w-full bg-secondary border border-border rounded-xl px-4 py-3 text-foreground focus:outline-none focus:ring-2 focus:ring-accent"
                 >
-                  <option value="NEEDS">Needs</option>
-                  <option value="WANTS">Wants</option>
-                  <option value="SAVINGS">Savings</option>
-                  <option value="DEBTS">Debts</option>
+                  <option value="expense">Expense</option>
+                  <option value="savings">Savings</option>
+                  <option value="investment">Investment</option>
                 </select>
               </div>
 
-              {/* Salary Type Selection (2x mode only) */}
+              {/* Salary Type (only for 2x salary) */}
               {shouldShowSalaryType && (
                 <div>
                   <label className="block text-sm font-medium text-secondary-foreground mb-2">
-                    Deduct From
+                    Salary Type
                   </label>
                   <select
-                    value={formData.salaryType || 'mid'}
-                    onChange={(e) => setFormData({ ...formData, salaryType: e.target.value as 'mid' | 'end' })}
-                    className="w-full bg-secondary border border-border rounded-xl px-4 py-3 text-foreground focus:outline-none focus:border-accent transition-colors"
+                    value={formData.salaryType || ''}
+                    onChange={(e) => setFormData({ ...formData, salaryType: (e.target.value || undefined) as 'mid' | 'end' | undefined })}
+                    className="w-full bg-secondary border border-border rounded-xl px-4 py-3 text-foreground focus:outline-none focus:ring-2 focus:ring-accent"
                   >
+                    <option value="">Both Salaries</option>
                     <option value="mid">Mid-Month</option>
                     <option value="end">End-Month</option>
                   </select>
@@ -216,32 +201,46 @@ export default function AddCategoryModal({ isOpen, onClose, currentMonth, editin
                 </button>
               </div>
 
-              {/* Repeat Next Month */}
-              <div className="flex items-center gap-3">
-                <input
-                  type="checkbox"
-                  id="repeatNextMonth"
-                  checked={formData.repeatNextMonth}
-                  onChange={(e) => setFormData({ ...formData, repeatNextMonth: e.target.checked })}
-                  className="w-4 h-4 rounded border-border"
-                />
-                <label htmlFor="repeatNextMonth" className="text-sm text-secondary-foreground">
-                  Repeat this category next month
-                </label>
+              {/* Repeat Next Month Toggle */}
+              <div className="flex items-center justify-between p-4 bg-secondary rounded-xl border border-border">
+                <div className="flex flex-col gap-1">
+                  <label className="text-sm font-medium text-foreground">Repeat Next Month</label>
+                  <p className="text-xs text-secondary-foreground">Auto-copy this category every month</p>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setFormData({ ...formData, repeatNextMonth: !formData.repeatNextMonth })}
+                  className={`relative inline-flex h-8 w-14 items-center rounded-full transition-colors ${
+                    formData.repeatNextMonth ? 'bg-accent' : 'bg-border'
+                  }`}
+                >
+                  <span
+                    className={`inline-block h-6 w-6 transform rounded-full bg-white transition-transform ${
+                      formData.repeatNextMonth ? 'translate-x-7' : 'translate-x-1'
+                    }`}
+                  />
+                </button>
               </div>
 
-              {/* Mark as Paid */}
-              <div className="flex items-center gap-3">
-                <input
-                  type="checkbox"
-                  id="markAsPaid"
-                  checked={formData.markAsPaid}
-                  onChange={(e) => setFormData({ ...formData, markAsPaid: e.target.checked })}
-                  className="w-4 h-4 rounded border-border"
-                />
-                <label htmlFor="markAsPaid" className="text-sm text-secondary-foreground">
-                  Mark as paid
-                </label>
+              {/* Mark as Paid Toggle */}
+              <div className="flex items-center justify-between p-4 bg-secondary rounded-xl border border-border">
+                <div className="flex flex-col gap-1">
+                  <label className="text-sm font-medium text-foreground">Mark as Paid</label>
+                  <p className="text-xs text-secondary-foreground">Exclude from remaining balance</p>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setFormData({ ...formData, markAsPaid: !formData.markAsPaid })}
+                  className={`relative inline-flex h-8 w-14 items-center rounded-full transition-colors ${
+                    formData.markAsPaid ? 'bg-accent' : 'bg-border'
+                  }`}
+                >
+                  <span
+                    className={`inline-block h-6 w-6 transform rounded-full bg-white transition-transform ${
+                      formData.markAsPaid ? 'translate-x-7' : 'translate-x-1'
+                    }`}
+                  />
+                </button>
               </div>
             </div>
           ) : (
