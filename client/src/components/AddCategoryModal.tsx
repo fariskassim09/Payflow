@@ -60,6 +60,13 @@ export default function AddCategoryModal({ isOpen, onClose, currentMonth, editin
     salaryType?: 'mid' | 'end';
   }>(getInitialFormData());
 
+  const handleClose = () => {
+    // Reset form and step when closing
+    setFormData(getInitialFormData());
+    setStep('form');
+    onClose();
+  };
+
   const handleSubmit = () => {
     if (!formData.name.trim()) {
       alert('Please enter a category name');
@@ -98,8 +105,8 @@ export default function AddCategoryModal({ isOpen, onClose, currentMonth, editin
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-      <div className="bg-background rounded-2xl shadow-xl w-full max-w-md max-h-[90vh] overflow-hidden flex flex-col">
+    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4 animate-fade-in">
+      <div className="bg-background rounded-2xl shadow-xl w-full max-w-md max-h-[90vh] overflow-hidden flex flex-col animate-scale-up">
         {/* Header */}
         <div className="flex items-center justify-between p-6 border-b border-border">
           <div className="w-10">
@@ -117,7 +124,7 @@ export default function AddCategoryModal({ isOpen, onClose, currentMonth, editin
           </h2>
           <div className="w-10">
             <button
-              onClick={onClose}
+              onClick={handleClose}
               className="p-2 hover:bg-secondary rounded-lg transition-colors"
             >
               <X className="w-5 h-5" />
@@ -280,7 +287,7 @@ export default function AddCategoryModal({ isOpen, onClose, currentMonth, editin
         {step === 'form' && (
           <div className="border-t border-border p-6 flex gap-3">
             <button
-              onClick={onClose}
+              onClick={handleClose}
               className="flex-1 px-4 py-3 bg-secondary border border-border rounded-xl text-foreground hover:bg-secondary/80 transition-colors font-medium"
             >
               Cancel
