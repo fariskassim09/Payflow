@@ -4,21 +4,13 @@ import NotFound from "@/pages/NotFound";
 import { Route, Switch } from "wouter";
 import ErrorBoundary from "./components/ErrorBoundary";
 import { ThemeProvider } from "./contexts/ThemeContext";
-import { SalaryProvider } from "./contexts/SalaryContext";
-import { AuthProvider } from "./contexts/AuthContext";
-import Dashboard from "./pages/Dashboard";
-import Summary from "./pages/Summary";
-import Shared from "./pages/Shared";
-import Settings from "./pages/Settings";
+import Home from "./pages/Home";
 
 
 function Router() {
   return (
     <Switch>
-      <Route path={"/"} component={Dashboard} />
-      <Route path={"/summary"} component={Summary} />
-      <Route path={"/shared"} component={Shared} />
-      <Route path={"/settings"} component={Settings} />
+      <Route path={"/"} component={Home} />
       <Route path={"/404"} component={NotFound} />
       {/* Final fallback route */}
       <Route component={NotFound} />
@@ -26,32 +18,25 @@ function Router() {
   );
 }
 
-// Design Philosophy: Salary Allocation Planner
-// - Black minimal aesthetic with blue accents
-// - Grouped budget categories (NEEDS, WANTS, SAVINGS, DEBTS)
-// - Editable salary and allocation percentages
-// - Month/year navigation
-// - Summary breakdown by group
+// NOTE: About Theme
+// - First choose a default theme according to your design style (dark or light bg), than change color palette in index.css
+//   to keep consistent foreground/background color across components
+// - If you want to make theme switchable, pass `switchable` ThemeProvider and use `useTheme` hook
 
 function App() {
   return (
     <ErrorBoundary>
-      <AuthProvider>
-        <ThemeProvider
-          defaultTheme="dark"
-        >
-          <SalaryProvider>
-            <TooltipProvider>
-              <Toaster />
-              <Router />
-            </TooltipProvider>
-          </SalaryProvider>
-        </ThemeProvider>
-      </AuthProvider>
+      <ThemeProvider
+        defaultTheme="light"
+        // switchable
+      >
+        <TooltipProvider>
+          <Toaster />
+          <Router />
+        </TooltipProvider>
+      </ThemeProvider>
     </ErrorBoundary>
   );
 }
 
 export default App;
-// Updated at Sun Mar  1 10:10:56 EST 2026
-// Webhook trigger Sun Mar  1 10:15:46 EST 2026

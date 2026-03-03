@@ -1,0 +1,5 @@
+{
+	"appId": "com.faris.payflow",
+	"appName": "Payflow",
+	"webDir": "dist/public"
+}
