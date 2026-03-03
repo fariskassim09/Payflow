@@ -128,23 +128,27 @@ export default function AddCategoryModal({ isOpen, onClose, currentMonth, editin
       <div className="bg-background rounded-2xl shadow-xl w-full max-w-md max-h-[90vh] overflow-hidden flex flex-col">
         {/* Header */}
         <div className="flex items-center justify-between p-6 border-b border-border">
-          {step === 'icons' && (
-            <button
-              onClick={() => setStep('form')}
-              className="p-2 hover:bg-secondary rounded-lg transition-colors"
-            >
-              <ChevronLeft className="w-5 h-5" />
-            </button>
-          )}
+          <div className="w-10">
+            {step === 'icons' && (
+              <button
+                onClick={() => setStep('form')}
+                className="p-2 hover:bg-secondary rounded-lg transition-colors"
+              >
+                <ChevronLeft className="w-5 h-5" />
+              </button>
+            )}
+          </div>
           <h2 className="text-xl font-bold text-foreground flex-1 text-center">
             {step === 'form' ? (editingCategoryId ? 'Edit Category' : 'Add Category') : 'Select Icon'}
           </h2>
-          <button
-            onClick={onClose}
-            className="p-2 hover:bg-secondary rounded-lg transition-colors"
-          >
-            <X className="w-5 h-5" />
-          </button>
+          <div className="w-10">
+            <button
+              onClick={onClose}
+              className="p-2 hover:bg-secondary rounded-lg transition-colors"
+            >
+              <X className="w-5 h-5" />
+            </button>
+          </div>
         </div>
 
         {/* Content */}
