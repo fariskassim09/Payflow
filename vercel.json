@@ -4,7 +4,8 @@
   "framework": "vite",
   "outputDirectory": "dist/public",
   "env": {
-    "NODE_ENV": "production"
+    "NODE_ENV": "production",
+    "FIREBASE_SERVICE_ACCOUNT_KEY": "@firebase_service_account_key"
   },
   "headers": [
     {
@@ -27,6 +28,10 @@
     }
   ],
   "rewrites": [
+    {
+      "source": "/api/(.*)",
+      "destination": "/server/server.js"
+    },
     {
       "source": "/(.*)",
       "destination": "/index.html"
