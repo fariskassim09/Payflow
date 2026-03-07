@@ -89,6 +89,7 @@ export function SalaryProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     const loadUserData = async () => {
       if (!user) {
+        console.log('[SalaryContext] No user, resetting state');
         setSalaryFrequencyState('1x');
         setExpectedSalaryState(DEFAULT_SALARY);
         setMonthlySalariesState([]);
@@ -100,14 +101,20 @@ export function SalaryProvider({ children }: { children: React.ReactNode }) {
 
       try {
         setIsLoading(true);
+        console.log('[SalaryContext] Loading data for user:', user.uid);
         const userData = await loadSalaryData(user.uid);
 
         if (userData) {
+          console.log('[SalaryContext] Data loaded successfully:', {
+            itemsCount: userData.budgetItems?.length,
+            salary: userData.expectedSalary
+          });
           setSalaryFrequencyState(userData.salaryFrequency || '1x');
           setExpectedSalaryState(userData.expectedSalary || DEFAULT_SALARY);
           setMonthlySalariesState(userData.monthlySalaries || []);
           setBudgetItemsState(userData.budgetItems || []);
         } else {
+          console.log('[SalaryContext] No data found for user, using defaults');
           setSalaryFrequencyState('1x');
           setExpectedSalaryState(DEFAULT_SALARY);
           setMonthlySalariesState([]);
@@ -115,7 +122,7 @@ export function SalaryProvider({ children }: { children: React.ReactNode }) {
         }
         isDataLoaded.current = true;
       } catch (error) {
-        console.error('Error loading user data:', error);
+        console.error('[SalaryContext] Error loading user data:', error);
         isDataLoaded.current = true;
       } finally {
         setIsLoading(false);
@@ -137,9 +144,10 @@ export function SalaryProvider({ children }: { children: React.ReactNode }) {
     };
 
     try {
+      console.log('[SalaryContext] Syncing to Firestore...');
       await saveSalaryData(user.uid, dataToSave);
     } catch (error) {
-      console.error('Sync failed:', error);
+      console.error('[SalaryContext] Sync failed:', error);
     }
   }, [user]);
 
@@ -149,7 +157,7 @@ export function SalaryProvider({ children }: { children: React.ReactNode }) {
 
     const timer = setTimeout(() => {
       forceSync();
-    }, 1500); // Slightly longer debounce to prevent collision with immediate saves
+    }, 1500);
 
     return () => clearTimeout(timer);
   }, [salaryFrequency, budgetItems, monthlySalaries, expectedSalary, user, isLoading, forceSync]);
@@ -162,6 +170,7 @@ export function SalaryProvider({ children }: { children: React.ReactNode }) {
   };
 
   const setExpectedSalary = (salary: number) => {
+    console.log('[SalaryContext] Setting expected salary:', salary);
     setExpectedSalaryState(salary);
     expectedSalaryRef.current = salary;
     forceSync();
@@ -250,6 +259,7 @@ export function SalaryProvider({ children }: { children: React.ReactNode }) {
   };
 
   const addBudgetItem = (item: BudgetItem) => {
+    console.log('[SalaryContext] Adding budget item:', item.name);
     setBudgetItemsState(prev => {
       const updated = [...prev, item];
       budgetItemsRef.current = updated;
