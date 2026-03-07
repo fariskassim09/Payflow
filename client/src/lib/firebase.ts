@@ -4,13 +4,12 @@ import { getFirestore } from 'firebase/firestore';
 
 // Firebase configuration with real credentials
 const firebaseConfig = {
-  apiKey: "AIzaSyDaGa9ut78fDSdsUyCo0FFJmxrYiDCj46E",
+  apiKey: "AIzaSyAagH27wc8nriBzABRgfeUVtVSvkJCL_jI",
   authDomain: "payflow-39bc5.firebaseapp.com",
   projectId: "payflow-39bc5",
   storageBucket: "payflow-39bc5.firebasestorage.app",
-  messagingSenderId: "451949648417",
-  appId: "1:451949648417:web:021abc92ea9deeb7586160",
-  measurementId: "G-E7Z387TNEQ"
+  messagingSenderId: "753867273681",
+  appId: "1:753867273681:web:278676b9e5b217f09cdcf0"
 };
 
 // Initialize Firebase
