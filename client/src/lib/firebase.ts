@@ -2,14 +2,14 @@ import { initializeApp } from 'firebase/app';
 import { getAuth, GoogleAuthProvider } from 'firebase/auth';
 import { getFirestore } from 'firebase/firestore';
 
-// Firebase configuration with real credentials
+// Firebase configuration using environment variables for security
 const firebaseConfig = {
-  apiKey: "AIzaSyAagH27wc8nriBzABRgfeUVtVSvkJCL_jI",
-  authDomain: "payflow-39bc5.firebaseapp.com",
-  projectId: "payflow-39bc5",
-  storageBucket: "payflow-39bc5.firebasestorage.app",
-  messagingSenderId: "753867273681",
-  appId: "1:753867273681:web:278676b9e5b217f09cdcf0"
+  apiKey: import.meta.env.VITE_FIREBASE_API_KEY || "AIzaSyAagH27wc8nriBzABRgfeUVtVSvkJCL_jI",
+  authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN || "payflow-39bc5.firebaseapp.com",
+  projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID || "payflow-39bc5",
+  storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET || "payflow-39bc5.firebasestorage.app",
+  messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID || "753867273681",
+  appId: import.meta.env.VITE_FIREBASE_APP_ID || "1:753867273681:web:278676b9e5b217f09cdcf0"
 };
 
 // Initialize Firebase
