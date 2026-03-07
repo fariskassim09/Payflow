@@ -73,11 +73,19 @@ export function SalaryProvider({ children }: { children: React.ReactNode }) {
   const [monthlySalaries, setMonthlySalariesState] = useState<MonthlySalary[]>([]);
   const [budgetItems, setBudgetItemsState] = useState<BudgetItem[]>([]);
 
+  // Helper to get current state values for saving
+  // This avoids closure issues in async functions
+  const getCurrentData = () => ({
+    salaryFrequency,
+    budgetItems,
+    monthlySalaries,
+    expectedSalary,
+  });
+
   // Load data from Firestore when user changes
   useEffect(() => {
     const loadUserData = async () => {
       if (!user) {
-        // User logged out - clear all data
         setSalaryFrequencyState('1x');
         setExpectedSalaryState(DEFAULT_SALARY);
         setMonthlySalariesState([]);
@@ -90,17 +98,13 @@ export function SalaryProvider({ children }: { children: React.ReactNode }) {
       try {
         setIsLoading(true);
         const userData = await loadSalaryData(user.uid);
-        console.log('Loaded from Firestore:', userData);
         
         if (userData) {
-          // Load from Firestore
-          console.log('Setting budgetItems:', userData.budgetItems);
           setSalaryFrequencyState(userData.salaryFrequency || '1x');
           setExpectedSalaryState(userData.expectedSalary || DEFAULT_SALARY);
           setMonthlySalariesState(userData.monthlySalaries || []);
           setBudgetItemsState(userData.budgetItems || []);
         } else {
-          // First time user - initialize with defaults
           setSalaryFrequencyState('1x');
           setExpectedSalaryState(DEFAULT_SALARY);
           setMonthlySalariesState([]);
@@ -108,12 +112,7 @@ export function SalaryProvider({ children }: { children: React.ReactNode }) {
         }
         isDataLoaded.current = true;
       } catch (error) {
-        console.error('Error loading user data from Firestore:', error);
-        // On error, initialize with defaults
-        setSalaryFrequencyState('1x');
-        setExpectedSalaryState(DEFAULT_SALARY);
-        setMonthlySalariesState([]);
-        setBudgetItemsState([]);
+        console.error('Error loading user data:', error);
         isDataLoaded.current = true;
       } finally {
         setIsLoading(false);
@@ -124,13 +123,10 @@ export function SalaryProvider({ children }: { children: React.ReactNode }) {
   }, [user]);
 
   // Force sync function for manual triggering
-  const forceSync = async () => {
-    if (!user) {
-      console.warn('Cannot sync: User not logged in');
-      return;
-    }
+  const forceSync = async (customData?: any) => {
+    if (!user || !isDataLoaded.current) return;
     
-    const dataToSave = {
+    const dataToSave = customData || {
       salaryFrequency,
       budgetItems,
       monthlySalaries,
@@ -138,42 +134,20 @@ export function SalaryProvider({ children }: { children: React.ReactNode }) {
     };
     
     try {
-      console.log('=== FORCE SYNC TRIGGERED ===');
-      console.log('Current budgetItems:', budgetItems);
       await saveSalaryData(user.uid, dataToSave);
-      console.log('Force sync successful');
     } catch (error) {
-      console.error('Force sync failed:', error);
+      console.error('Sync failed:', error);
     }
   };
 
-  // Save to Firestore whenever data changes (only if user is logged in and data is loaded)
+  // Save to Firestore whenever data changes
   useEffect(() => {
-    // CRITICAL: Only save if data has been successfully loaded from Firestore first
-    // This prevents overwriting cloud data with empty local state during initial load
-    if (isLoading || !user || !isDataLoaded.current) {
-      return;
-    }
+    if (isLoading || !user || !isDataLoaded.current) return;
 
-    const saveData = async () => {
-      const dataToSave = {
-        salaryFrequency,
-        budgetItems,
-        monthlySalaries,
-        expectedSalary,
-      };
-
-      try {
-        console.log('Saving data to Firestore for user:', user.uid);
-        await saveSalaryData(user.uid, dataToSave);
-        console.log('Save successful');
-      } catch (error) {
-        console.error('Error saving to Firestore:', error);
-      }
-    };
-
-    // Debounce saves to avoid too many writes
-    const timer = setTimeout(saveData, 1000);
+    const timer = setTimeout(() => {
+      forceSync();
+    }, 1000);
+    
     return () => clearTimeout(timer);
   }, [salaryFrequency, budgetItems, monthlySalaries, expectedSalary, user, isLoading]);
 
@@ -193,17 +167,7 @@ export function SalaryProvider({ children }: { children: React.ReactNode }) {
       ms => ms.year === date.getFullYear() && ms.month === date.getMonth()
     );
     if (existing) return existing.midSalary;
-    
-    if (monthlySalaries.length > 0) {
-      const sorted = [...monthlySalaries].sort((a, b) => {
-        const aDate = new Date(a.year, a.month);
-        const bDate = new Date(b.year, b.month);
-        return bDate.getTime() - aDate.getTime();
-      });
-      return sorted[0].midSalary;
-    }
-    
-    return DEFAULT_SALARY / 2;
+    return expectedSalary / 2;
   };
 
   const getEndMonthlySalary = (date: Date): number => {
@@ -211,23 +175,12 @@ export function SalaryProvider({ children }: { children: React.ReactNode }) {
       ms => ms.year === date.getFullYear() && ms.month === date.getMonth()
     );
     if (existing) return existing.endSalary;
-    
-    if (monthlySalaries.length > 0) {
-      const sorted = [...monthlySalaries].sort((a, b) => {
-        const aDate = new Date(a.year, a.month);
-        const bDate = new Date(b.year, b.month);
-        return bDate.getTime() - aDate.getTime();
-      });
-      return sorted[0].endSalary;
-    }
-    
-    return DEFAULT_SALARY / 2;
+    return expectedSalary / 2;
   };
 
   const setMonthlySalary = (date: Date, salary: number) => {
     const year = date.getFullYear();
     const month = date.getMonth();
-    
     setMonthlySalariesState(prev => {
       const existing = prev.find(ms => ms.year === year && ms.month === month);
       if (existing) {
@@ -244,15 +197,10 @@ export function SalaryProvider({ children }: { children: React.ReactNode }) {
   const setMidMonthlySalary = (date: Date, salary: number) => {
     const year = date.getFullYear();
     const month = date.getMonth();
-    
     setMonthlySalariesState(prev => {
       const existing = prev.find(ms => ms.year === year && ms.month === month);
       if (existing) {
-        return prev.map(ms =>
-          ms.year === year && ms.month === month
-            ? { ...ms, midSalary: salary }
-            : ms
-        );
+        return prev.map(ms => ms.year === year && ms.month === month ? { ...ms, midSalary: salary } : ms);
       }
       return [...prev, { year, month, midSalary: salary, endSalary: 0 }];
     });
@@ -261,15 +209,10 @@ export function SalaryProvider({ children }: { children: React.ReactNode }) {
   const setEndMonthlySalary = (date: Date, salary: number) => {
     const year = date.getFullYear();
     const month = date.getMonth();
-    
     setMonthlySalariesState(prev => {
       const existing = prev.find(ms => ms.year === year && ms.month === month);
       if (existing) {
-        return prev.map(ms =>
-          ms.year === year && ms.month === month
-            ? { ...ms, endSalary: salary }
-            : ms
-        );
+        return prev.map(ms => ms.year === year && ms.month === month ? { ...ms, endSalary: salary } : ms);
       }
       return [...prev, { year, month, midSalary: 0, endSalary: salary }];
     });
@@ -278,40 +221,67 @@ export function SalaryProvider({ children }: { children: React.ReactNode }) {
   const resetMonthlySalary = (date: Date) => {
     const year = date.getFullYear();
     const month = date.getMonth();
-    
-    setMonthlySalariesState(prev =>
-      prev.filter(ms => !(ms.year === year && ms.month === month))
-    );
+    setMonthlySalariesState(prev => prev.filter(ms => !(ms.year === year && ms.month === month)));
   };
 
+  // SUPER SYNC: Immediate save for budget item actions
   const addBudgetItem = (item: BudgetItem) => {
-    console.log('Adding budget item:', item);
-    setBudgetItemsState(prev => [...prev, item]);
+    setBudgetItemsState(prev => {
+      const updated = [...prev, item];
+      // Trigger immediate save with the new data
+      if (user && isDataLoaded.current) {
+        saveSalaryData(user.uid, {
+          salaryFrequency,
+          budgetItems: updated,
+          monthlySalaries,
+          expectedSalary,
+        }).catch(console.error);
+      }
+      return updated;
+    });
   };
 
   const updateBudgetItem = (id: string, updates: Partial<BudgetItem>) => {
-    console.log('Updating item:', id, updates);
-    setBudgetItemsState(prev =>
-      prev.map(item => (item.id === id ? { ...item, ...updates } : item))
-    );
+    setBudgetItemsState(prev => {
+      const updated = prev.map(item => (item.id === id ? { ...item, ...updates } : item));
+      if (user && isDataLoaded.current) {
+        saveSalaryData(user.uid, {
+          salaryFrequency,
+          budgetItems: updated,
+          monthlySalaries,
+          expectedSalary,
+        }).catch(console.error);
+      }
+      return updated;
+    });
   };
 
   const removeBudgetItem = (id: string) => {
-    console.log('Removing budget item:', id);
     setBudgetItemsState(prev => {
       const updated = prev.filter(item => item.id !== id);
-      console.log('Updated budgetItems after removal:', updated);
+      if (user && isDataLoaded.current) {
+        saveSalaryData(user.uid, {
+          salaryFrequency,
+          budgetItems: updated,
+          monthlySalaries,
+          expectedSalary,
+        }).catch(console.error);
+      }
       return updated;
     });
   };
 
   const togglePaidStatus = (id: string) => {
-    console.log('Toggling paid status for item:', id);
     setBudgetItemsState(prev => {
-      const updated = prev.map(item =>
-        item.id === id ? { ...item, isPaid: !item.isPaid } : item
-      );
-      console.log('Updated budgetItems after toggle:', updated);
+      const updated = prev.map(item => item.id === id ? { ...item, isPaid: !item.isPaid } : item);
+      if (user && isDataLoaded.current) {
+        saveSalaryData(user.uid, {
+          salaryFrequency,
+          budgetItems: updated,
+          monthlySalaries,
+          expectedSalary,
+        }).catch(console.error);
+      }
       return updated;
     });
   };
@@ -320,60 +290,56 @@ export function SalaryProvider({ children }: { children: React.ReactNode }) {
     updateBudgetItem(id, { amount });
   };
 
-  const getBudgetsByGroup = (
-    group: 'NEEDS' | 'WANTS' | 'SAVINGS' | 'DEBTS',
-    currentMonth?: Date,
-    salaryType?: 'full' | 'mid' | 'end'
-  ): BudgetItem[] => {
+  const getBudgetsByGroup = (group: 'NEEDS' | 'WANTS' | 'SAVINGS' | 'DEBTS'): BudgetItem[] => {
     return budgetItems.filter(item => item.group === group);
   };
 
-  const getTotalPercentage = (
-    currentMonth?: Date,
-    salaryType?: 'full' | 'mid' | 'end'
-  ): number => {
+  const getTotalPercentage = (): number => {
     return budgetItems.reduce((sum, item) => sum + item.percentage, 0);
   };
 
   const getMonthlySalariesData = () => monthlySalaries;
 
   const isMonthPaid = (date: Date): boolean => {
-    const existing = monthlySalaries.find(
-      ms => ms.year === date.getFullYear() && ms.month === date.getMonth()
-    );
+    const existing = monthlySalaries.find(ms => ms.year === date.getFullYear() && ms.month === date.getMonth());
     return existing?.isPaid || false;
   };
 
   const toggleMonthPaidStatus = (date: Date) => {
     const year = date.getFullYear();
     const month = date.getMonth();
-    
-    setMonthlySalariesState(prev =>
-      prev.map(ms =>
-        ms.year === year && ms.month === month
-          ? { ...ms, isPaid: !ms.isPaid }
-          : ms
-      )
-    );
+    setMonthlySalariesState(prev => {
+      const updated = prev.map(ms => ms.year === year && ms.month === month ? { ...ms, isPaid: !ms.isPaid } : ms);
+      if (user && isDataLoaded.current) {
+        saveSalaryData(user.uid, {
+          salaryFrequency,
+          budgetItems,
+          monthlySalaries: updated,
+          expectedSalary,
+        }).catch(console.error);
+      }
+      return updated;
+    });
   };
 
   const isCategoryPaidForMonth = (categoryId: string, date: Date): boolean => {
     const category = budgetItems.find(item => item.id === categoryId);
     if (!category) return false;
-    
     const monthKey = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
     return category.monthlyPaidStatus?.[monthKey] || false;
   };
 
   const toggleCategoryPaidStatus = (categoryId: string, date: Date) => {
     const monthKey = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
+    const category = budgetItems.find(item => item.id === categoryId);
+    if (!category) return;
     
-    updateBudgetItem(categoryId, {
-      monthlyPaidStatus: {
-        ...budgetItems.find(item => item.id === categoryId)?.monthlyPaidStatus,
-        [monthKey]: !isCategoryPaidForMonth(categoryId, date),
-      },
-    });
+    const updatedStatus = {
+      ...(category.monthlyPaidStatus || {}),
+      [monthKey]: !isCategoryPaidForMonth(categoryId, date),
+    };
+    
+    updateBudgetItem(categoryId, { monthlyPaidStatus: updatedStatus });
   };
 
   const value: SalaryContextType = {
@@ -406,17 +372,11 @@ export function SalaryProvider({ children }: { children: React.ReactNode }) {
     forceSync,
   };
 
-  return (
-    <SalaryContext.Provider value={value}>
-      {children}
-    </SalaryContext.Provider>
-  );
+  return <SalaryContext.Provider value={value}>{children}</SalaryContext.Provider>;
 }
 
 export function useSalary() {
   const context = useContext(SalaryContext);
-  if (context === undefined) {
-    throw new Error('useSalary must be used within SalaryProvider');
-  }
+  if (context === undefined) throw new Error('useSalary must be used within SalaryProvider');
   return context;
 }
