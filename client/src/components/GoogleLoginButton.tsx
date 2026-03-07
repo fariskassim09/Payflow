@@ -5,7 +5,7 @@ import { LogOut } from 'lucide-react';
 import { useState } from 'react';
 
 export default function GoogleLoginButton() {
-  const { user, logout } = useAuth();
+  const { user, logout, loading: authLoading } = useAuth();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
@@ -32,6 +32,23 @@ export default function GoogleLoginButton() {
       setLoading(false);
     }
   };
+
+  // Show loading state while auth is initializing to prevent flickering
+  if (authLoading) {
+    return (
+      <div className="bg-secondary/50 rounded-2xl p-4 space-y-3 animate-pulse">
+        <div className="flex items-center gap-3">
+          <div className="w-12 h-12 rounded-full bg-secondary" />
+          <div className="flex-1 space-y-2">
+            <div className="h-4 bg-secondary rounded w-24" />
+            <div className="h-3 bg-secondary rounded w-32" />
+          </div>
+        </div>
+        <div className="h-px bg-border" />
+        <div className="h-3 bg-secondary rounded w-32" />
+      </div>
+    );
+  }
 
   if (user) {
     return (
