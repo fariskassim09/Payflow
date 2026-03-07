@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Plus } from 'lucide-react';
 import BottomNavigation from '@/components/BottomNavigation';
 import MonthNavigation from '@/components/MonthNavigation';
