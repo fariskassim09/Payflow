@@ -2,7 +2,7 @@ import { useState, useRef } from 'react';
 import BottomNavigation from '@/components/BottomNavigation';
 import GoogleLoginButton from '@/components/GoogleLoginButton';
 import SharedPartnerModal from '@/components/SharedPartnerModal';
-import { HelpCircle, Info, Share2, DollarSign, Moon, Sun, Download, Upload, Cloud } from 'lucide-react';
+import { HelpCircle, Info, Share2, DollarSign, Moon, Sun, Download, Upload, Cloud, RotateCcw } from 'lucide-react';
 import { useSalary } from '@/contexts/SalaryContext';
 import { useTheme } from '@/contexts/ThemeContext';
 
@@ -12,6 +12,23 @@ export default function Settings() {
   const [isSharedPartnerOpen, setIsSharedPartnerOpen] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [importMessage, setImportMessage] = useState<{ type: 'success' | 'error', text: string } | null>(null);
+
+  const handleClearCache = () => {
+    // Clear all localStorage
+    localStorage.clear();
+    // Clear all sessionStorage
+    sessionStorage.clear();
+    // Clear service worker cache if available
+    if ('caches' in window) {
+      caches.keys().then(cacheNames => {
+        cacheNames.forEach(cacheName => {
+          caches.delete(cacheName);
+        });
+      });
+    }
+    // Reload the page
+    window.location.reload();
+  };
 
   const SettingItem = ({
     icon: Icon,
@@ -54,7 +71,16 @@ export default function Settings() {
             <Cloud size={20} className="text-accent" />
             <h2 className="text-lg font-semibold text-foreground">Sync & Backup</h2>
           </div>
-          <GoogleLoginButton />
+          <div className="space-y-4">
+            <GoogleLoginButton />
+            <button
+              onClick={handleClearCache}
+              className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-secondary/50 text-secondary-foreground border border-border rounded-xl hover:bg-secondary/70 transition-all duration-300 font-medium active:scale-95"
+            >
+              <RotateCcw size={18} />
+              Clear Cache & Reload
+            </button>
+          </div>
         </div>
 
         {/* Shared Partner Section */}
