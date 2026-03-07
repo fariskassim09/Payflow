@@ -5,9 +5,9 @@ import { getFirestore } from 'firebase/firestore';
 // Firebase configuration with real credentials
 const firebaseConfig = {
   apiKey: "AIzaSyDaGa9ut78fDSdsUyCo0FFJmxrYiDCj46E",
-  authDomain: "salary-planner-84f78.firebaseapp.com",
-  projectId: "salary-planner-84f78",
-  storageBucket: "salary-planner-84f78.firebasestorage.app",
+  authDomain: "payflow-39bc5.firebaseapp.com",
+  projectId: "payflow-39bc5",
+  storageBucket: "payflow-39bc5.firebasestorage.app",
   messagingSenderId: "451949648417",
   appId: "1:451949648417:web:021abc92ea9deeb7586160",
   measurementId: "G-E7Z387TNEQ"
