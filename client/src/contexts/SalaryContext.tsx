@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import React, { createContext, useContext, useState, useEffect, useRef } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { saveSalaryData, loadSalaryData } from '@/lib/firestoreService';
 
@@ -64,6 +64,7 @@ export function SalaryProvider({ children }: { children: React.ReactNode }) {
   const { user } = useAuth();
   const DEFAULT_SALARY = 0;
   const [isLoading, setIsLoading] = useState(true);
+  const isDataLoaded = useRef(false);
   
   // State
   const [salaryFrequency, setSalaryFrequencyState] = useState<'1x' | '2x'>('1x');
@@ -81,6 +82,7 @@ export function SalaryProvider({ children }: { children: React.ReactNode }) {
         setMonthlySalariesState([]);
         setBudgetItemsState([]);
         setIsLoading(false);
+        isDataLoaded.current = false;
         return;
       }
 
@@ -92,7 +94,7 @@ export function SalaryProvider({ children }: { children: React.ReactNode }) {
         if (userData) {
           // Load from Firestore
           console.log('Setting budgetItems:', userData.budgetItems);
-          setSalaryFrequencyState(userData.salaryFrequency);
+          setSalaryFrequencyState(userData.salaryFrequency || '1x');
           setExpectedSalaryState(userData.expectedSalary || DEFAULT_SALARY);
           setMonthlySalariesState(userData.monthlySalaries || []);
           setBudgetItemsState(userData.budgetItems || []);
@@ -103,6 +105,7 @@ export function SalaryProvider({ children }: { children: React.ReactNode }) {
           setMonthlySalariesState([]);
           setBudgetItemsState([]);
         }
+        isDataLoaded.current = true;
       } catch (error) {
         console.error('Error loading user data from Firestore:', error);
         // On error, initialize with defaults
@@ -110,6 +113,7 @@ export function SalaryProvider({ children }: { children: React.ReactNode }) {
         setExpectedSalaryState(DEFAULT_SALARY);
         setMonthlySalariesState([]);
         setBudgetItemsState([]);
+        isDataLoaded.current = true;
       } finally {
         setIsLoading(false);
       }
@@ -120,8 +124,9 @@ export function SalaryProvider({ children }: { children: React.ReactNode }) {
 
   // Save to Firestore whenever data changes (only if user is logged in and data is loaded)
   useEffect(() => {
-    if (isLoading || !user) {
-      console.log('Save skipped - isLoading:', isLoading, 'user:', !!user);
+    // CRITICAL: Only save if data has been successfully loaded from Firestore first
+    // This prevents overwriting cloud data with empty local state during initial load
+    if (isLoading || !user || !isDataLoaded.current) {
       return;
     }
 
@@ -135,8 +140,6 @@ export function SalaryProvider({ children }: { children: React.ReactNode }) {
 
       try {
         console.log('Saving data to Firestore for user:', user.uid);
-        console.log('budgetItems:', budgetItems);
-        console.log('Full dataToSave:', dataToSave);
         await saveSalaryData(user.uid, dataToSave);
         console.log('Save successful');
       } catch (error) {
@@ -258,20 +261,14 @@ export function SalaryProvider({ children }: { children: React.ReactNode }) {
 
   const addBudgetItem = (item: BudgetItem) => {
     console.log('Adding budget item:', item);
-    setBudgetItemsState(prev => {
-      const updated = [...prev, item];
-      console.log('Updated budgetItems state:', updated);
-      return updated;
-    });
+    setBudgetItemsState(prev => [...prev, item]);
   };
 
   const updateBudgetItem = (id: string, updates: Partial<BudgetItem>) => {
     console.log('Updating item:', id, updates);
-    setBudgetItemsState(prev => {
-      const updated = prev.map(item => (item.id === id ? { ...item, ...updates } : item));
-      console.log('Updated budgetItems:', updated);
-      return updated;
-    });
+    setBudgetItemsState(prev =>
+      prev.map(item => (item.id === id ? { ...item, ...updates } : item))
+    );
   };
 
   const removeBudgetItem = (id: string) => {
