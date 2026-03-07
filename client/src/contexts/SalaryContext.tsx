@@ -87,9 +87,11 @@ export function SalaryProvider({ children }: { children: React.ReactNode }) {
       try {
         setIsLoading(true);
         const userData = await loadSalaryData(user.uid);
+        console.log('Loaded from Firestore:', userData);
         
         if (userData) {
           // Load from Firestore
+          console.log('Setting budgetItems:', userData.budgetItems);
           setSalaryFrequencyState(userData.salaryFrequency);
           setExpectedSalaryState(userData.expectedSalary || DEFAULT_SALARY);
           setMonthlySalariesState(userData.monthlySalaries || []);
@@ -118,7 +120,10 @@ export function SalaryProvider({ children }: { children: React.ReactNode }) {
 
   // Save to Firestore whenever data changes (only if user is logged in and data is loaded)
   useEffect(() => {
-    if (isLoading || !user) return;
+    if (isLoading || !user) {
+      console.log('Save skipped - isLoading:', isLoading, 'user:', !!user);
+      return;
+    }
 
     const saveData = async () => {
       const dataToSave = {
@@ -129,8 +134,11 @@ export function SalaryProvider({ children }: { children: React.ReactNode }) {
       };
 
       try {
-        console.log('Saving data to Firestore for user:', user.uid, dataToSave);
+        console.log('Saving data to Firestore for user:', user.uid);
+        console.log('budgetItems:', budgetItems);
+        console.log('Full dataToSave:', dataToSave);
         await saveSalaryData(user.uid, dataToSave);
+        console.log('Save successful');
       } catch (error) {
         console.error('Error saving to Firestore:', error);
       }
@@ -249,13 +257,21 @@ export function SalaryProvider({ children }: { children: React.ReactNode }) {
   };
 
   const addBudgetItem = (item: BudgetItem) => {
-    setBudgetItemsState(prev => [...prev, item]);
+    console.log('Adding budget item:', item);
+    setBudgetItemsState(prev => {
+      const updated = [...prev, item];
+      console.log('Updated budgetItems state:', updated);
+      return updated;
+    });
   };
 
   const updateBudgetItem = (id: string, updates: Partial<BudgetItem>) => {
-    setBudgetItemsState(prev =>
-      prev.map(item => (item.id === id ? { ...item, ...updates } : item))
-    );
+    console.log('Updating item:', id, updates);
+    setBudgetItemsState(prev => {
+      const updated = prev.map(item => (item.id === id ? { ...item, ...updates } : item));
+      console.log('Updated budgetItems:', updated);
+      return updated;
+    });
   };
 
   const removeBudgetItem = (id: string) => {
