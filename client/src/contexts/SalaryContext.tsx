@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { saveSalaryData, loadSalaryData } from '@/lib/firestoreService';
+import { saveSalaryDataLocal, loadSalaryDataLocal } from '@/lib/storageService';
 
 export interface BudgetItem {
   id: string;
@@ -90,19 +91,37 @@ export function SalaryProvider({ children }: { children: React.ReactNode }) {
         const userData = await loadSalaryData(user.uid);
         
         if (userData) {
+          // Load from Firestore
           setSalaryFrequencyState(userData.salaryFrequency);
           setExpectedSalaryState(userData.expectedSalary || DEFAULT_SALARY);
           setMonthlySalariesState(userData.monthlySalaries || []);
           setBudgetItemsState(userData.budgetItems || []);
         } else {
-          // First time user - initialize with defaults
-          setSalaryFrequencyState('1x');
-          setExpectedSalaryState(DEFAULT_SALARY);
-          setMonthlySalariesState([]);
-          setBudgetItemsState([]);
+          // Try to load from local storage as fallback
+          const localData = loadSalaryDataLocal();
+          if (localData) {
+            setSalaryFrequencyState(localData.salaryFrequency);
+            setExpectedSalaryState(localData.expectedSalary || DEFAULT_SALARY);
+            setMonthlySalariesState(localData.monthlySalaries || []);
+            setBudgetItemsState(localData.budgetItems || []);
+          } else {
+            // First time user - initialize with defaults
+            setSalaryFrequencyState('1x');
+            setExpectedSalaryState(DEFAULT_SALARY);
+            setMonthlySalariesState([]);
+            setBudgetItemsState([]);
+          }
         }
       } catch (error) {
         console.error('Error loading user data from Firestore:', error);
+        // Fallback to local storage on error
+        const localData = loadSalaryDataLocal();
+        if (localData) {
+          setSalaryFrequencyState(localData.salaryFrequency);
+          setExpectedSalaryState(localData.expectedSalary || DEFAULT_SALARY);
+          setMonthlySalariesState(localData.monthlySalaries || []);
+          setBudgetItemsState(localData.budgetItems || []);
+        }
       } finally {
         setIsLoading(false);
       }
@@ -111,20 +130,29 @@ export function SalaryProvider({ children }: { children: React.ReactNode }) {
     loadUserData();
   }, [user]);
 
-  // Save to Firestore whenever data changes (but only after initialization)
+  // Save to both Firestore and local storage whenever data changes
   useEffect(() => {
-    if (!isInitialized || !user || isLoading) return;
+    if (!isInitialized || isLoading) return;
 
     const saveData = async () => {
-      try {
-        await saveSalaryData(user.uid, {
-          salaryFrequency,
-          budgetItems,
-          monthlySalaries,
-          expectedSalary,
-        });
-      } catch (error) {
-        console.error('Error saving to Firestore:', error);
+      const dataToSave = {
+        salaryFrequency,
+        budgetItems,
+        monthlySalaries,
+        expectedSalary,
+      };
+
+      // Always save to local storage
+      saveSalaryDataLocal(dataToSave);
+
+      // Save to Firestore if user is logged in
+      if (user) {
+        try {
+          await saveSalaryData(user.uid, dataToSave);
+        } catch (error) {
+          console.error('Error saving to Firestore:', error);
+          // Local storage backup already saved, so no data loss
+        }
       }
     };
 
