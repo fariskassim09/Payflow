@@ -57,12 +57,77 @@ export default function Settings() {
             <p className="text-sm text-foreground font-medium mb-1">Local Storage Active</p>
             <p className="text-xs text-secondary-foreground">Your data is saved locally on this device. No cloud sync is active.</p>
           </div>
-          <SettingItem
-            icon={<Download size={24} />}
-            title="Manual Backup"
-            description="Download your data as a JSON file"
-            onClick={exportData}
-          />
+          <div className="space-y-3">
+            <SettingItem
+              icon={<Download size={24} />}
+              title="Manual Backup"
+              description="Download your data as a JSON file"
+              onClick={exportData}
+            />
+            <SettingItem
+              icon={<Download size={24} />}
+              title="Export as CSV"
+              description="Open in Excel or spreadsheet"
+              onClick={() => {
+                let csv = 'Category,Amount,Type,Icon,Paid,Repeat\n';
+                budgetItems.forEach(item => {
+                  csv += `"${item.name}",${item.amount || 0},"${item.group}","${item.icon}",${item.isPaid ? 'Yes' : 'No'},${item.repeatNextMonth ? 'Yes' : 'No'}\n`;
+                });
+                const blob = new Blob([csv], { type: 'text/csv' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `payflow-export-${new Date().toISOString().split('T')[0]}.csv`;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+              }}
+            />
+            <SettingItem
+              icon={<Upload size={24} />}
+              title="Import Data"
+              description="Restore from JSON file"
+              onClick={() => fileInputRef.current?.click()}
+            />
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept=".json"
+              onChange={(e) => {
+                const file = e.target.files?.[0];
+                if (file) {
+                  const reader = new FileReader();
+                  reader.onload = (event) => {
+                    try {
+                      const data = JSON.parse(event.target?.result as string);
+                      localStorage.setItem('salary-planner-data', JSON.stringify({
+                        version: '1',
+                        data: data,
+                        timestamp: new Date().toISOString()
+                      }));
+                      setImportMessage({ type: 'success', text: 'Data imported successfully! Please refresh the page.' });
+                      setTimeout(() => window.location.reload(), 1500);
+                    } catch (error) {
+                      setImportMessage({ type: 'error', text: 'Failed to import. Invalid file format.' });
+                      setTimeout(() => setImportMessage(null), 3000);
+                    }
+                  };
+                  reader.readAsText(file);
+                }
+              }}
+              className="hidden"
+            />
+            {importMessage && (
+              <div className={`p-3 rounded-xl text-sm font-medium ${
+                importMessage.type === 'success'
+                  ? 'bg-green-500/10 text-green-700 border border-green-500/20'
+                  : 'bg-red-500/10 text-red-700 border border-red-500/20'
+              }`}>
+                {importMessage.text}
+              </div>
+            )}
+          </div>
         </div>
 
         {/* Shared Partner Section */}
@@ -125,96 +190,8 @@ export default function Settings() {
           </div>
         </div>
 
-        {/* Data Management Section */}
-        <div className="mb-12 animate-fade-in" style={{ animationDelay: '0.3s' }}>
-          <div className="flex items-center gap-2 mb-4">
-            <Download size={20} className="text-accent" />
-            <h2 className="text-lg font-semibold text-foreground">Data Management</h2>
-          </div>
-          <div className="space-y-3">
-            {/* Export CSV */}
-            <button
-              onClick={() => {
-                let csv = 'Category,Amount,Type,Icon,Paid,Repeat\n';
-                budgetItems.forEach(item => {
-                  csv += `"${item.name}",${item.amount || 0},"${item.group}","${item.icon}",${item.isPaid ? 'Yes' : 'No'},${item.repeatNextMonth ? 'Yes' : 'No'}\n`;
-                });
-                const blob = new Blob([csv], { type: 'text/csv' });
-                const url = URL.createObjectURL(blob);
-                const a = document.createElement('a');
-                a.href = url;
-                a.download = `payflow-export-${new Date().toISOString().split('T')[0]}.csv`;
-                document.body.appendChild(a);
-                a.click();
-                document.body.removeChild(a);
-                URL.revokeObjectURL(url);
-              }}
-              className="w-full text-left flex items-center justify-between p-4 bg-card rounded-2xl border border-border hover:shadow-lg hover:shadow-accent/10 transition-all duration-300 active:scale-95"
-            >
-              <div className="flex items-center gap-4">
-                <div className="text-accent"><Download size={24} /></div>
-                <div>
-                  <h3 className="font-semibold text-foreground">Export as CSV</h3>
-                  <p className="text-xs text-secondary-foreground">Open in Excel or spreadsheet</p>
-                </div>
-              </div>
-            </button>
-
-            {/* Import Data */}
-            <button
-              onClick={() => fileInputRef.current?.click()}
-              className="w-full text-left flex items-center justify-between p-4 bg-card rounded-2xl border border-border hover:shadow-lg hover:shadow-accent/10 transition-all duration-300 active:scale-95"
-            >
-              <div className="flex items-center gap-4">
-                <div className="text-accent"><Upload size={24} /></div>
-                <div>
-                  <h3 className="font-semibold text-foreground">Import Data</h3>
-                  <p className="text-xs text-secondary-foreground">Restore from JSON file</p>
-                </div>
-              </div>
-            </button>
-            <input
-              ref={fileInputRef}
-              type="file"
-              accept=".json"
-              onChange={(e) => {
-                const file = e.target.files?.[0];
-                if (file) {
-                  const reader = new FileReader();
-                  reader.onload = (event) => {
-                    try {
-                      const data = JSON.parse(event.target?.result as string);
-                      localStorage.setItem('salary-planner-data', JSON.stringify({
-                        version: '1',
-                        data: data,
-                        timestamp: new Date().toISOString()
-                      }));
-                      setImportMessage({ type: 'success', text: 'Data imported successfully! Please refresh the page.' });
-                      setTimeout(() => window.location.reload(), 1500);
-                    } catch (error) {
-                      setImportMessage({ type: 'error', text: 'Failed to import. Invalid file format.' });
-                      setTimeout(() => setImportMessage(null), 3000);
-                    }
-                  };
-                  reader.readAsText(file);
-                }
-              }}
-              className="hidden"
-            />
-          </div>
-          {importMessage && (
-            <div className={`mt-4 p-3 rounded-xl text-sm font-medium ${
-              importMessage.type === 'success'
-                ? 'bg-green-500/10 text-green-700 border border-green-500/20'
-                : 'bg-red-500/10 text-red-700 border border-red-500/20'
-            }`}>
-              {importMessage.text}
-            </div>
-          )}
-        </div>
-
         {/* Display Section */}
-        <div className="mb-12 animate-fade-in" style={{ animationDelay: '0.4s' }}>
+        <div className="mb-12 animate-fade-in" style={{ animationDelay: '0.3s' }}>
           <h2 className="text-lg font-semibold mb-4 text-foreground">Display</h2>
           <div className="space-y-3">
             <button
@@ -238,7 +215,7 @@ export default function Settings() {
         </div>
 
         {/* Help Section */}
-        <div className="mb-12 animate-fade-in" style={{ animationDelay: '0.5s' }}>
+        <div className="mb-12 animate-fade-in" style={{ animationDelay: '0.4s' }}>
           <h2 className="text-lg font-semibold mb-4 text-foreground">Help & Support</h2>
           <div className="space-y-3">
             <SettingItem
@@ -255,7 +232,7 @@ export default function Settings() {
         </div>
 
         {/* App Info */}
-        <div className="bg-card rounded-3xl p-6 border border-border text-center animate-fade-in hover:shadow-lg hover:shadow-accent/10 transition-all duration-300" style={{ animationDelay: '0.6s' }}>
+        <div className="bg-card rounded-3xl p-6 border border-border text-center animate-fade-in hover:shadow-lg hover:shadow-accent/10 transition-all duration-300" style={{ animationDelay: '0.5s' }}>
           <p className="text-secondary-foreground text-sm mb-2">Payflow</p>
           <p className="text-foreground font-semibold mb-4">Version 1.1.0</p>
           <p className="text-xs text-secondary-foreground">
