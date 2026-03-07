@@ -11,7 +11,7 @@ import AddCategoryModal from '@/components/AddCategoryModal';
 import { useSalary } from '@/contexts/SalaryContext';
 
 export default function Dashboard() {
-  const { getBudgetsByGroup, salaryFrequency, setExpectedSalary } = useSalary();
+  const { getBudgetsByGroup, salaryFrequency, setExpectedSalary, isLoading } = useSalary();
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isEditDualModalOpen, setIsEditDualModalOpen] = useState(false);
   const [editingSalaryType, setEditingSalaryType] = useState<'mid' | 'end'>('mid');
@@ -50,8 +50,15 @@ export default function Dashboard() {
     setIsEditDualModalOpen(true);
   };
 
-  return (
-    <div className="min-h-screen bg-background text-foreground flex flex-col">
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-accent"></div>
+      </div>
+    );
+  }
+
+  return (    <div className="min-h-screen bg-background text-foreground flex flex-col">
       {/* Main Content */}
       <main className="container mx-auto px-4 pt-6 max-w-2xl flex-1 pb-32 overflow-y-auto">
         {/* Month Navigation */}
