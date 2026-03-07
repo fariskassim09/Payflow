@@ -50,18 +50,35 @@ export async function saveSalaryData(
   data: Omit<UserSalaryData, 'userId' | 'updatedAt'>
 ) {
   try {
+    console.log('=== FIRESTORE SAVE DEBUG ===');
+    console.log('User ID:', userId);
+    console.log('Budget Items count:', data.budgetItems?.length || 0);
+    console.log('Budget Items:', JSON.stringify(data.budgetItems, null, 2));
+    
+    if (!data.budgetItems || !Array.isArray(data.budgetItems)) {
+      console.warn('WARNING: budgetItems is missing or not an array!');
+    }
+    
     const userRef = doc(db, 'users', userId);
+    const dataToSave = {
+      ...data,
+      updatedAt: new Date().toISOString(),
+    };
+    
+    console.log('Final data structure:', {
+      salaryFrequency: dataToSave.salaryFrequency,
+      budgetItemsCount: dataToSave.budgetItems?.length,
+      expectedSalary: dataToSave.expectedSalary,
+    });
+    
     await setDoc(
       userRef,
-      {
-        ...data,
-        updatedAt: new Date().toISOString(),
-      },
+      dataToSave,
       { merge: true }
     );
-    console.log('Salary data saved to Firestore');
+    console.log('✓ Salary data saved to Firestore successfully');
   } catch (error) {
-    console.error('Error saving salary data:', error);
+    console.error('✗ Error saving salary data:', error);
     throw error;
   }
 }

@@ -56,6 +56,7 @@ interface SalaryContextType {
   isCategoryPaidForMonth: (categoryId: string, date: Date) => boolean;
   toggleCategoryPaidStatus: (categoryId: string, date: Date) => void;
   isLoading: boolean;
+  forceSync: () => Promise<void>;
 }
 
 const SalaryContext = createContext<SalaryContextType | undefined>(undefined);
@@ -121,6 +122,30 @@ export function SalaryProvider({ children }: { children: React.ReactNode }) {
 
     loadUserData();
   }, [user]);
+
+  // Force sync function for manual triggering
+  const forceSync = async () => {
+    if (!user) {
+      console.warn('Cannot sync: User not logged in');
+      return;
+    }
+    
+    const dataToSave = {
+      salaryFrequency,
+      budgetItems,
+      monthlySalaries,
+      expectedSalary,
+    };
+    
+    try {
+      console.log('=== FORCE SYNC TRIGGERED ===');
+      console.log('Current budgetItems:', budgetItems);
+      await saveSalaryData(user.uid, dataToSave);
+      console.log('Force sync successful');
+    } catch (error) {
+      console.error('Force sync failed:', error);
+    }
+  };
 
   // Save to Firestore whenever data changes (only if user is logged in and data is loaded)
   useEffect(() => {
@@ -378,6 +403,7 @@ export function SalaryProvider({ children }: { children: React.ReactNode }) {
     isCategoryPaidForMonth,
     toggleCategoryPaidStatus,
     isLoading,
+    forceSync,
   };
 
   return (
