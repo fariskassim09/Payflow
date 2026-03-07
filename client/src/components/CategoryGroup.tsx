@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react';
+import React, { useMemo } from 'react';
 import { BudgetItem } from '@/contexts/SalaryContext';
 import { useSalary } from '@/contexts/SalaryContext';
 import SwipeableCategory from './SwipeableCategory';
