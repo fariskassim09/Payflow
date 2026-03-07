@@ -1,6 +1,4 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
-import { useAuth } from '@/contexts/AuthContext';
-import { saveSalaryData, loadSalaryData } from '@/lib/firestoreService';
+import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
 import { saveSalaryDataLocal, loadSalaryDataLocal } from '@/lib/storageService';
 
 export interface BudgetItem {
@@ -57,12 +55,12 @@ interface SalaryContextType {
   isCategoryPaidForMonth: (categoryId: string, date: Date) => boolean;
   toggleCategoryPaidStatus: (categoryId: string, date: Date) => void;
   isLoading: boolean;
+  exportData: () => void;
 }
 
 const SalaryContext = createContext<SalaryContextType | undefined>(undefined);
 
 export function SalaryProvider({ children }: { children: React.ReactNode }) {
-  const { user } = useAuth();
   const DEFAULT_SALARY = 0;
   const [isInitialized, setIsInitialized] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
@@ -73,48 +71,11 @@ export function SalaryProvider({ children }: { children: React.ReactNode }) {
   const [monthlySalaries, setMonthlySalariesState] = useState<MonthlySalary[]>([]);
   const [budgetItems, setBudgetItemsState] = useState<BudgetItem[]>([]);
 
-  // Load data from Firestore when user changes
+  // Load data from local storage on mount
   useEffect(() => {
-    const loadUserData = async () => {
-      if (!user) {
-        // User logged out - clear all data
-        setSalaryFrequencyState('1x');
-        setExpectedSalaryState(DEFAULT_SALARY);
-        setMonthlySalariesState([]);
-        setBudgetItemsState([]);
-        setIsLoading(false);
-        return;
-      }
-
+    const loadData = () => {
       try {
         setIsLoading(true);
-        const userData = await loadSalaryData(user.uid);
-        
-        if (userData) {
-          // Load from Firestore
-          setSalaryFrequencyState(userData.salaryFrequency);
-          setExpectedSalaryState(userData.expectedSalary || DEFAULT_SALARY);
-          setMonthlySalariesState(userData.monthlySalaries || []);
-          setBudgetItemsState(userData.budgetItems || []);
-        } else {
-          // Try to load from local storage as fallback
-          const localData = loadSalaryDataLocal();
-          if (localData) {
-            setSalaryFrequencyState(localData.salaryFrequency);
-            setExpectedSalaryState(localData.expectedSalary || DEFAULT_SALARY);
-            setMonthlySalariesState(localData.monthlySalaries || []);
-            setBudgetItemsState(localData.budgetItems || []);
-          } else {
-            // First time user - initialize with defaults
-            setSalaryFrequencyState('1x');
-            setExpectedSalaryState(DEFAULT_SALARY);
-            setMonthlySalariesState([]);
-            setBudgetItemsState([]);
-          }
-        }
-      } catch (error) {
-        console.error('Error loading user data from Firestore:', error);
-        // Fallback to local storage on error
         const localData = loadSalaryDataLocal();
         if (localData) {
           setSalaryFrequencyState(localData.salaryFrequency);
@@ -122,59 +83,77 @@ export function SalaryProvider({ children }: { children: React.ReactNode }) {
           setMonthlySalariesState(localData.monthlySalaries || []);
           setBudgetItemsState(localData.budgetItems || []);
         }
+      } catch (error) {
+        console.error('Error loading data from local storage:', error);
       } finally {
         setIsLoading(false);
+        setIsInitialized(true);
       }
     };
 
-    loadUserData();
-  }, [user]);
+    loadData();
+  }, []);
 
-  // Save to both Firestore and local storage whenever data changes
+  // Save to local storage whenever data changes
   useEffect(() => {
     if (!isInitialized || isLoading) return;
 
-    const saveData = async () => {
-      const dataToSave = {
+    const dataToSave = {
+      salaryFrequency,
+      budgetItems,
+      monthlySalaries,
+      expectedSalary,
+    };
+
+    saveSalaryDataLocal(dataToSave);
+  }, [salaryFrequency, budgetItems, monthlySalaries, expectedSalary, isInitialized, isLoading]);
+
+  // Export data function
+  const exportData = useCallback(() => {
+    const data = {
+      salaryFrequency,
+      budgetItems,
+      monthlySalaries,
+      expectedSalary,
+      exportedAt: new Date().toISOString(),
+    };
+    const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `payflow-backup-${new Date().toISOString().split('T')[0]}.json`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  }, [salaryFrequency, budgetItems, monthlySalaries, expectedSalary]);
+
+  // Auto-export on exit (beforeunload)
+  useEffect(() => {
+    const handleBeforeUnload = () => {
+      // Note: Browsers might restrict downloads on beforeunload.
+      // We also save to local storage which is more reliable.
+      const data = {
         salaryFrequency,
         budgetItems,
         monthlySalaries,
         expectedSalary,
+        autoExportedAt: new Date().toISOString(),
       };
-
-      // Always save to local storage
-      saveSalaryDataLocal(dataToSave);
-
-      // Save to Firestore if user is logged in
-      if (user) {
-        try {
-          await saveSalaryData(user.uid, dataToSave);
-        } catch (error) {
-          console.error('Error saving to Firestore:', error);
-          // Local storage backup already saved, so no data loss
-        }
-      }
+      // We can't easily trigger a download on exit in all browsers, 
+      // but we ensure local storage is up to date.
+      saveSalaryDataLocal(data);
     };
 
-    // Debounce saves to avoid too many writes
-    const timer = setTimeout(saveData, 1000);
-    return () => clearTimeout(timer);
-  }, [salaryFrequency, budgetItems, monthlySalaries, expectedSalary, isInitialized, user, isLoading]);
-
-  // Mark as initialized after first render
-  useEffect(() => {
-    setIsInitialized(true);
-  }, []);
+    window.addEventListener('beforeunload', handleBeforeUnload);
+    return () => window.removeEventListener('beforeunload', handleBeforeUnload);
+  }, [salaryFrequency, budgetItems, monthlySalaries, expectedSalary]);
 
   const getMonthlySalary = (date: Date): number => {
     const existing = monthlySalaries.find(
       ms => ms.year === date.getFullYear() && ms.month === date.getMonth()
     );
-    if (salaryFrequency === '1x') {
-      return existing ? existing.midSalary + existing.endSalary : expectedSalary;
-    } else {
-      return existing ? existing.midSalary + existing.endSalary : expectedSalary;
-    }
+    return existing ? existing.midSalary + existing.endSalary : expectedSalary;
   };
 
   const setExpectedSalary = (salary: number) => {
@@ -386,6 +365,7 @@ export function SalaryProvider({ children }: { children: React.ReactNode }) {
     isCategoryPaidForMonth,
     toggleCategoryPaidStatus,
     isLoading,
+    exportData,
   };
 
   return (

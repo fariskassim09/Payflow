@@ -1,19 +1,12 @@
 import { useState, useRef } from 'react';
 import BottomNavigation from '@/components/BottomNavigation';
-import GoogleLoginButton from '@/components/GoogleLoginButton';
 import SharedPartnerModal from '@/components/SharedPartnerModal';
-import { Lock, HelpCircle, Info, Cloud, Share2, DollarSign, Moon, Sun, Download, Upload } from 'lucide-react';
+import { HelpCircle, Info, Share2, DollarSign, Moon, Sun, Download, Upload, Database } from 'lucide-react';
 import { useSalary } from '@/contexts/SalaryContext';
 import { useTheme } from '@/contexts/ThemeContext';
 
-// Design Philosophy: Salary Allocation Planner
-// - Clean settings interface with toggle switches
-// - Organized sections with clear hierarchy
-// - Google Firebase authentication for data sync
-// - Shared partner feature for sharing salary summary
-
 export default function Settings() {
-  const { salaryFrequency, setSalaryFrequency, budgetItems, expectedSalary, salaryFrequency: freq } = useSalary();
+  const { salaryFrequency, setSalaryFrequency, budgetItems, expectedSalary, exportData } = useSalary();
   const { theme, toggleTheme } = useTheme();
   const [isSharedPartnerOpen, setIsSharedPartnerOpen] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -41,7 +34,6 @@ export default function Settings() {
           <p className="text-xs text-secondary-foreground">{description}</p>
         </div>
       </div>
-
     </button>
   );
 
@@ -55,13 +47,22 @@ export default function Settings() {
           <p className="text-secondary-foreground">Manage your preferences</p>
         </div>
 
-        {/* Sync Section */}
+        {/* Storage Section */}
         <div className="mb-12 animate-fade-in">
           <div className="flex items-center gap-2 mb-4">
-            <Cloud size={20} className="text-accent" />
-            <h2 className="text-lg font-semibold text-foreground">Sync & Backup</h2>
+            <Database size={20} className="text-accent" />
+            <h2 className="text-lg font-semibold text-foreground">Storage & Backup</h2>
           </div>
-          <GoogleLoginButton />
+          <div className="p-4 bg-accent/5 border border-accent/20 rounded-2xl mb-4">
+            <p className="text-sm text-foreground font-medium mb-1">Local Storage Active</p>
+            <p className="text-xs text-secondary-foreground">Your data is saved locally on this device. No cloud sync is active.</p>
+          </div>
+          <SettingItem
+            icon={<Download size={24} />}
+            title="Manual Backup"
+            description="Download your data as a JSON file"
+            onClick={exportData}
+          />
         </div>
 
         {/* Shared Partner Section */}
@@ -131,37 +132,6 @@ export default function Settings() {
             <h2 className="text-lg font-semibold text-foreground">Data Management</h2>
           </div>
           <div className="space-y-3">
-            {/* Export JSON */}
-            <button
-              onClick={() => {
-                const data = {
-                  budgetItems,
-                  expectedSalary,
-                  salaryFrequency: freq,
-                  exportedAt: new Date().toISOString(),
-                };
-                const json = JSON.stringify(data, null, 2);
-                const blob = new Blob([json], { type: 'application/json' });
-                const url = URL.createObjectURL(blob);
-                const a = document.createElement('a');
-                a.href = url;
-                a.download = `salary-planner-${new Date().toISOString().split('T')[0]}.json`;
-                document.body.appendChild(a);
-                a.click();
-                document.body.removeChild(a);
-                URL.revokeObjectURL(url);
-              }}
-              className="w-full text-left flex items-center justify-between p-4 bg-card rounded-2xl border border-border hover:shadow-lg hover:shadow-accent/10 transition-all duration-300 active:scale-95"
-            >
-              <div className="flex items-center gap-4">
-                <div className="text-accent"><Download size={24} /></div>
-                <div>
-                  <h3 className="font-semibold text-foreground">Export as JSON</h3>
-                  <p className="text-xs text-secondary-foreground">Download all your budget data</p>
-                </div>
-              </div>
-            </button>
-
             {/* Export CSV */}
             <button
               onClick={() => {
@@ -173,7 +143,7 @@ export default function Settings() {
                 const url = URL.createObjectURL(blob);
                 const a = document.createElement('a');
                 a.href = url;
-                a.download = `salary-planner-${new Date().toISOString().split('T')[0]}.csv`;
+                a.download = `payflow-export-${new Date().toISOString().split('T')[0]}.csv`;
                 document.body.appendChild(a);
                 a.click();
                 document.body.removeChild(a);
@@ -214,9 +184,13 @@ export default function Settings() {
                   reader.onload = (event) => {
                     try {
                       const data = JSON.parse(event.target?.result as string);
-                      console.log('Imported data:', data);
+                      localStorage.setItem('salary-planner-data', JSON.stringify({
+                        version: '1',
+                        data: data,
+                        timestamp: new Date().toISOString()
+                      }));
                       setImportMessage({ type: 'success', text: 'Data imported successfully! Please refresh the page.' });
-                      setTimeout(() => setImportMessage(null), 3000);
+                      setTimeout(() => window.location.reload(), 1500);
                     } catch (error) {
                       setImportMessage({ type: 'error', text: 'Failed to import. Invalid file format.' });
                       setTimeout(() => setImportMessage(null), 3000);
@@ -282,10 +256,10 @@ export default function Settings() {
 
         {/* App Info */}
         <div className="bg-card rounded-3xl p-6 border border-border text-center animate-fade-in hover:shadow-lg hover:shadow-accent/10 transition-all duration-300" style={{ animationDelay: '0.6s' }}>
-          <p className="text-secondary-foreground text-sm mb-2">Salary Planner</p>
-          <p className="text-foreground font-semibold mb-4">Version 1.0.0</p>
+          <p className="text-secondary-foreground text-sm mb-2">Payflow</p>
+          <p className="text-foreground font-semibold mb-4">Version 1.1.0</p>
           <p className="text-xs text-secondary-foreground">
-            Premium salary allocation planner with Firebase sync and partner sharing
+            Premium salary allocation planner with local storage and partner sharing
           </p>
         </div>
       </main>

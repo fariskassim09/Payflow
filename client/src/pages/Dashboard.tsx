@@ -10,16 +10,8 @@ import EditDualSalaryModal from '@/components/EditDualSalaryModal';
 import AddCategoryModal from '@/components/AddCategoryModal';
 import { useSalary } from '@/contexts/SalaryContext';
 
-// Design Philosophy: Salary Allocation Planner
-// - Month/year navigation at top
-// - Blue gradient salary card with allocation breakdown
-// - Grouped budget categories (NEEDS, WANTS, SAVINGS, DEBTS)
-// - Support for 1x and 2x monthly salary
-// - Category filtering by salary cycle (All, Mid-Month, End-Month)
-// - Smooth animations and transitions
-
 export default function Dashboard() {
-  const { getBudgetsByGroup, salaryFrequency, setExpectedSalary, isLoading } = useSalary();
+  const { getBudgetsByGroup, salaryFrequency, setExpectedSalary } = useSalary();
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isEditDualModalOpen, setIsEditDualModalOpen] = useState(false);
   const [editingSalaryType, setEditingSalaryType] = useState<'mid' | 'end'>('mid');
@@ -57,15 +49,6 @@ export default function Dashboard() {
     setEditingSalaryType('end');
     setIsEditDualModalOpen(true);
   };
-
-
-  if (isLoading) {
-    return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-accent"></div>
-      </div>
-    );
-  }
 
   return (
     <div className="min-h-screen bg-background text-foreground flex flex-col">
