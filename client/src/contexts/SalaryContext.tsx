@@ -272,15 +272,23 @@ export function SalaryProvider({ children }: { children: React.ReactNode }) {
   };
 
   const removeBudgetItem = (id: string) => {
-    setBudgetItemsState(prev => prev.filter(item => item.id !== id));
+    console.log('Removing budget item:', id);
+    setBudgetItemsState(prev => {
+      const updated = prev.filter(item => item.id !== id);
+      console.log('Updated budgetItems after removal:', updated);
+      return updated;
+    });
   };
 
   const togglePaidStatus = (id: string) => {
-    setBudgetItemsState(prev =>
-      prev.map(item =>
+    console.log('Toggling paid status for item:', id);
+    setBudgetItemsState(prev => {
+      const updated = prev.map(item =>
         item.id === id ? { ...item, isPaid: !item.isPaid } : item
-      )
-    );
+      );
+      console.log('Updated budgetItems after toggle:', updated);
+      return updated;
+    });
   };
 
   const deductFromSalary = (id: string, amount: number, salaryType: 'mid' | 'end') => {
