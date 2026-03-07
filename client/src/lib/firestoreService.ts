@@ -82,9 +82,9 @@ export async function loadSalaryData(userId: string): Promise<UserSalaryData | n
   }
 }
 
-// Generate and save sharing code
+// Generate and save sharing code (supports anonymous users)
 export async function generateSharingCode(
-  userId: string,
+  userId: string | null,
   partnerName: string,
   salaryData: Omit<UserSalaryData, 'userId' | 'updatedAt' | 'sharedCodes'>
 ): Promise<string> {
@@ -95,28 +95,35 @@ export async function generateSharingCode(
     const sharedRef = doc(collection(db, 'shared'), code);
     await setDoc(sharedRef, {
       code,
-      userId,
+      userId: userId || 'anonymous',
       ...salaryData,
       createdAt: new Date().toISOString(),
     } as SharedSummary);
 
-    // Update user's shared codes list
-    const userRef = doc(db, 'users', userId);
-    const userDoc = await getDoc(userRef);
-    const currentSharedCodes = userDoc.exists()
-      ? (userDoc.data() as UserSalaryData).sharedCodes || []
-      : [];
+    // Update user's shared codes list only if user is logged in
+    if (userId) {
+      try {
+        const userRef = doc(db, 'users', userId);
+        const userDoc = await getDoc(userRef);
+        const currentSharedCodes = userDoc.exists()
+          ? (userDoc.data() as UserSalaryData).sharedCodes || []
+          : [];
 
-    await updateDoc(userRef, {
-      sharedCodes: [
-        ...currentSharedCodes,
-        {
-          code,
-          partnerName,
-          sharedAt: new Date().toISOString(),
-        },
-      ],
-    });
+        await updateDoc(userRef, {
+          sharedCodes: [
+            ...currentSharedCodes,
+            {
+              code,
+              partnerName,
+              sharedAt: new Date().toISOString(),
+            },
+          ],
+        });
+      } catch (error) {
+        console.warn('Could not update user shared codes:', error);
+        // Continue anyway - the shared code was still created
+      }
+    }
 
     return code;
   } catch (error) {
