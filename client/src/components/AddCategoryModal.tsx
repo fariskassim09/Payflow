@@ -40,7 +40,7 @@ export default function AddCategoryModal({ isOpen, onClose, currentMonth, editin
     return {
       name: '',
       amount: 0,
-      group: 'expense',
+      group: 'NEEDS',
       icon: '🏠',
       color: '#3B82F6',
       repeatNextMonth: true,
@@ -174,9 +174,9 @@ export default function AddCategoryModal({ isOpen, onClose, currentMonth, editin
                     <button
                       key={group}
                       type="button"
-                      onClick={() => setFormData({ ...formData, group: group.toLowerCase() })}
+                      onClick={() => setFormData({ ...formData, group: group })}
                       className={`flex-1 min-w-[80px] px-3 py-2 rounded-lg font-medium transition-colors ${
-                        formData.group === group.toLowerCase()
+                        formData.group === group
                           ? 'bg-accent text-white'
                           : 'bg-secondary border border-border text-foreground hover:bg-secondary/80'
                       }`}
