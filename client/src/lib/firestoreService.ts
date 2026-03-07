@@ -21,7 +21,8 @@ export interface UserSalaryData {
     midSalary: number;
     endSalary: number;
   }>;
-  sharedCodes: Array<{
+  expectedSalary: number;
+  sharedCodes?: Array<{
     code: string;
     partnerName: string;
     sharedAt: string;
