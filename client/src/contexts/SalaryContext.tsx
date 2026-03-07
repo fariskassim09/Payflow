@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useEffect, useRef } from 'react';
+import React, { createContext, useContext, useState, useEffect, useRef, useCallback } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { saveSalaryData, loadSalaryData } from '@/lib/firestoreService';
 
@@ -66,21 +66,24 @@ export function SalaryProvider({ children }: { children: React.ReactNode }) {
   const DEFAULT_SALARY = 0;
   const [isLoading, setIsLoading] = useState(true);
   const isDataLoaded = useRef(false);
-  
+
   // State
   const [salaryFrequency, setSalaryFrequencyState] = useState<'1x' | '2x'>('1x');
   const [expectedSalary, setExpectedSalaryState] = useState(DEFAULT_SALARY);
   const [monthlySalaries, setMonthlySalariesState] = useState<MonthlySalary[]>([]);
   const [budgetItems, setBudgetItemsState] = useState<BudgetItem[]>([]);
 
-  // Helper to get current state values for saving
-  // This avoids closure issues in async functions
-  const getCurrentData = () => ({
-    salaryFrequency,
-    budgetItems,
-    monthlySalaries,
-    expectedSalary,
-  });
+  // Use refs to always hold the latest state values, avoiding stale closures
+  // in async save callbacks that capture state at the time of function creation.
+  const salaryFrequencyRef = useRef(salaryFrequency);
+  const expectedSalaryRef = useRef(expectedSalary);
+  const monthlySalariesRef = useRef(monthlySalaries);
+  const budgetItemsRef = useRef(budgetItems);
+
+  useEffect(() => { salaryFrequencyRef.current = salaryFrequency; }, [salaryFrequency]);
+  useEffect(() => { expectedSalaryRef.current = expectedSalary; }, [expectedSalary]);
+  useEffect(() => { monthlySalariesRef.current = monthlySalaries; }, [monthlySalaries]);
+  useEffect(() => { budgetItemsRef.current = budgetItems; }, [budgetItems]);
 
   // Load data from Firestore when user changes
   useEffect(() => {
@@ -98,7 +101,7 @@ export function SalaryProvider({ children }: { children: React.ReactNode }) {
       try {
         setIsLoading(true);
         const userData = await loadSalaryData(user.uid);
-        
+
         if (userData) {
           setSalaryFrequencyState(userData.salaryFrequency || '1x');
           setExpectedSalaryState(userData.expectedSalary || DEFAULT_SALARY);
@@ -122,34 +125,38 @@ export function SalaryProvider({ children }: { children: React.ReactNode }) {
     loadUserData();
   }, [user]);
 
-  // Force sync function for manual triggering
-  const forceSync = async (customData?: any) => {
+  // Force sync function - always reads from refs to get the latest values,
+  // preventing the stale-closure problem where an outdated snapshot of state
+  // would be written back to Firestore and overwrite newer data.
+  const forceSync = useCallback(async () => {
     if (!user || !isDataLoaded.current) return;
-    
-    const dataToSave = customData || {
-      salaryFrequency,
-      budgetItems,
-      monthlySalaries,
-      expectedSalary,
+
+    const dataToSave = {
+      salaryFrequency: salaryFrequencyRef.current,
+      budgetItems: budgetItemsRef.current,
+      monthlySalaries: monthlySalariesRef.current,
+      expectedSalary: expectedSalaryRef.current,
     };
-    
+
     try {
       await saveSalaryData(user.uid, dataToSave);
     } catch (error) {
       console.error('Sync failed:', error);
     }
-  };
+  }, [user]);
 
-  // Save to Firestore whenever data changes
+  // Debounced auto-save: fires 1 second after any state change.
+  // forceSync is stable (useCallback with [user]) so this effect only
+  // re-registers when the actual data values or user change.
   useEffect(() => {
     if (isLoading || !user || !isDataLoaded.current) return;
 
     const timer = setTimeout(() => {
       forceSync();
     }, 1000);
-    
+
     return () => clearTimeout(timer);
-  }, [salaryFrequency, budgetItems, monthlySalaries, expectedSalary, user, isLoading]);
+  }, [salaryFrequency, budgetItems, monthlySalaries, expectedSalary, user, isLoading, forceSync]);
 
   const getMonthlySalary = (date: Date): number => {
     const existing = monthlySalaries.find(
@@ -224,17 +231,20 @@ export function SalaryProvider({ children }: { children: React.ReactNode }) {
     setMonthlySalariesState(prev => prev.filter(ms => !(ms.year === year && ms.month === month)));
   };
 
-  // SUPER SYNC: Immediate save for budget item actions
+  // FIX: addBudgetItem now saves using the ref-based snapshot so it always
+  // writes the full, up-to-date dataset (including the newly added item)
+  // rather than a stale closure over the previous render's state values.
   const addBudgetItem = (item: BudgetItem) => {
     setBudgetItemsState(prev => {
       const updated = [...prev, item];
-      // Trigger immediate save with the new data
+      // Update the ref immediately so the save below uses the latest value
+      budgetItemsRef.current = updated;
       if (user && isDataLoaded.current) {
         saveSalaryData(user.uid, {
-          salaryFrequency,
+          salaryFrequency: salaryFrequencyRef.current,
           budgetItems: updated,
-          monthlySalaries,
-          expectedSalary,
+          monthlySalaries: monthlySalariesRef.current,
+          expectedSalary: expectedSalaryRef.current,
         }).catch(console.error);
       }
       return updated;
@@ -244,12 +254,13 @@ export function SalaryProvider({ children }: { children: React.ReactNode }) {
   const updateBudgetItem = (id: string, updates: Partial<BudgetItem>) => {
     setBudgetItemsState(prev => {
       const updated = prev.map(item => (item.id === id ? { ...item, ...updates } : item));
+      budgetItemsRef.current = updated;
       if (user && isDataLoaded.current) {
         saveSalaryData(user.uid, {
-          salaryFrequency,
+          salaryFrequency: salaryFrequencyRef.current,
           budgetItems: updated,
-          monthlySalaries,
-          expectedSalary,
+          monthlySalaries: monthlySalariesRef.current,
+          expectedSalary: expectedSalaryRef.current,
         }).catch(console.error);
       }
       return updated;
@@ -259,12 +270,13 @@ export function SalaryProvider({ children }: { children: React.ReactNode }) {
   const removeBudgetItem = (id: string) => {
     setBudgetItemsState(prev => {
       const updated = prev.filter(item => item.id !== id);
+      budgetItemsRef.current = updated;
       if (user && isDataLoaded.current) {
         saveSalaryData(user.uid, {
-          salaryFrequency,
+          salaryFrequency: salaryFrequencyRef.current,
           budgetItems: updated,
-          monthlySalaries,
-          expectedSalary,
+          monthlySalaries: monthlySalariesRef.current,
+          expectedSalary: expectedSalaryRef.current,
         }).catch(console.error);
       }
       return updated;
@@ -274,12 +286,13 @@ export function SalaryProvider({ children }: { children: React.ReactNode }) {
   const togglePaidStatus = (id: string) => {
     setBudgetItemsState(prev => {
       const updated = prev.map(item => item.id === id ? { ...item, isPaid: !item.isPaid } : item);
+      budgetItemsRef.current = updated;
       if (user && isDataLoaded.current) {
         saveSalaryData(user.uid, {
-          salaryFrequency,
+          salaryFrequency: salaryFrequencyRef.current,
           budgetItems: updated,
-          monthlySalaries,
-          expectedSalary,
+          monthlySalaries: monthlySalariesRef.current,
+          expectedSalary: expectedSalaryRef.current,
         }).catch(console.error);
       }
       return updated;
@@ -310,12 +323,13 @@ export function SalaryProvider({ children }: { children: React.ReactNode }) {
     const month = date.getMonth();
     setMonthlySalariesState(prev => {
       const updated = prev.map(ms => ms.year === year && ms.month === month ? { ...ms, isPaid: !ms.isPaid } : ms);
+      monthlySalariesRef.current = updated;
       if (user && isDataLoaded.current) {
         saveSalaryData(user.uid, {
-          salaryFrequency,
-          budgetItems,
+          salaryFrequency: salaryFrequencyRef.current,
+          budgetItems: budgetItemsRef.current,
           monthlySalaries: updated,
-          expectedSalary,
+          expectedSalary: expectedSalaryRef.current,
         }).catch(console.error);
       }
       return updated;
@@ -333,12 +347,12 @@ export function SalaryProvider({ children }: { children: React.ReactNode }) {
     const monthKey = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
     const category = budgetItems.find(item => item.id === categoryId);
     if (!category) return;
-    
+
     const updatedStatus = {
       ...(category.monthlyPaidStatus || {}),
       [monthKey]: !isCategoryPaidForMonth(categoryId, date),
     };
-    
+
     updateBudgetItem(categoryId, { monthlyPaidStatus: updatedStatus });
   };
 
