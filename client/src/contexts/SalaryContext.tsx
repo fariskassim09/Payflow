@@ -63,7 +63,6 @@ const SalaryContext = createContext<SalaryContextType | undefined>(undefined);
 export function SalaryProvider({ children }: { children: React.ReactNode }) {
   const { user } = useAuth();
   const DEFAULT_SALARY = 0;
-  const [isInitialized, setIsInitialized] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   
   // State
@@ -117,9 +116,9 @@ export function SalaryProvider({ children }: { children: React.ReactNode }) {
     loadUserData();
   }, [user]);
 
-  // Save to Firestore whenever data changes (only if user is logged in)
+  // Save to Firestore whenever data changes (only if user is logged in and data is loaded)
   useEffect(() => {
-    if (!isInitialized || isLoading || !user) return;
+    if (isLoading || !user) return;
 
     const saveData = async () => {
       const dataToSave = {
@@ -130,6 +129,7 @@ export function SalaryProvider({ children }: { children: React.ReactNode }) {
       };
 
       try {
+        console.log('Saving data to Firestore for user:', user.uid, dataToSave);
         await saveSalaryData(user.uid, dataToSave);
       } catch (error) {
         console.error('Error saving to Firestore:', error);
@@ -139,12 +139,7 @@ export function SalaryProvider({ children }: { children: React.ReactNode }) {
     // Debounce saves to avoid too many writes
     const timer = setTimeout(saveData, 1000);
     return () => clearTimeout(timer);
-  }, [salaryFrequency, budgetItems, monthlySalaries, expectedSalary, isInitialized, user, isLoading]);
-
-  // Mark as initialized after first render
-  useEffect(() => {
-    setIsInitialized(true);
-  }, []);
+  }, [salaryFrequency, budgetItems, monthlySalaries, expectedSalary, user, isLoading]);
 
   const getMonthlySalary = (date: Date): number => {
     const existing = monthlySalaries.find(
