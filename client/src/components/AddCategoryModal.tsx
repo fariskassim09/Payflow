@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import React, { useState } from 'react';
 import { X, ChevronLeft } from 'lucide-react';
 import { useSalary } from '@/contexts/SalaryContext';
 
@@ -229,7 +229,7 @@ export default function AddCategoryModal({ isOpen, onClose, currentMonth, editin
                   onClick={() => setStep('icons')}
                   className="w-full bg-secondary border border-border rounded-xl px-4 py-3 text-foreground hover:bg-secondary/80 transition-colors font-medium flex items-center justify-center gap-2"
                 >
-                  {formData.icon} Select Icon
+                  Select Icon
                 </button>
               </div>
 
@@ -277,7 +277,7 @@ export default function AddCategoryModal({ isOpen, onClose, currentMonth, editin
             </div>
           ) : (
             // Icon Selection Grid
-            <div className="grid grid-cols-5 gap-3 sm:grid-cols-6">
+            <div className="grid grid-cols-5 gap-4 sm:grid-cols-6">
               {ICON_OPTIONS.map((icon) => (
                 <button
                   key={icon}
@@ -285,7 +285,7 @@ export default function AddCategoryModal({ isOpen, onClose, currentMonth, editin
                     setFormData({ ...formData, icon });
                     setStep('form');
                   }}
-                  className={`aspect-square rounded-xl flex items-center justify-center text-2xl transition-all ${
+                  className={`w-full h-12 rounded-xl flex items-center justify-center text-2xl transition-all ${
                     formData.icon === icon
                       ? 'bg-accent border-2 border-accent scale-110'
                       : 'bg-secondary hover:bg-secondary/80 border border-border'
